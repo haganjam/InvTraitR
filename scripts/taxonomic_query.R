@@ -1,6 +1,14 @@
 
 # Pipeline to draw allometric equations from taxonomic (and geographic) information
 
+# next steps:
+
+# run all of these steps for each species in our equation database for
+# all three databases
+# at each run, we must add the equation id
+# thus, when there is a match, we can immediately get to the relevant dataset
+# and calculate the taxonomic proximity
+
 # load relevant libraries
 library(taxize)
 library(readr)
@@ -9,12 +17,18 @@ library(dplyr)
 
 rm(list = ls() )
 
-# decide on a set of taxonomic steps i.e. phylum to sub-phylum, that can be 0.33 or something
-# cut everything off at phylum
-# which (phylum). Phlym to nrow
+# load important functions
+source(here("scripts/functions/nearly_equal_function.R"))
 
-# use classification to get upstream taxonomy
-# we use downstream to get children
+# to do:
+
+# before implementing this function, we can have a list of all names in the database
+# this will then mean that before anyone puts a name in, we can test if it is in the database
+# this means we don't have to search them all sequentially
+
+# for implementing the functions with not just weights but also lengths
+# ask for dataframes with species names and each measurement
+# then the function can merge them so it fills in NA's when a measurement is not necessary
 
 # load the equation and data input databases
 equ.dat <- readxl::read_xlsx(here("raw_data/equation_data.xlsx"))
@@ -27,7 +41,7 @@ tax.list <- equ.dat[, c("equation_id", "equation_target_taxon") ]
 tax.list <- split(tax.list, tax.list$equation_id)
 
 # we will use three databases
-data.base <- "bold"
+data.base <- "gbif"
 
 # set-up the taxonomic ranks that will be considered
 tax.ranks <- c('class','subclass', 
@@ -43,7 +57,7 @@ rank_number <- c(1, (1+(1/3)), (1+(2/3)), 2, (2+(1/3)), (2+(2/3)), 3, (3+(1/3)),
 df.tax$rank_number <- rank_number
 
 # arguments for the function
-rank.diff = 2
+rank.diff <- 0
 
 # set a name
 x.name <- "Sinantherina"
@@ -74,179 +88,83 @@ if (attr(x.taxa, "match") == "not found") {
   
   x.taxa <- x.taxa[[1]]
   
-  # get the taxonomic rank
-  x.rank <- tax_rank(sci_id = x.taxa, db = data.base)[[1]]
-  
-  # for this rank, we exact the numeric rank
-  x.rank.num <- df.tax[df.tax$rank == x.rank, "rank_number"]
-  
-  # get the rank to get children
-  down.to.rank <- df.tax[ (rank_number > x.rank.num) & (rank_number < x.rank.num + rank.diff), ]
-  
-  # get all species down 
-  x.down <- downstream(sci_id = x.taxa, db = data.base, 
-                       downto = down.to.rank$rank[nrow(down.to.rank)], 
-                       intermediate = TRUE)
-  
-  if (data.base == "itis") {
-    
-    x.down <- x.down[[1]][[2]][[1]]
-    x.down <- x.down[, c(4, 5, 6)]
-    names(x.down) <- c("name", "rank", "id")
-    
-  } else {
-    
-    x.down <- x.down[[1]][[2]]
-    
-  }
-  
+  # upwards classification
   # get the upwards classification
   x.class <- classification(sci_id = x.taxa, db = data.base)
   x.class <- x.class[[1]]
   
+  # get the taxonomic rank
+  x.rank <- x.class[x.class$name == x.name, "rank"]
+  
+  # for this rank, we exact the numeric rank
+  x.rank.num <- df.tax[df.tax$rank == x.rank, "rank_number"]
+  
+  # we take one rank back to get the downstream of the focal individal
+  x.one.back <- x.class[which(x.class$rank == x.rank)-1,]
+  
   # get all species up using the classification
-  x.up <- df.tax[(rank_number > (x.rank.num - rank.diff) ) & (rank_number <= x.rank.num), "rank"]
+  x.up <- df.tax[near_equal(rank_number, (x.rank.num - rank.diff), mode = "ne.gt") & near_equal(rank_number, x.rank.num, mode = "ne.lt"), "rank"]
+  
+  # downwards taxa
+  # get the rank to get children
+  down.to.rank <- df.tax[ near_equal(rank_number, x.rank.num, mode = "ne.gt") & near_equal(rank_number, (x.rank.num + rank.diff), mode = "ne.lt"), ]
+  down.to.rank <- down.to.rank$rank[nrow(down.to.rank)]
+  
+  # this makes sure we don't duplicate if we only focus on the focal taxa
+  if (down.to.rank == x.rank) {
+    
+    x.down <- NULL
+    
+  } else {
+    
+    # get all species down (excluding focal)
+    x.down <- downstream(sci_id = x.taxa, db = data.base, 
+                         downto = down.to.rank, 
+                         intermediate = TRUE)
+    
+  }
+  
+  # get all species that share the rank with the focal species
+  x.down.one.back <- downstream(sci_id = x.one.back$id, db = data.base,
+                                downto = x.rank, intermediate = FALSE)
+  x.down.one.back <- x.down.one.back[[1]]
+  
+  if (data.base == "itis") {
+    
+    x.down <- bind_rows(x.down)
+    x.down <- x.down[, c(5, 4, 6)]
+    names(x.down) <- c("name", "rank", "id")
+    
+    x.down.one.back <- x.down.one.back[, c(5, 4, 6)]
+    names(x.down.one.back) <- c("name", "rank", "id")
+    
+    x.down.merge <- rbind(x.down, x.down.one.back)
+    
+  } else if (data.base == "gbif") {
+    
+    x.down.merge <- rbind(bind_rows(x.down), x.down.one.back)
+    x.down.merge$id <- paste(x.down.merge$key, x.down.merge$name_type, sep = ".")
+    x.down.merge <- x.down.merge[, c("name", "rank", "id")]
+    
+  } else {
+    
+    x.down.merge <- rbind(bind_rows(x.down), x.down.one.back)
+    
+  }
   
   # merge the upstream and downstream species
-  x.merge <- rbind(x.class[x.class$rank %in% x.up, ], bind_rows(x.down))
+  x.merge <- rbind(x.class[x.class$rank %in% x.up, ], x.down.merge )
   
   # merge with the df.tax
   x.df <- right_join(df.tax, x.merge, by = "rank")
   
   # add a focal taxa column
-  x.df$focal_taxa <- ifelse(x.df$name == x.name, 1, 0)
+  x.df$focal_taxa <- ifelse(x.df$name == x.name, 1, 0) 
   
-}
+  }
 
 # add the equation label
 x.df
-
-
-
-
-
-
-
-
-# get database id
-y <- get_boldid(sci = x.name, ask = FALSE)
-y[[1]]
-
-# get the classification
-x <- classification(sci_id = y[[1]], db = "bold")
-x
-
-# get the taxonomic rank
-x.rank <- tax_rank(sci_id = y[[1]], db = "bold")
-x.rank[[1]]
-
-foc.rank <- df.tax[df.tax$rank == x.rank[[1]], "rank_number"]
-down.to.rank <- df.tax[ (df.tax$rank_number > foc.rank) & (df.tax$rank_number < foc.rank + rank.diff), ]
-down.to.rank
-
-df.down <- downstream(sci_id = y[[1]], db = "bold", downto = down.to.rank$rank[nrow(down.to.rank)], intermediate = TRUE)
-
-x[1][[1]]
-
-rank.up <- df.tax[(df.tax$rank_number > (foc.rank - 2) ) & (df.tax$rank_number <= foc.rank), "rank"]
-
-df.merge <- rbind(filter( x[1][[1]], rank %in% rank.up), bind_rows(df.down[[1]][[2]]))
-df.merge
-
-df.x <- right_join(df.tax, df.merge, by = "rank")
-
-# add a focal taxa column
-df.x$focal_taxa <- ifelse(df.x$name == x.name, 1, 0)
-
-df.x
-
-
-
-
-
-
-y <- get_tsn(sci = "Daphnia magna", ask = FALSE)
-
-z <- classification(sci_id = y[[1]], db = "itis")
-z
-
-left_join(df.tax, z$`85214`, by = "rank")
-
-y <- get_gbifid(sci = x.name, ask = FALSE)
-y[[1]]
-
-u <- classification(sci_id = y[[1]], db = "gbif")
-u
-
-left_join(df.tax, u$`5741657`, by = "rank")
-
-
-library(dplyr)
-full_join(z$`83884`[, -3], x$`26983`[, -3], by = c("rank"))
-
-rank_ref
-
-downstream(sci_id = y[[1]], db = "ncbi")
-
-x.tsn <- get_tsn("Mesostigmata", accepted = TRUE, ask = FALSE)
-x.df <- taxize::itis_hierarchy(tsn = x.tsn[[1]], "full")
-
-
-
-
-get_n
-
-gnr_resolve(sci = "Acari")
-
-x.tsn <- get_tsn("Acari")
-x.df <- taxize::itis_hierarchy(tsn = x.tsn[[1]], "full")
-x.df %>% View()
-
-
-
-
-tax.list <- 
-  
-  lapply(x, function(y) {
-    
-    x.name <- y$equation_target_taxon
-    
-    x.test <- get_tsn(x.name, accepted = TRUE)
-    
-    if (attr(x.test, "match") == "not found") {
-      
-      x.df <- NULL
-      
-    } else {
-      
-      x.tsn <- get_tsn(x.name, accepted = TRUE)
-      
-      x.df <- taxize::itis_hierarchy(tsn = x.tsn[[1]], "full")
-      
-    }
-    
-    if (nrow(x.df) == 1) {
-      
-      x.df <- NULL
-      
-    } else {
-      
-      x.df$equation_id <- y$equation_id
-      
-      x.df <- x.df[, c("equation_id", "rankname", "taxonname", "tsn")]
-      
-      # add a column to identify the focal species and the taxonomic rank
-      x.df$focal_species = if_else(x.df$taxonname == x.name, 1, 0)
-      x.df$taxon_rank <- rep(1:length(unique(x.df$rankname)), rle(x.df$rankname)$lengths)
-      
-    }
-    
-    return(x.df)
-    
-  })
-
-tax.list[!sapply(tax.list, is.null)]
-
 
 
 
