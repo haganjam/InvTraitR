@@ -7,6 +7,8 @@ library(readr)
 library(here)
 library(dplyr)
 
+rm(list = ls() )
+
 # decide on a set of taxonomic steps i.e. phylum to sub-phylum, that can be 0.33 or something
 # cut everything off at phylum
 # which (phylum). Phlym to nrow
@@ -24,13 +26,10 @@ in.dat <- in.dat[!is.na(in.dat$equation_id),]
 tax.list <- equ.dat[, c("equation_id", "equation_target_taxon") ]
 tax.list <- split(tax.list, tax.list$equation_id)
 
-x <- tax.list[1:5]
-x
-x 
+# we will use three databases
+data.base <- "bold"
 
-# figure out how to use these taxonomic backbones
-
-# taxonomic ranks:
+# set-up the taxonomic ranks that will be considered
 tax.ranks <- c('class','subclass', 
                'superorder','order','suborder',
                'superfamily','family', 'subfamily',
@@ -38,14 +37,87 @@ tax.ranks <- c('class','subclass',
 
 # write this into a data.frame
 df.tax <- data.frame(rank = tax.ranks)
-df.tax$rank_number <- c(1, (1+(1/3)), (1+(2/3)), 2, (2+(1/3)), (2+(2/3)), 3, (3+(1/3)), (3+(2/3)), (4+(2/3)))
 
-df.tax
+# add a quantitative hierarchical taxonomic information
+rank_number <- c(1, (1+(1/3)), (1+(2/3)), 2, (2+(1/3)), (2+(2/3)), 3, (3+(1/3)), (3+(2/3)), (4+(2/3)))
+df.tax$rank_number <- rank_number
 
+# arguments for the function
 rank.diff = 2
 
 # set a name
-x.name <- "Daphniidae"
+x.name <- "Dytiscidae"
+
+# figure out what to do when there are no children
+
+# write the x.taxa id depending on which database is selected
+
+if (data.base == "bold") {
+  
+  x.taxa <- get_boldid(sci = x.name, ask = FALSE)
+  
+} else if (data.base == "itis") {
+  
+  x.taxa <- get_tsn(sci_com = x.name, ask = FALSE)
+  
+} else if (data.base == "gbif") {
+  
+  x.taxa <- get_gbifid(sci = x.name, ask = FALSE)
+  
+}
+
+if (attr(x.taxa, "match") == "not found") {
+  
+  x.df <- NULL
+  
+} else {
+  
+  x.taxa <- x.taxa[[1]]
+  
+  # get the taxonomic rank
+  x.rank <- tax_rank(sci_id = x.taxa, db = data.base)[[1]]
+  
+  # for this rank, we exact the numeric rank
+  x.rank.num <- df.tax[df.tax$rank == x.rank, "rank_number"]
+  
+  # get the rank to get children
+  down.to.rank <- df.tax[ (rank_number > x.rank.num) & (rank_number < foc.rank + x.rank.num), ]
+  
+  # get all species down 
+  x.down <- downstream(sci_id = x.taxa, db = data.base, 
+                       downto = down.to.rank$rank[nrow(down.to.rank)], 
+                       intermediate = TRUE)
+  x.down <- x.down[[1]][[2]]
+  
+  # get the upwards classification
+  x.class <- classification(sci_id = x.taxa, db = data.base)
+  x.class <- x.class[[1]]
+  
+  # get all species up using the classification
+  x.up <- df.tax[(rank_number > (x.rank.num - rank.diff) ) & (rank_number <= x.rank.num), "rank"]
+  
+  # merge the upstream and downstream species
+  x.merge <- rbind(x.class[x.class$rank %in% x.up, ], bind_rows(x.down))
+  
+  # merge with the df.tax
+  x.df <- right_join(df.tax, df.merge, by = "rank")
+  
+  # add a focal taxa column
+  x.df$focal_taxa <- ifelse(x.df$name == x.name, 1, 0)
+  
+}
+
+# add the equation label
+x.df
+
+
+
+
+
+
+
+
+
 
 # get database id
 y <- get_boldid(sci = x.name, ask = FALSE)
@@ -65,12 +137,23 @@ down.to.rank
 
 df.down <- downstream(sci_id = y[[1]], db = "bold", downto = down.to.rank$rank[nrow(down.to.rank)], intermediate = TRUE)
 
+x[1][[1]]
 
-df.merge <- rbind(x[1][[1]], bind_rows(df.down[[1]][[2]]))
+rank.up <- df.tax[(df.tax$rank_number > (foc.rank - 2) ) & (df.tax$rank_number <= foc.rank), "rank"]
+
+df.merge <- rbind(filter( x[1][[1]], rank %in% rank.up), bind_rows(df.down[[1]][[2]]))
 df.merge
 
-df.x <- left_join(df.tax, df.merge, by = "rank")
+df.x <- right_join(df.tax, df.merge, by = "rank")
+
+# add a focal taxa column
+df.x$focal_taxa <- ifelse(df.x$name == x.name, 1, 0)
+
 df.x
+
+
+
+
 
 
 y <- get_tsn(sci = "Daphnia magna", ask = FALSE)
