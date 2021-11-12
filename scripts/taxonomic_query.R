@@ -46,7 +46,7 @@ df.tax$rank_number <- rank_number
 rank.diff = 2
 
 # set a name
-x.name <- "Dytiscidae"
+x.name <- "Sinantherina"
 
 # figure out what to do when there are no children
 
@@ -81,13 +81,24 @@ if (attr(x.taxa, "match") == "not found") {
   x.rank.num <- df.tax[df.tax$rank == x.rank, "rank_number"]
   
   # get the rank to get children
-  down.to.rank <- df.tax[ (rank_number > x.rank.num) & (rank_number < foc.rank + x.rank.num), ]
+  down.to.rank <- df.tax[ (rank_number > x.rank.num) & (rank_number < x.rank.num + rank.diff), ]
   
   # get all species down 
   x.down <- downstream(sci_id = x.taxa, db = data.base, 
                        downto = down.to.rank$rank[nrow(down.to.rank)], 
                        intermediate = TRUE)
-  x.down <- x.down[[1]][[2]]
+  
+  if (data.base == "itis") {
+    
+    x.down <- x.down[[1]][[2]][[1]]
+    x.down <- x.down[, c(4, 5, 6)]
+    names(x.down) <- c("name", "rank", "id")
+    
+  } else {
+    
+    x.down <- x.down[[1]][[2]]
+    
+  }
   
   # get the upwards classification
   x.class <- classification(sci_id = x.taxa, db = data.base)
@@ -100,7 +111,7 @@ if (attr(x.taxa, "match") == "not found") {
   x.merge <- rbind(x.class[x.class$rank %in% x.up, ], bind_rows(x.down))
   
   # merge with the df.tax
-  x.df <- right_join(df.tax, df.merge, by = "rank")
+  x.df <- right_join(df.tax, x.merge, by = "rank")
   
   # add a focal taxa column
   x.df$focal_taxa <- ifelse(x.df$name == x.name, 1, 0)
@@ -109,8 +120,6 @@ if (attr(x.taxa, "match") == "not found") {
 
 # add the equation label
 x.df
-
-
 
 
 
