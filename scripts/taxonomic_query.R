@@ -53,7 +53,7 @@ x <- classification(sci_id = y[[1]], db = "bold")
 
 left_join(df.tax, x$`19050`, by = "rank")
 
-y <- get_tsn(sci = x.name, ask = FALSE)
+y <- get_tsn(sci = "Daphnia magna", ask = FALSE)
 
 z <- classification(sci_id = y[[1]], db = "itis")
 z
