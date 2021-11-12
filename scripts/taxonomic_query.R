@@ -5,6 +5,7 @@
 library(taxize)
 library(readr)
 library(here)
+library(dplyr)
 
 # decide on a set of taxonomic steps i.e. phylum to sub-phylum, that can be 0.33 or something
 # cut everything off at phylum
@@ -30,31 +31,42 @@ x
 # figure out how to use these taxonomic backbones
 
 # taxonomic ranks:
-tax.ranks <- c('phylum', 'subphylum','class','subclass', 'superorder','order','suborder','infraorder','superfamily','family', 'subfamily','tribe','subtribe','genus','subgenus','section','subsection', 'species') 
-tax.ranks
+tax.ranks <- c('class','subclass', 
+               'superorder','order','suborder',
+               'superfamily','family', 'subfamily',
+               'genus', 'species') 
 
-y <- get_boldid(sci = "Daphnia magna", ask = FALSE)
+# write this into a data.frame
+df.tax <- data.frame(rank = tax.ranks)
+
+# set a name
+x.name <- "Cypridopsis"
+
+# get database id
+y <- get_boldid(sci = x.name, ask = FALSE)
 y[[1]]
+
+# get the taxonomic rank
+tax_rank(sci_id = y[[1]], db = "bold")
 
 x <- classification(sci_id = y[[1]], db = "bold")
-downstream(y[[1]], db = 'bold', downto = 'family', intermediate = TRUE)
-tax_rank(sci_id = y[[1]], db = "ncbi")
 
-y <- get_tsn(sci = "Daphnia magna", ask = FALSE)
-y[[1]]
+left_join(df.tax, x$`19050`, by = "rank")
+
+y <- get_tsn(sci = x.name, ask = FALSE)
 
 z <- classification(sci_id = y[[1]], db = "itis")
-downstream(y[[1]], db = 'bold', downto = 'family', intermediate = TRUE)
+z
 
-y <- get_gbifid(sci = "Daphnia magna", ask = FALSE)
+left_join(df.tax, z$`85214`, by = "rank")
+
+y <- get_gbifid(sci = x.name, ask = FALSE)
 y[[1]]
 
 u <- classification(sci_id = y[[1]], db = "gbif")
+u
 
-y <- get_eolid(sci_com = "Daphnia magna", ask = TRUE)
-y[[1]]
-
-v <- classification(sci_id = y[[1]], db = "eol")
+left_join(df.tax, u$`5741657`, by = "rank")
 
 
 library(dplyr)
