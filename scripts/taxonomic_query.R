@@ -38,20 +38,40 @@ tax.ranks <- c('class','subclass',
 
 # write this into a data.frame
 df.tax <- data.frame(rank = tax.ranks)
+df.tax$rank_number <- c(1, (1+(1/3)), (1+(2/3)), 2, (2+(1/3)), (2+(2/3)), 3, (3+(1/3)), (3+(2/3)), (4+(2/3)))
+
+df.tax
+
+rank.diff = 2
 
 # set a name
-x.name <- "Cypridopsis"
+x.name <- "Daphniidae"
 
 # get database id
 y <- get_boldid(sci = x.name, ask = FALSE)
 y[[1]]
 
-# get the taxonomic rank
-tax_rank(sci_id = y[[1]], db = "bold")
-
+# get the classification
 x <- classification(sci_id = y[[1]], db = "bold")
+x
 
-left_join(df.tax, x$`19050`, by = "rank")
+# get the taxonomic rank
+x.rank <- tax_rank(sci_id = y[[1]], db = "bold")
+x.rank[[1]]
+
+foc.rank <- df.tax[df.tax$rank == x.rank[[1]], "rank_number"]
+down.to.rank <- df.tax[ (df.tax$rank_number > foc.rank) & (df.tax$rank_number < foc.rank + rank.diff), ]
+down.to.rank
+
+df.down <- downstream(sci_id = y[[1]], db = "bold", downto = down.to.rank$rank[nrow(down.to.rank)], intermediate = TRUE)
+
+
+df.merge <- rbind(x[1][[1]], bind_rows(df.down[[1]][[2]]))
+df.merge
+
+df.x <- left_join(df.tax, df.merge, by = "rank")
+df.x
+
 
 y <- get_tsn(sci = "Daphnia magna", ask = FALSE)
 
