@@ -53,6 +53,10 @@ df.tax <- data.frame(rank = tax.ranks)
 rank_number <- c(1, (1+(1/3)), (1+(2/3)), 2, (2+(1/3)), (2+(2/3)), 3, (3+(1/3)), (3+(2/3)), (4+(2/3)))
 df.tax$rank_number <- rank_number
 
+# set the error message
+error_NA <- "NA due to ask=FALSE & no direct match found"
+
+
 # we will use three databases
 data.base <- "itis"
 
@@ -60,86 +64,90 @@ data.base <- "itis"
 rank.diff <- 1
 
 # set a name
-x.name <- "Mesostigmata"
-x.name <- "Flosculariidae"
-x.name <- "Lumbriculidae"
+# x.name <- "Mesostigmata"
+# x.name <- "Collembola" # absent from the itis database
+x.name <- "Lumbriculidae" # present in the itis database
 
+ask_or_not <- FALSE
 
+# get the taxon id from the database
 if (data.base == "bold") {
   
-  x.taxa <- get_boldid(sci = x.name, ask = FALSE)
+  x.taxa.a <- get_boldid(sci = x.name, ask = ask_or_not )
   
 } else if (data.base == "itis") {
   
-  x.taxa <- get_tsn(sci_com = x.name, ask = FALSE)
+  x.taxa.a <- get_tsn(sci_com = x.name, ask = ask_or_not )
   
 } else if (data.base == "gbif") {
   
-  x.taxa <- get_gbifid(sci = x.name, ask = FALSE)
+  x.taxa.a <- get_gbifid(sci = x.name, ask = ask_or_not )
   
 }
 
 
 # get taxonomic information
-if (attr(x.taxa, "match") == "not found") {
+if (attr(x.taxa.a, "match") == "found") {
+  
+  x.taxa <- x.taxa.a[[1]]
+  
+  # upwards classification
+  # get the upwards classification
+  x.class <- classification(sci_id = x.taxa, db = data.base)
+  x.class <- x.class[[1]]
+  
+  # get the taxonomic rank
+  x.rank <- x.class[x.class$name == x.name, "rank"]
+  
+} else { x.rank <- "a" }
+
+if ( (x.rank %in% df.tax$rank) ) {
+    
+    # for this rank, we exact the numeric rank
+    x.rank.num <- df.tax[df.tax$rank == x.rank, "rank_number"]
+    
+    # we take one rank back to get the downstream of the focal individal
+    x.one.back <- x.class[which(x.class$rank == x.rank)-1,]
+    
+    # get all species up using the classification
+    x.up <- df.tax[near_equal(rank_number, (x.rank.num - rank.diff), mode = "ne.gt") & near_equal(rank_number, x.rank.num, mode = "ne.lt"), "rank"]
+    x.up <- x.up[x.up != x.rank]
+    
+    # downwards taxa
+    # get the rank to get children
+    down.to.rank <- df.tax[ near_equal(rank_number, x.rank.num, mode = "ne.gt") & near_equal(rank_number, (x.rank.num + rank.diff), mode = "ne.lt"), ]
+    down.to.rank <- down.to.rank$rank[nrow(down.to.rank)]
+    
+    # this makes sure we don't duplicate if we only focus on the focal taxa
+    if (down.to.rank == x.rank) {
+      
+      x.down <- NULL
+      
+    } else {
+      
+      # get all species down (excluding focal)
+      x.down <- downstream(sci_id = x.taxa, db = data.base, 
+                           downto = down.to.rank, 
+                           intermediate = TRUE)
+      
+      x.down <- x.down[[1]][[2]]
+      
+    }
+    
+    # get all species that share the rank with the focal species
+    x.down.one.back <- downstream(sci_id = x.one.back$id, db = data.base,
+                                  downto = x.rank, intermediate = FALSE)
+    x.down.one.back <- x.down.one.back[[1]]
+    
+  }
+
+
+# now we fork the x.df to create the null database if the taxa is not found
+if (attr(x.taxa.a, "match") %in% c("not found", error_NA) | !(x.rank %in% df.tax$rank) ) {
   
   x.df <- NULL
   
 } else {
-  
-  x.taxa <- x.taxa[[1]]
-  
-  }
-  
-# upwards classification
-# get the upwards classification
-x.class <- classification(sci_id = x.taxa, db = data.base)
-x.class <- x.class[[1]]
-
-# get the taxonomic rank
-x.rank <- x.class[x.class$name == x.name, "rank"]
-
-if ( !(x.rank %in% df.tax$rank) ) {
-  
-  x.df <- NULL
-  
-} else {
-  
-  # for this rank, we exact the numeric rank
-  x.rank.num <- df.tax[df.tax$rank == x.rank, "rank_number"]
-  
-  # we take one rank back to get the downstream of the focal individal
-  x.one.back <- x.class[which(x.class$rank == x.rank)-1,]
-  
-  # get all species up using the classification
-  x.up <- df.tax[near_equal(rank_number, (x.rank.num - rank.diff), mode = "ne.gt") & near_equal(rank_number, x.rank.num, mode = "ne.lt"), "rank"]
-  x.up <- x.up[x.up != x.rank]
-  
-  # downwards taxa
-  # get the rank to get children
-  down.to.rank <- df.tax[ near_equal(rank_number, x.rank.num, mode = "ne.gt") & near_equal(rank_number, (x.rank.num + rank.diff), mode = "ne.lt"), ]
-  down.to.rank <- down.to.rank$rank[nrow(down.to.rank)]
-  
-  # this makes sure we don't duplicate if we only focus on the focal taxa
-  if (down.to.rank == x.rank) {
-    
-    x.down <- NULL
-    
-  } else {
-    
-    # get all species down (excluding focal)
-    x.down <- downstream(sci_id = x.taxa, db = data.base, 
-                         downto = down.to.rank, 
-                         intermediate = TRUE)
-    
-    x.down <- x.down[[1]][[2]]
-    
-  }
-  
-  # get all species that share the rank with the focal species
-  x.down.one.back <- downstream(sci_id = x.one.back$id, db = data.base,
-                                downto = x.rank, intermediate = FALSE)
-  x.down.one.back <- x.down.one.back[[1]]
   
   if (data.base == "itis") {
     
@@ -173,25 +181,25 @@ if ( !(x.rank %in% df.tax$rank) ) {
   # add a focal taxa column
   x.df$focal_taxa <- ifelse(x.df$name == x.name, 1, 0) 
   
-  }
+  # make sure that only the considered ranks are in
+  x.df <- x.df[x.df$rank %in% df.tax$rank, ]
+  
+  # add the taxonomic database as a variable
+  x.df$taxonomic_database <- data.base
+  
+}
 
-# make sure that only the considered ranks are in
-x.df <- x.df[x.df$rank %in% df.tax$rank, ]
-
-# add the taxonomic database as a variable
-x.df$taxonomic_database <- data.base
 
 # add the equation label
 equ.id <- equ.dat[equ.dat$equation_target_taxon == x.name, ]$equation_id
 
 # get potential synonymns
-equ.syn <- synonyms(x.taxa, db = data.base)
+equ.syn <- synonyms(x.taxa.a[[1]], db = data.base)
 
 x.list <- 
-  list(equation_id = ifelse(equ.id == 0, NA, equ.id),
-       synonymns = equ.syn[[1]]$syn_name,
+  list(database = data.base,
+       equation_id = ifelse(equ.id == 0, NA, equ.id),
+       synonymns = ifelse(is.na(equ.syn[[1]]$syn_name), NA, equ.syn[[1]]$syn_name),
        taxonomic_information = x.df)
 
-x.list
-
-
+### END
