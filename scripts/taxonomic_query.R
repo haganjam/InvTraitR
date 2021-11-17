@@ -40,9 +40,6 @@ in.dat <- in.dat[!is.na(in.dat$equation_id),]
 tax.list <- equ.dat[, c("equation_id", "equation_target_taxon") ]
 tax.list <- split(tax.list, tax.list$equation_id)
 
-# we will use three databases
-data.base <- "gbif"
-
 # set-up the taxonomic ranks that will be considered
 tax.ranks <- c('class','subclass', 
                'superorder','order','suborder',
@@ -56,15 +53,17 @@ df.tax <- data.frame(rank = tax.ranks)
 rank_number <- c(1, (1+(1/3)), (1+(2/3)), 2, (2+(1/3)), (2+(2/3)), 3, (3+(1/3)), (3+(2/3)), (4+(2/3)))
 df.tax$rank_number <- rank_number
 
+# we will use three databases
+data.base <- "itis"
+
 # arguments for the function
-rank.diff <- 0
+rank.diff <- 1
 
 # set a name
-x.name <- "Sinantherina"
+x.name <- "Mesostigmata"
+x.name <- "Flosculariidae"
+x.name <- "Lumbriculidae"
 
-# figure out what to do when there are no children
-
-# write the x.taxa id depending on which database is selected
 
 if (data.base == "bold") {
   
@@ -80,6 +79,8 @@ if (data.base == "bold") {
   
 }
 
+
+# get taxonomic information
 if (attr(x.taxa, "match") == "not found") {
   
   x.df <- NULL
@@ -88,13 +89,21 @@ if (attr(x.taxa, "match") == "not found") {
   
   x.taxa <- x.taxa[[1]]
   
-  # upwards classification
-  # get the upwards classification
-  x.class <- classification(sci_id = x.taxa, db = data.base)
-  x.class <- x.class[[1]]
+  }
   
-  # get the taxonomic rank
-  x.rank <- x.class[x.class$name == x.name, "rank"]
+# upwards classification
+# get the upwards classification
+x.class <- classification(sci_id = x.taxa, db = data.base)
+x.class <- x.class[[1]]
+
+# get the taxonomic rank
+x.rank <- x.class[x.class$name == x.name, "rank"]
+
+if ( !(x.rank %in% df.tax$rank) ) {
+  
+  x.df <- NULL
+  
+} else {
   
   # for this rank, we exact the numeric rank
   x.rank.num <- df.tax[df.tax$rank == x.rank, "rank_number"]
@@ -104,6 +113,7 @@ if (attr(x.taxa, "match") == "not found") {
   
   # get all species up using the classification
   x.up <- df.tax[near_equal(rank_number, (x.rank.num - rank.diff), mode = "ne.gt") & near_equal(rank_number, x.rank.num, mode = "ne.lt"), "rank"]
+  x.up <- x.up[x.up != x.rank]
   
   # downwards taxa
   # get the rank to get children
@@ -121,6 +131,8 @@ if (attr(x.taxa, "match") == "not found") {
     x.down <- downstream(sci_id = x.taxa, db = data.base, 
                          downto = down.to.rank, 
                          intermediate = TRUE)
+    
+    x.down <- x.down[[1]][[2]]
     
   }
   
@@ -163,9 +175,23 @@ if (attr(x.taxa, "match") == "not found") {
   
   }
 
+# make sure that only the considered ranks are in
+x.df <- x.df[x.df$rank %in% df.tax$rank, ]
+
+# add the taxonomic database as a variable
+x.df$taxonomic_database <- data.base
+
 # add the equation label
-x.df
+equ.id <- equ.dat[equ.dat$equation_target_taxon == x.name, ]$equation_id
 
+# get potential synonymns
+equ.syn <- synonyms(x.taxa, db = data.base)
 
+x.list <- 
+  list(equation_id = ifelse(equ.id == 0, NA, equ.id),
+       synonymns = equ.syn[[1]]$syn_name,
+       taxonomic_information = x.df)
+
+x.list
 
 
