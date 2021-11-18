@@ -12,6 +12,19 @@
 
 get_taxon_id <- function(database_function = "itis", taxon_name, ask_or_not = FALSE, tries = 5) {
   
+  # make sure the correct packages are loaded
+  if (any( !(c("taxize") %in% installed.packages()[,1]) )) {
+    
+    stop("error, this functions requires taxize to be installed")
+    
+    warning("the function was written using taxize_0.9.99")
+    
+  } else {
+    
+    warning("you have taxize installed but, as a warning, this function was written using taxize_0.9.99")
+    
+  }
+  
   # choose the correct function based on the database
   if(database_function == "itis") {
     

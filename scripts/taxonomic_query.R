@@ -1,8 +1,6 @@
 
 # Pipeline to draw allometric equations from taxonomic (and geographic) information
 
-
-
 # load relevant libraries
 library(taxize)
 library(readr)

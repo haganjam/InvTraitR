@@ -21,6 +21,22 @@ Get_taxonomic_info <- function(x.name,
                                taxon_var = "equation_target_taxon",
                                equation_id = "equation_id") {
   
+  
+  # make sure the relevant packages are loaded and installed
+  
+  if (any( !(c("dplyr", "taxize") %in% installed.packages()[,1]) )) {
+    
+    stop("error, this functions requires the dplyr and taxize packages to be installed")
+    
+    warning("the function was written using dplyr_1.0.2 and taxize_0.9.99")
+    
+  } else {
+    
+    warning("you have dplyr and taxize installed but, as a warning, this function was written using dplyr_1.0.2 and taxize_0.9.99")
+    
+  }
+  
+  
   # set important data for the function
   
   # set-up the taxonomic ranks that will be considered
@@ -65,7 +81,7 @@ Get_taxonomic_info <- function(x.name,
     
     # upwards classification
     # get the upwards classification
-    x.class <- classification(sci_id = x.taxa, db = data.base)
+    x.class <- taxize::classification(sci_id = x.taxa, db = data.base)
     x.class <- x.class[[1]]
     
     # get the taxonomic rank
@@ -101,7 +117,7 @@ Get_taxonomic_info <- function(x.name,
     } else {
       
       # get all species down (excluding focal)
-      x.down <- downstream(sci_id = x.taxa, db = data.base, 
+      x.down <- taxize::downstream(sci_id = x.taxa, db = data.base, 
                            downto = down.to.rank, 
                            intermediate = TRUE)
       
@@ -110,7 +126,7 @@ Get_taxonomic_info <- function(x.name,
     }
     
     # get all species that share the rank with the focal species
-    x.down.one.back <- downstream(sci_id = x.one.back$id, db = data.base,
+    x.down.one.back <- taxize::downstream(sci_id = x.one.back$id, db = data.base,
                                   downto = x.rank, intermediate = FALSE)
     x.down.one.back <- x.down.one.back[[1]]
     
@@ -133,7 +149,7 @@ Get_taxonomic_info <- function(x.name,
     
     if (data.base == "itis") {
       
-      x.down <- bind_rows(x.down)
+      x.down <- dplyr::bind_rows(x.down)
       x.down <- x.down[, c(5, 4, 6)]
       names(x.down) <- c("name", "rank", "id")
       
@@ -144,13 +160,13 @@ Get_taxonomic_info <- function(x.name,
       
     } else if (data.base == "gbif") {
       
-      x.down.merge <- rbind(bind_rows(x.down), x.down.one.back)
+      x.down.merge <- rbind( dplyr::bind_rows(x.down), x.down.one.back)
       x.down.merge$id <- paste(x.down.merge$key, x.down.merge$name_type, sep = ".")
       x.down.merge <- x.down.merge[, c("name", "rank", "id")]
       
     } else {
       
-      x.down.merge <- rbind(bind_rows(x.down), x.down.one.back)
+      x.down.merge <- rbind(dplyr::bind_rows(x.down), x.down.one.back)
       
     }
     
@@ -158,7 +174,7 @@ Get_taxonomic_info <- function(x.name,
     x.merge <- rbind(x.class[x.class$rank %in% x.up, ], x.down.merge )
     
     # merge with the df.tax
-    x.df <- right_join(df.tax, x.merge, by = "rank")
+    x.df <- dplyr::right_join(df.tax, x.merge, by = "rank")
     
     # add a focal taxa column
     x.df$focal_taxa <- ifelse(x.df$name == x.name, 1, 0) 
@@ -178,7 +194,7 @@ Get_taxonomic_info <- function(x.name,
   equ.id <- equ.dat[equ.dat[[taxon_var]] == x.name, ][[equation_id]]
   
   # get potential synonymns
-  equ.syn <- synonyms(x.taxa.a[[1]], db = data.base)
+  equ.syn <- taxize::synonyms(x.taxa.a[[1]], db = data.base)
   
   x.list <- 
     list(database = data.base,
@@ -186,7 +202,7 @@ Get_taxonomic_info <- function(x.name,
          synonymns = ifelse(is.na(equ.syn[[1]]$syn_name), NA, equ.syn[[1]]$syn_name),
          taxonomic_information = x.df)
   
-  x.list
+  return(x.list)
   
 }
 
