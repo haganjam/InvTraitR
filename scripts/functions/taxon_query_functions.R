@@ -116,11 +116,19 @@ near_equal <- function( x , y , tol = 1.5e-8 , mode = "ae" ){
 # equation_id: variable name in equ.dat that contains the taxon name
 
 Get_taxonomic_info <- function(x.name, 
+                               equ.id = NA,
+                               life_stage = NA,
                                data.base = "itis", 
                                rank.diff = 1, tries = 5, ask_or_not = FALSE,
                                equ.dat,
                                taxon_var = "equation_target_taxon",
                                equation_id = "equation_id") {
+  
+  if (is.na(equ_id)) {
+    
+    stop("this function requires an equation ID to match with the database")
+    
+  }
   
   # set important data for the function
   
@@ -275,9 +283,6 @@ Get_taxonomic_info <- function(x.name,
   
   # add relevant identification information and data are packaged into an output list
   
-  # add the equation label
-  equ.id <- equ.dat[equ.dat[[taxon_var]] == x.name, ][[equation_id]]
-  
   # get potential synonymns
   equ.syn <- taxize::synonyms(x.taxa.a[[1]], db = data.base)
   
@@ -285,6 +290,7 @@ Get_taxonomic_info <- function(x.name,
     list(database = data.base,
          equation_id = ifelse(equ.id == 0, NA, equ.id),
          synonymns = ifelse(is.na(equ.syn[[1]]$syn_name), NA, equ.syn[[1]]$syn_name),
+         life_stage = life_stage,
          taxonomic_information = x.df)
   
   return(x.list)

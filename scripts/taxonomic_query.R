@@ -14,16 +14,20 @@ equ.dat <- readxl::read_xlsx(here("raw_data/equation_data.xlsx"))
 equ.dat <- equ.dat[!is.na(equ.dat$equation_id),]
 
 # taxon list
-tax.list <- equ.dat[, c("equation_id", "equation_target_taxon") ]
-tax.list <- split(tax.list, tax.list$equation_id)
+tax.list <- equ.dat$equation_target_taxon
+unique(tax.list)
 
-# try the taxon query function
+# test the taxon query function
 Get_taxonomic_info(x.name = "Lumbriculidae", 
+                   equ.id = "5",
+                   life_stage = NA,
                    data.base = "itis", 
                    rank.diff = 1, tries = 5, ask_or_not = FALSE,
                    equ.dat = equ.dat,
                    taxon_var = "equation_target_taxon",
                    equation_id = "equation_id"
-                   ) 
+                   )
+
+# run the function for a few taxa on the list
 
 ### END
