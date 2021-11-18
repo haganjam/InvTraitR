@@ -70,7 +70,7 @@ x.name <- "Lumbriculidae" # present in the itis database
 
 ask_or_not <- FALSE
 
-# get the taxon id from the database
+# get the taxon id from the chosen database
 if (data.base == "bold") {
   
   x.taxa.a <- get_boldid(sci = x.name, ask = ask_or_not )
@@ -86,7 +86,12 @@ if (data.base == "bold") {
 }
 
 
-# get taxonomic information
+# if(): if the taxon name is a direct match then we proceed to:
+# 1. get the upwards classification
+# 2. obtain the taxonomic rank of the focal taxon name
+
+# else(): if the taxon name is not a direct match then:
+# 1. we assign a taxon rank to "taxa not found"
 if (attr(x.taxa.a, "match") == "found") {
   
   x.taxa <- x.taxa.a[[1]]
@@ -99,8 +104,10 @@ if (attr(x.taxa.a, "match") == "found") {
   # get the taxonomic rank
   x.rank <- x.class[x.class$name == x.name, "rank"]
   
-} else { x.rank <- "a" }
+} else { x.rank <- "taxa not found" }
 
+# if() the focal taxon name's rank is within the chose set of ranks (i.e. df. tax$rank) then:
+# 1. proceed to get all taxa down from and including the focal taxa
 if ( (x.rank %in% df.tax$rank) ) {
     
     # for this rank, we exact the numeric rank
@@ -142,7 +149,12 @@ if ( (x.rank %in% df.tax$rank) ) {
   }
 
 
-# now we fork the x.df to create the null database if the taxa is not found
+# if(): the taxon name is not a match or the rank is not included in df.tax$rank then
+# 1. assign x.df i.e. taxonomic information to NULL
+
+# else(): the taxon name is a match and the rank is included in df.tax$rank then
+# 1. upstream and downstream taxanomic information are processed into x.df dataframes
+# 2. processing differs based on the output from the database
 if (attr(x.taxa.a, "match") %in% c("not found", error_NA) | !(x.rank %in% df.tax$rank) ) {
   
   x.df <- NULL
@@ -189,6 +201,7 @@ if (attr(x.taxa.a, "match") %in% c("not found", error_NA) | !(x.rank %in% df.tax
   
 }
 
+# relevant identification information is added to be packaged into an output list
 
 # add the equation label
 equ.id <- equ.dat[equ.dat$equation_target_taxon == x.name, ]$equation_id
@@ -201,5 +214,7 @@ x.list <-
        equation_id = ifelse(equ.id == 0, NA, equ.id),
        synonymns = ifelse(is.na(equ.syn[[1]]$syn_name), NA, equ.syn[[1]]$syn_name),
        taxonomic_information = x.df)
+
+x.list
 
 ### END
