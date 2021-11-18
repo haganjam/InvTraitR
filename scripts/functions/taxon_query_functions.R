@@ -73,6 +73,54 @@ get_taxon_id <- function(database_function = "itis", taxon_name, ask_or_not = FA
 }
 
 
+# Function to get downstream taxa with error handling
+
+# args
+
+# sci_id: taxon id for the database being used
+# db: database to draw from ("itis", "bold", "gbif)
+# downto: taxonomic rank to get downstream taxa until
+# intermediate: whether to also get intermediate taxa or not
+
+get_downstream_taxa <- function(sci_id, db,
+                                downto, intermediate = FALSE, tries = 5) {
+  
+  if (is.null(sci_id)) {
+    
+    x <- NULL
+    
+  } else {
+    
+    library(taxize)
+    x <- try(stop("!"), silent = TRUE)
+    i <- 1
+    while( class(x) == "try-error" ) {
+      
+      if (i > tries){
+        break
+      }
+      
+      i <- i + 1
+      x <- try( do.call("downstream", list(sci_id = sci_id, db = db,
+                                           downto = downto, intermediate = intermediate)),
+                silent = TRUE)
+      
+    }
+    
+    if ( class(x) == "try-error" ) {
+      
+      x <- NULL
+      warning("could not access downstream taxa, use more tries or run function at a later stage")
+      
+    }
+    
+  }
+  
+  return(x)
+  
+}
+
+
 # Function that takes two vectors and determines if they are nearly equal etc.
 
 # args
@@ -111,18 +159,12 @@ near_equal <- function( x , y , tol = 1.5e-8 , mode = "ae" ){
 # rank.diff: acceptable difference in taxonomic level for a valid equation (e.g. species to genus = 1)
 # tries: how many tries to query the online databases
 # ask_or_not: accept direct matches only (i.e. FALSE which is the default)
-# equ.dat: database containing the equation data
-# taxon_var: variable name in equ.dat that contains the taxon name associated with the equation
-# equation_id: variable name in equ.dat that contains the taxon name
 
 Get_taxonomic_info <- function(x.name, 
                                equ.id = NA,
                                life_stage = NA,
                                data.base = "itis", 
-                               rank.diff = 1, tries = 5, ask_or_not = FALSE,
-                               equ.dat,
-                               taxon_var = "equation_target_taxon",
-                               equation_id = "equation_id") {
+                               rank.diff = 1, tries = 5, ask_or_not = FALSE) {
   
   if (is.na(equ.id)) {
     
@@ -146,7 +188,8 @@ Get_taxonomic_info <- function(x.name,
   df.tax$rank_number <- rank_number
   
   # set the error message
-  error_NA <- "NA due to ask=FALSE & no direct match found"
+  error_NA1 <- "NA due to ask=FALSE & no direct match found"
+  error_NA2 <- "NA due to ask=FALSE & > 1 result"
   
   
   # get the taxon ID from the relevant database
@@ -157,7 +200,7 @@ Get_taxonomic_info <- function(x.name,
   x.taxa.a <- get_taxon_id(database_function = data.base, 
                            taxon_name = x.name, 
                            ask_or_not = FALSE, 
-                           tries = 5) 
+                           tries = tries) 
   
   
   # get the relevant taxonomic information from the chosen database
@@ -172,13 +215,24 @@ Get_taxonomic_info <- function(x.name,
     
     x.taxa <- x.taxa.a[[1]]
     
+    if (data.base == "itis") {
+      
+      # get potential synonymns
+      equ.syn <- taxize::synonyms(x.taxa.a[[1]], db = data.base)
+      equ.syn <- equ.syn[[1]]$syn_name
+      
+    } else { equ.syn <- NA }
+    
     # upwards classification
     # get the upwards classification
     x.class <- taxize::classification(sci_id = x.taxa, db = data.base)
     x.class <- x.class[[1]]
     
     # get the taxonomic rank
-    x.rank <- x.class[x.class$name == x.name, "rank"]
+    x.rank <- x.class[x.class$id == x.taxa, "rank"]
+    
+    # confirm the taxon name
+    taxon_name <-  x.class[x.class$id == x.taxa, "name"]
     
   } else { x.rank <- "taxa not found" }
   
@@ -191,11 +245,30 @@ Get_taxonomic_info <- function(x.name,
     x.rank.num <- df.tax[df.tax$rank == x.rank, "rank_number"]
     
     # we take one rank back to get the downstream of the focal individal
-    x.one.back <- x.class[which(x.class$rank == x.rank)-1,]
+    if (length(x.class$rank) <= 1) {
+      
+      x.one.back <- NULL
+      
+    } else {
+      
+      x.one.back <- x.class[which(x.class$rank == x.rank)-1,]
+      
+    }
+    
     
     # get all species up using the classification
-    x.up <- df.tax[near_equal(rank_number, (x.rank.num - rank.diff), mode = "ne.gt") & near_equal(rank_number, x.rank.num, mode = "ne.lt"), "rank"]
-    x.up <- x.up[x.up != x.rank]
+    
+    if (length(x.class$rank) <= 1) {
+      
+      x.up <- x.rank
+      
+    } else {
+      
+      x.up <- df.tax[near_equal(rank_number, (x.rank.num - rank.diff), mode = "ne.gt") & near_equal(rank_number, x.rank.num, mode = "ne.lt"), "rank"]
+      x.up <- x.up[x.up != x.rank]
+      
+    }
+    
     
     # downwards taxa
     # get the rank to get children
@@ -210,17 +283,19 @@ Get_taxonomic_info <- function(x.name,
     } else {
       
       # get all species down (excluding focal)
-      x.down <- taxize::downstream(sci_id = x.taxa, db = data.base, 
-                           downto = down.to.rank, 
-                           intermediate = TRUE)
+      x.down <- get_downstream_taxa(sci_id = x.taxa, db = data.base,
+                                    downto = down.to.rank, intermediate = TRUE,
+                                    tries = tries)
       
       x.down <- x.down[[1]][[2]]
       
     }
     
     # get all species that share the rank with the focal species
-    x.down.one.back <- taxize::downstream(sci_id = x.one.back$id, db = data.base,
-                                  downto = x.rank, intermediate = FALSE)
+    x.down.one.back <- get_downstream_taxa(sci_id = x.one.back$id, db = data.base,
+                                           downto = x.rank, intermediate = FALSE,
+                                           tries = tries)
+    
     x.down.one.back <- x.down.one.back[[1]]
     
   }
@@ -234,11 +309,28 @@ Get_taxonomic_info <- function(x.name,
   # else(): the taxon name is a match and the rank is included in df.tax$rank then
   # 1. upstream and downstream taxanomic information are processed into x.df dataframes
   # 2. processing differs based on the output from the database
-  if (attr(x.taxa.a, "match") %in% c("not found", error_NA) | !(x.rank %in% df.tax$rank) ) {
+  if (attr(x.taxa.a, "match") %in% c("not found", error_NA1, error_NA2) | !(x.rank %in% df.tax$rank) ) {
     
+    equ.syn <- NA
     x.df <- NULL
     
-  } else {
+  } else if ( is.null(x.down) | is.null(x.down.one.back) ) {
+    
+    # merge with the df.tax
+    x.df <- dplyr::right_join(df.tax, x.class[x.class$rank %in% x.up, ], by = "rank")
+    
+    # add a focal taxa column
+    x.df$focal_taxa <- ifelse(x.df$name == x.name, 1, 0) 
+    
+    # make sure that only the considered ranks are in
+    x.df <- x.df[x.df$rank %in% df.tax$rank, ]
+    
+    # add the taxonomic database as a variable
+    x.df$taxonomic_database <- data.base
+    
+  }
+  
+  else {
     
     if (data.base == "itis") {
       
@@ -270,7 +362,7 @@ Get_taxonomic_info <- function(x.name,
     x.df <- dplyr::right_join(df.tax, x.merge, by = "rank")
     
     # add a focal taxa column
-    x.df$focal_taxa <- ifelse(x.df$name == x.name, 1, 0) 
+    x.df$focal_taxa <- ifelse(x.df$name == taxon_name, 1, 0) 
     
     # make sure that only the considered ranks are in
     x.df <- x.df[x.df$rank %in% df.tax$rank, ]
@@ -283,13 +375,10 @@ Get_taxonomic_info <- function(x.name,
   
   # add relevant identification information and data are packaged into an output list
   
-  # get potential synonymns
-  equ.syn <- taxize::synonyms(x.taxa.a[[1]], db = data.base)
-  
   x.list <- 
     list(database = data.base,
          equation_id = equ.id,
-         synonymns = ifelse(is.na(equ.syn[[1]]$syn_name), NA, equ.syn[[1]]$syn_name),
+         synonymns = ifelse(is.na(equ.syn), NA, equ.syn),
          life_stage = life_stage,
          taxonomic_information = x.df)
   
