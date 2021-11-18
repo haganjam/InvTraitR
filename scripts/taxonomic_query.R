@@ -1,13 +1,7 @@
 
 # Pipeline to draw allometric equations from taxonomic (and geographic) information
 
-# next steps:
 
-# run all of these steps for each species in our equation database for
-# all three databases
-# at each run, we must add the equation id
-# thus, when there is a match, we can immediately get to the relevant dataset
-# and calculate the taxonomic proximity
 
 # load relevant libraries
 library(taxize)
@@ -19,26 +13,37 @@ rm(list = ls() )
 
 # load important functions
 source(here("scripts/functions/nearly_equal_function.R"))
-
-# to do:
-
-# before implementing this function, we can have a list of all names in the database
-# this will then mean that before anyone puts a name in, we can test if it is in the database
-# this means we don't have to search them all sequentially
-
-# for implementing the functions with not just weights but also lengths
-# ask for dataframes with species names and each measurement
-# then the function can merge them so it fills in NA's when a measurement is not necessary
+source(here("scripts/functions/get_functions_error_handling.R"))
 
 # load the equation and data input databases
 equ.dat <- readxl::read_xlsx(here("raw_data/equation_data.xlsx"))
 equ.dat <- equ.dat[!is.na(equ.dat$equation_id),]
-in.dat <- readxl::read_xlsx(here("raw_data/variable_input_data.xlsx"))
-in.dat <- in.dat[!is.na(in.dat$equation_id),]
 
 # taxon list
 tax.list <- equ.dat[, c("equation_id", "equation_target_taxon") ]
 tax.list <- split(tax.list, tax.list$equation_id)
+
+# function arguments
+# we will use three databases
+data.base <- "itis"
+
+# arguments for the function
+rank.diff <- 1
+
+# set a name
+# x.name <- "Mesostigmata"
+# x.name <- "Collembola" # absent from the itis database
+x.name <- "Lumbriculidae" # present in the itis database
+
+ask_or_not <- FALSE
+
+tries <- 5
+
+# add the equation data as an argument
+# add equation id and taxon name additionally
+
+
+# set important data for the function
 
 # set-up the taxonomic ranks that will be considered
 tax.ranks <- c('class','subclass', 
@@ -57,34 +62,18 @@ df.tax$rank_number <- rank_number
 error_NA <- "NA due to ask=FALSE & no direct match found"
 
 
-# we will use three databases
-data.base <- "itis"
+# get the taxon ID from the relevant database
 
-# arguments for the function
-rank.diff <- 1
+# use the get_taxon_id function to obtain the taxon_id from the correct database
+# in addition, this function implements error handling when the databases are 
+# not accessed successfully
+x.taxa.a <- get_taxon_id(database_function = data.base, 
+                         taxon_name = x.name, 
+                         ask_or_not = FALSE, 
+                         tries = 5) 
 
-# set a name
-# x.name <- "Mesostigmata"
-# x.name <- "Collembola" # absent from the itis database
-x.name <- "Lumbriculidae" # present in the itis database
 
-ask_or_not <- FALSE
-
-# get the taxon id from the chosen database
-if (data.base == "bold") {
-  
-  x.taxa.a <- get_boldid(sci = x.name, ask = ask_or_not )
-  
-} else if (data.base == "itis") {
-  
-  x.taxa.a <- get_tsn(sci_com = x.name, ask = ask_or_not )
-  
-} else if (data.base == "gbif") {
-  
-  x.taxa.a <- get_gbifid(sci = x.name, ask = ask_or_not )
-  
-}
-
+# get the relevant taxonomic information from the chosen database
 
 # if(): if the taxon name is a direct match then we proceed to:
 # 1. get the upwards classification
@@ -105,6 +94,7 @@ if (attr(x.taxa.a, "match") == "found") {
   x.rank <- x.class[x.class$name == x.name, "rank"]
   
 } else { x.rank <- "taxa not found" }
+
 
 # if() the focal taxon name's rank is within the chose set of ranks (i.e. df. tax$rank) then:
 # 1. proceed to get all taxa down from and including the focal taxa
@@ -148,6 +138,8 @@ if ( (x.rank %in% df.tax$rank) ) {
     
   }
 
+
+# process the extracted taxonomic information
 
 # if(): the taxon name is not a match or the rank is not included in df.tax$rank then
 # 1. assign x.df i.e. taxonomic information to NULL
@@ -201,7 +193,8 @@ if (attr(x.taxa.a, "match") %in% c("not found", error_NA) | !(x.rank %in% df.tax
   
 }
 
-# relevant identification information is added to be packaged into an output list
+
+# add relevant identification information and data are packaged into an output list
 
 # add the equation label
 equ.id <- equ.dat[equ.dat$equation_target_taxon == x.name, ]$equation_id

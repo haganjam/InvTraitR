@@ -5,13 +5,33 @@
 
 # args:
 
-# database_function: name of the function - itis (get_tsn), bold - (get_boldid), gbig - (get_gbifid)
+# database_function: name of the function - "itis" (get_tsn), "bold" - (get_boldid), "gbif" - (get_gbifid)
 # taxon_name: name that you want to query
 # ask_or_not: accept imperfect matches (default is FALSE)
+# tries: how many times to try the function if it keeps getting an error (default = 5)
 
-get_taxon_id <- function(database_function = "get_tsn", taxon_name, ask_or_not = FALSE) {
+get_taxon_id <- function(database_function = "itis", taxon_name, ask_or_not = FALSE, tries = 5) {
   
-  x <- "try_error"
+  # choose the correct function based on the database
+  if(database_function == "itis") {
+    
+    func_string <- "get_tsn"
+    
+  } else if (database_function == "bold") {
+    
+    func_string <- "get_boldid"
+    
+  } else if (database_function == "gbif") {
+    
+    func_string <- "get_gbifid"
+    
+  } else {
+    
+    stop("error, choose a supported database: itis, bold, gbif")
+    
+  }
+  
+  x <- try(stop("!"), silent = TRUE)
   i <- 1
   while( class(x) == "try-error" ) {
     
@@ -20,7 +40,7 @@ get_taxon_id <- function(database_function = "get_tsn", taxon_name, ask_or_not =
     }
     
     i <- i + 1
-    x <- try( do.call("get_boldid", list(sci = taxon_name, ask = ask_or_not)) )
+    x <- try( do.call(func_string, list(sci = taxon_name, ask = ask_or_not)) )
     
   }
   
