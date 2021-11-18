@@ -314,7 +314,7 @@ Get_taxonomic_info <- function(x.name,
     equ.syn <- NA
     x.df <- NULL
     
-  } else if ( is.null(x.down) | is.null(x.down.one.back) ) {
+  } else if ( is.null(x.down) & is.null(x.down.one.back) ) {
     
     # merge with the df.tax
     x.df <- dplyr::right_join(df.tax, x.class[x.class$rank %in% x.up, ], by = "rank")
@@ -328,15 +328,15 @@ Get_taxonomic_info <- function(x.name,
     # add the taxonomic database as a variable
     x.df$taxonomic_database <- data.base
     
-  }
-  
-  else {
+  } else {
     
     if (data.base == "itis") {
       
       x.down <- dplyr::bind_rows(x.down)
-      x.down <- x.down[, c(5, 4, 6)]
-      names(x.down) <- c("name", "rank", "id")
+      if( length(x.down) != 0 ) { 
+        x.down <- x.down[, c(5, 4, 6)]
+        names(x.down) <- c("name", "rank", "id") 
+      } 
       
       x.down.one.back <- x.down.one.back[, c(5, 4, 6)]
       names(x.down.one.back) <- c("name", "rank", "id")
