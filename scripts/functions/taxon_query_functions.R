@@ -81,6 +81,9 @@ get_taxon_id <- function(database_function = "itis", taxon_name, ask_or_not = FA
 
 # https://stackoverflow.com/questions/25154930/less-or-equal-for-floats-in-r
 near_equal <- function( x , y , tol = 1.5e-8 , mode = "ae" ){
+  
+  message("this function was written using R version 4.0.2 (2020-06-22)")
+  
   ae <- mapply( function(x,y) isTRUE( all.equal( x , y , tolerance = tol ) ) , x , y )    
   gt <- x > y
   lt <- x < y
