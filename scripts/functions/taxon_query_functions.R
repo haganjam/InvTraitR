@@ -124,7 +124,7 @@ Get_taxonomic_info <- function(x.name,
                                taxon_var = "equation_target_taxon",
                                equation_id = "equation_id") {
   
-  if (is.na(equ_id)) {
+  if (is.na(equ.id)) {
     
     stop("this function requires an equation ID to match with the database")
     
@@ -288,7 +288,7 @@ Get_taxonomic_info <- function(x.name,
   
   x.list <- 
     list(database = data.base,
-         equation_id = ifelse(equ.id == 0, NA, equ.id),
+         equation_id = equ.id,
          synonymns = ifelse(is.na(equ.syn[[1]]$syn_name), NA, equ.syn[[1]]$syn_name),
          life_stage = life_stage,
          taxonomic_information = x.df)
