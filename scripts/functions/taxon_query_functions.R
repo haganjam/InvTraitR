@@ -3,6 +3,22 @@
 
 # Functions to extract taxonomic information for each equation in the database
 
+# test for correct packages
+if (any( !(c("taxize") %in% installed.packages()[,1]) )) {
+  
+  stop("error, this functions requires taxize to be installed")
+  
+  warning("the function was written using taxize_0.9.99")
+  
+} else {
+  
+  warning("you have taxize installed but, as a warning, this function was written using taxize_0.9.99")
+  
+}
+
+message("this function was written using R version 4.0.2 (2020-06-22)")
+
+
 # args:
 
 # database_function: name of the function - "itis" (get_tsn), "bold" - (get_boldid), "gbif" - (get_gbifid)
@@ -11,19 +27,6 @@
 # tries: how many times to try the function if it keeps getting an error (default = 5)
 
 get_taxon_id <- function(database_function = "itis", taxon_name, ask_or_not = FALSE, tries = 5) {
-  
-  # make sure the correct packages are loaded
-  if (any( !(c("taxize") %in% installed.packages()[,1]) )) {
-    
-    stop("error, this functions requires taxize to be installed")
-    
-    warning("the function was written using taxize_0.9.99")
-    
-  } else {
-    
-    warning("you have taxize installed but, as a warning, this function was written using taxize_0.9.99")
-    
-  }
   
   # choose the correct function based on the database
   if(database_function == "itis") {
@@ -82,8 +85,6 @@ get_taxon_id <- function(database_function = "itis", taxon_name, ask_or_not = FA
 # https://stackoverflow.com/questions/25154930/less-or-equal-for-floats-in-r
 near_equal <- function( x , y , tol = 1.5e-8 , mode = "ae" ){
   
-  message("this function was written using R version 4.0.2 (2020-06-22)")
-  
   ae <- mapply( function(x,y) isTRUE( all.equal( x , y , tolerance = tol ) ) , x , y )    
   gt <- x > y
   lt <- x < y
@@ -120,22 +121,6 @@ Get_taxonomic_info <- function(x.name,
                                equ.dat,
                                taxon_var = "equation_target_taxon",
                                equation_id = "equation_id") {
-  
-  
-  # make sure the relevant packages are loaded and installed
-  
-  if (any( !(c("dplyr", "taxize") %in% installed.packages()[,1]) )) {
-    
-    stop("error, this functions requires the dplyr and taxize packages to be installed")
-    
-    warning("the function was written using dplyr_1.0.2 and taxize_0.9.99")
-    
-  } else {
-    
-    warning("you have dplyr and taxize installed but, as a warning, this function was written using dplyr_1.0.2 and taxize_0.9.99")
-    
-  }
-  
   
   # set important data for the function
   
