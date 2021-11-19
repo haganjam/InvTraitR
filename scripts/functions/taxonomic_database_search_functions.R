@@ -12,11 +12,16 @@
 # taxon_database - the taxon database that should be searched
 # var_input_data - database associated with the taxon_database that has details about the equations
 
-taxon_equation_searcher <- function(focal_taxa_name, life_stage = NA, rank.difference = 1, 
-                                    length_only = TRUE, 
-                                    taxon_database,
-                                    var_input_data) {
+focal_taxa_name = "Diptera"
+life_stage = NA
+rank.difference = 1
+length_only = FALSE
+taxon_database <- x.out
+var_input_data <- var.dat
   
+
+taxon_db <- taxon_database
+
   # if only length equations are requested, then we subset them out first
   if (length_only == TRUE) {
     
@@ -27,77 +32,71 @@ taxon_equation_searcher <- function(focal_taxa_name, life_stage = NA, rank.diffe
     })
     v <- unlist(v, use.names = FALSE)
     
-    tx.data.ids <- unlist(lapply(taxon_database, function(x) { x[["equation_id"]] } ), use.names = FALSE)
+    tx.data.ids <- unlist(lapply(taxon_db, function(x) { x[["equation_id"]] } ), use.names = FALSE)
     tx.data.ids[tx.data.ids %in% v[!is.na(v)]]
     
-    taxon_database <- taxon_database[tx.data.ids %in% v[!is.na(v)]]
+    taxon_db <- taxon_db[tx.data.ids %in% v[!is.na(v)]]
+    
+  }
+
+u <- 
+  lapply(taxon_db, function(x) { 
+  
+  z <- x[["taxonomic_information"]]$name
+  w <- x[["synonymns"]]
+  
+  (focal_taxa_name %in% z) | (focal_taxa_name %in% w)
+  
+  })
+
+taxon_db <- taxon_db[unlist(u, use.names = FALSE)]
+
+suitable_equations <- 
+  lapply(taxon_db, function(x) {
+  
+  # extract information from list
+  eq <- x[["equation_id"]]
+  sy <- x[["synonymns"]]
+  ls <- x[["life_stage"]]
+  
+  ti <- x[["taxonomic_information"]]
+  
+  foc_tax_search <- focal_taxa_name
+  
+  # if it is a synonymn then replace it with the actual focal name
+  if ( foc_tax_search %in% sy ) {
+    
+    foc_tax_search <- ti[ti$focal_taxa == 1,]$name
     
   }
   
-  # set-up the while loop starting values
-  equ_id <- NA
-  pm <- NA
-  rank_distance <- NA
-  i <- 1
+  # search the taxonomic database
+  if (foc_tax_search %in% ti[["name"]]) {
+    
+    rank_distance <- abs( ti[ti[["focal_taxa"]] == 1, ]$rank_number - ti[ti[["name"]] == foc_tax_search, ]$rank_number )
+    pm <- ifelse(ti[ti[["focal_taxa"]] == 1, ]$name == foc_tax_search, TRUE, FALSE)
+    equ_id <- ifelse(z <= rank.difference, eq, NA)
+    
+  } else {
+    
+    rank_distance <- NA
+    pm <- NA
+    equ_id <- NA
+    
+  }
   
-  # randomise the order of database to improve sampling efficiency
-  l.db <- length(taxon_database)
-  n <- sample(x = 1:l.db, l.db, replace = FALSE)
-  x <- taxon_database[n]
-  
-  while ( is.na(equ_id) & ( class(z) != "numeric" ) ) {
+  # check if it is the correct life-stage
+  if ( !is.na(life_stage) & (life_stage == ls)  ) {
     
-    if (i == l.db){
-      break
-    }
+    equ_id <- equ_id
     
-    # extract information from list
-    eq <- x[[i]][["equation_id"]]
-    sy <- x[[i]][["synonymns"]]
-    ls <- x[[i]][["life_stage"]]
+  } else if ( is.na(life_stage) & is.na(ls) ) {
     
-    ti <- x[[i]][["taxonomic_information"]]
+    equ_id <- equ_id
     
-    foc_tax_search <- focal_taxa_name
+  } else {
     
-    # if it is a synonymn then replace it with the actual focal name
-    if ( foc_tax_search %in% sy ) {
-      
-      foc_tax_search <- ti[ti$focal_taxa == 1,]$name
-      
-    }
-    
-    # search the taxonomic database
-    if (foc_tax_search %in% ti[["name"]]) {
-      
-      rank_distance <- abs( ti[ti[["focal_taxa"]] == 1, ]$rank_number - ti[ti[["name"]] == foc_tax_search, ]$rank_number )
-      pm <- ifelse(ti[ti[["focal_taxa"]] == 1, ]$name == foc_tax_search, TRUE, FALSE)
-      equ_id <- ifelse(z <= rank.difference, eq, NA)
-      
-    } else {
-      
-      rank_distance <- NA
-      pm <- NA
-      equ_id <- NA
-      
-    }
-    
-    # check if it is the correct life-stage
-    if ( !is.na(life_stage) & (life_stage == ls)  ) {
-      
-      equ_id <- equ_id
-      
-    } else if ( is.na(life_stage) & is.na(ls) ) {
-      
-      equ_id <- equ_id
-      
-    } else {
-      
-      equ_id <- NA
-      
-    }
-    
-    i <- i + 1
+    equ_id <- NA
     
   }
   
@@ -109,8 +108,29 @@ taxon_equation_searcher <- function(focal_taxa_name, life_stage = NA, rank.diffe
   
   return(output)
   
-}
+} )
 
+suitable_equations
+
+tax_difference <- 
+  
+  lapply(suitable_equations, function(z) {
+  
+  z[["taxonomic_difference"]]
+  
+}) %>%
+  unlist(use.names = FALSE)
+
+if ( tax_difference == tax_difference ) {
+  
+  x <- sample(1:length(tax_difference), 1, replace = FALSE)
+  y <- 1:length(tax_difference) == x
+  
+} else {
+  
+  y <- tax_difference == min(tax_difference)
+  
+}
 
 
 
