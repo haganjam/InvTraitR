@@ -379,7 +379,7 @@ Get_taxonomic_info <- function(x.name,
     list(database = data.base,
          equation_id = equ.id,
          synonymns = ifelse(is.na(equ.syn), NA, equ.syn),
-         life_stage = life_stage,
+         life_stage = ifelse(life_stage == "NA", NA, life_stage),
          taxonomic_information = x.df)
   
   return(x.list)
