@@ -12,13 +12,20 @@
 # taxon_database - the taxon database that should be searched
 # var_input_data - database associated with the taxon_database that has details about the equations
 
-focal_taxa_name = "Diptera"
+
+focal_taxa_name = "Sinantherina"
 life_stage = NA
 rank.difference = 1
 length_only = FALSE
 taxon_database <- x.out
-var_input_data <- var.dat
-  
+var_input_data <- equ.dat
+
+get_mass_from_length( focal_taxa_name = "Hexarthra libica",
+                      life_stage = NA,
+                      rank.difference = 1,
+                      length_in = 2.3 )
+
+length_in = 2.3
 
 taxon_db <- taxon_database
 
@@ -52,12 +59,13 @@ u <-
 taxon_db <- taxon_db[unlist(u, use.names = FALSE)]
 
 suitable_equations <- 
-  lapply(taxon_db, function(x) {
   
+  lapply(taxon_db, function(x) {
+
   # extract information from list
   eq <- x[["equation_id"]]
   sy <- x[["synonymns"]]
-  ls <- x[["life_stage"]]
+  lis <- x[["life_stage"]]
   
   ti <- x[["taxonomic_information"]]
   
@@ -75,7 +83,9 @@ suitable_equations <-
     
     rank_distance <- abs( ti[ti[["focal_taxa"]] == 1, ]$rank_number - ti[ti[["name"]] == foc_tax_search, ]$rank_number )
     pm <- ifelse(ti[ti[["focal_taxa"]] == 1, ]$name == foc_tax_search, TRUE, FALSE)
-    equ_id <- ifelse(z <= rank.difference, eq, NA)
+    equ_id <- ifelse(near_equal( x = rank_distance , y = rank.difference , tol = 1.5e-8 , mode = "ne.lt"), 
+                     eq, 
+                     NA)
     
   } else {
     
@@ -86,11 +96,11 @@ suitable_equations <-
   }
   
   # check if it is the correct life-stage
-  if ( !is.na(life_stage) & (life_stage == ls)  ) {
+  if ( !is.na(life_stage) & (life_stage == lis)  ) {
     
     equ_id <- equ_id
     
-  } else if ( is.na(life_stage) & is.na(ls) ) {
+  } else if ( is.na(life_stage) & is.na(lis) ) {
     
     equ_id <- equ_id
     
@@ -132,5 +142,31 @@ if ( tax_difference == tax_difference ) {
   
 }
 
+id.out <- suitable_equations[[y]][["equation_id"]]
 
+# calculate the mass from the length
+
+# load the equation and data input databases
+var.dat <- readxl::read_xlsx(here("raw_data/variable_input_data.xlsx"))
+var.dat <- var.dat[!is.na(var.dat$equation_id),]
+
+var.in <- var.dat[var.dat$equation_id == id.out,]
+
+un_var <- unique(var.in[["variable"]])
+for(i in 1:length(un_var)) {
+  
+  x <- var.in[var.in[["variable"]] == un_var[i], ]
+  
+  assign(x = un_var[i], value = length_in)
+  
+}
+
+# implement the equation
+parsed_eq <- parse(text = equ.dat[equ.dat[["equation_id"]] == id.out,][["equation"]] )
+eval(parsed_eq)
+
+# return this as a variable
+c(suitable_equations, mass_out_g = eval(parsed_eq))
+
+### END
 

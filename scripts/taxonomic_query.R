@@ -20,6 +20,7 @@ tax.list <- split(tax.list, tax.list$equation_id)
 
 # run the function for a few taxa on the list
 x.samp <- sample(1:length(tax.list), 5)
+x.samp <- c(30, 31)
 x.out <- 
   lapply(tax.list[x.samp], function(x) {
     

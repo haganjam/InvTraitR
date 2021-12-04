@@ -184,7 +184,7 @@ Get_taxonomic_info <- function(x.name,
   df.tax <- data.frame(rank = tax.ranks)
   
   # add a quantitative hierarchical taxonomic information
-  rank_number <- c(1, (1+(1/3)), (1+(2/3)), 2, (2+(1/3)), (2+(2/3)), 3, (3+(1/3)), (3+(2/3)), (4+(2/3)))
+  rank_number <- c(1, (1+(1/3)), (1+(2/3)), 2, (2+(1/3)), (2+(2/3)), 3, (3+(1/3)), (4), (5))
   df.tax$rank_number <- rank_number
   
   # set the error message
