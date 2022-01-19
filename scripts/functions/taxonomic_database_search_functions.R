@@ -13,19 +13,20 @@
 # var_input_data - database associated with the taxon_database that has details about the equations
 
 
-focal_taxa_name = "Sinantherina"
+focal_taxa_name = "Tanytarsus curticornis"
 life_stage = NA
 rank.difference = 1
 length_only = FALSE
 taxon_database <- x.out
 var_input_data <- equ.dat
 
-get_mass_from_length( focal_taxa_name = "Hexarthra libica",
-                      life_stage = NA,
-                      rank.difference = 1,
-                      length_in = 2.3 )
-
 length_in = 2.3
+
+# function anatomy
+# get_mass_from_length( focal_taxa_name = "Hexarthra libica",
+                      # life_stage = NA,
+                      # rank.difference = 1,
+                      # length_in = 2.3 )
 
 taxon_db <- taxon_database
 
