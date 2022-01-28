@@ -1,9 +1,9 @@
 
-## FW_invert_biomass_allometry
+# FW_invert_biomass_allometry
 
 Pipeline to assign biomass-length allometry equations to a taxonomic name based on taxonomic hierarchy and geographic (or environmental) proximity
 
-# scripts: functions 
+## scripts: functions 
 
 > taxonomic_query_functions.R
 
@@ -19,7 +19,7 @@ This script contains a function to pull the upstream and downstream taxa from an
 
 This script contains a function to search the taxonomic databases and find the most suitable allometric equation in our database given a taxon name.
 
-# scripts: implementation
+## scripts: implementation
 
 > taxonomic query
 
