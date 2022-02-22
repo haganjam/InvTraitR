@@ -19,7 +19,8 @@ tax.list <- equ.dat[, c("equation_id", "equation_target_taxon", "life_stage")]
 tax.list <- split(tax.list, tax.list$equation_id)
 
 # run the function for a few taxa on the list
-x.samp <- sample(1:length(tax.list), 5)
+x.samp <- sample(1:length(tax.list), 1)
+x.samp <- 34
 print(tax.list[x.samp] )
 
 x.out <- 
@@ -34,6 +35,26 @@ x.out <-
     
   })
 
+# check this output
+y <- get_taxon_id(database_function = "itis", taxon_name = "Tipulidae", ask_or_not = FALSE, tries = 5)
+z <- downstream(sci_id = y[[1]], downto = "species", db = "itis", intermediate = TRUE)
+head(z$`118840`)
+View(z[[1]])
+
+u <- 
+  z$`118840`$intermediate %>%
+  bind_rows() %>%
+  filter(rankname != "tribe")
+View(u)
+
+
+# try a different approach
+u1 <- downstream(sci_id = y[[1]], downto = "subfamily", db = "itis", intermediate = FALSE)
+u1$`118840`$tsn[1]
+
+
+
+taxize::classification(sci_id = y[[1]], db = "itis")
 x.out[[1]]
 
 ### END
