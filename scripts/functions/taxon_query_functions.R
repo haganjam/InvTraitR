@@ -19,6 +19,9 @@ if (any( !(c("taxize", "dplyr") %in% installed.packages()[,1]) )) {
 message("this function was written using R version 4.0.2 (2020-06-22)")
 
 
+# load relevant functions
+source(here("scripts/functions/get_gbifid2_function.R"))
+
 # args:
 
 # database_function: name of the function - "itis" (get_tsn), "bold" - (get_boldid), "gbif" - (get_gbifid)
@@ -39,7 +42,7 @@ get_taxon_id <- function(database_function = "itis", taxon_name, ask_or_not = FA
     
   } else if (database_function == "gbif") {
     
-    func_string <- "get_gbifid"
+    func_string <- "get_gbifid2"
     
   } else {
     

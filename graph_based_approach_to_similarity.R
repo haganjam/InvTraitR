@@ -23,23 +23,52 @@ d <- distances(
   algorithm = c("bellman-ford")
 )
 
-# example
-# check this output
-y <- get_taxon_id(database_function = "itis", taxon_name = "Tanytarsus", ask_or_not = FALSE, tries = 5)
-y1 <- classification(y)
-y1 <- y1$`129978`
-y1$ranknum <- 1:nrow(y1)
-rank_num <- y1[y1$id == y,][["ranknum"]] - 3
-high_name <- y1[y1$ranknum == rank_num, ][["name"]]
+# example code
 
-high_id <- get_taxon_id(database_function = "itis", taxon_name = high_name, ask_or_not = FALSE, tries = 5)
+# set the input name
+equ.name <- "Tanytarsus"
+
+# get taxon id: database specific function
+#
+y <- get_taxon_id(database_function = "gbif", taxon_name = equ.name, ask_or_not = FALSE, tries = 5)
+#
+
+# get upwards classification: general function
+#
+y.c <- classification(y)[[1]]
+y.c$ranknum <- 1:nrow(y.c)
+
+# get target rank
+equ.rank <- y.c[y.c$name == in.name,][["ranknum"]]
+
+# get order rank
+ord.rank <- y.c[y.c$rank == "order", ][["ranknum"]]
+
+if (equ.rank < ord.rank) {
+  
+  message("equation above the rank of order")
+  equ.suitable <- FALSE
+  
+} else { equ.suitable <- TRUE }
+#
+
+# stop process if the equation is not suitable
+#
+
+# get taxon id: database specific function
+high_id <- get_taxon_id(database_function = "gbif", 
+                        taxon_name =  y.c[y.c$rank == "order", ][["name"]], 
+                        ask_or_not = TRUE, tries = 5)
+
+x <- get_gbifid2(sci = y.c[y.c$rank == "order", ][["name"]], ask = TRUE)
+
 
 # deal with the subscript out of bounds error
 # this seems to happen when there are too many taxa
 # will need to go up to the next taxnonomic level as an error fix
 
-z <- downstream(sci_id = high_id[[1]], downto = "genus", db = "itis", intermediate = TRUE)
-z$`127917`$intermediate
+z <- downstream(sci_id = high_id[[1]], downto = "genus", db = "gbif", intermediate = TRUE)
+z$`3343`$intermediate
 
 View(z[[1]])
 
@@ -82,6 +111,8 @@ tar.name
 
 # this calculation across all the different distance matrices
 d[which(row.names(d) == db.name), which(colnames(d) == tar.name) ]
+
+# rank of all the different names
 
 
 
