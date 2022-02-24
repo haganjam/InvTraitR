@@ -1,36 +1,44 @@
 
 # Graph-based approach to similarity
 
+# next steps:
+
+# add multiple tries to the downstream functions (see taxon_query_functions)
+
+# this approach gets me a distance matrix and list of taxa to genus level
+
+# code algorithmic how to incorporate species-level data into this (i.e. one step down from genus)
+
+# package this into a function and get a distance matrix and list of taxa to genus level
+# for each taxa in the equation database
+
+# finally, this just needs to be searched...
+
 # load relevant libraries
 library(igraph)
+library(taxize)
+library(here)
 
-# good link on using igraph
-# https://kevintshoemaker.github.io/NRES-746/graph.theory.html
+# load relevant functions
+source(here("scripts/functions/get_gbifid2_function.R"))
+source(here("scripts/functions/gbif_downstream_function.R"))
+source(here("scripts/functions/itis_downstream_function.R"))
+source(here("scripts/functions/taxon_query_functions.R"))
 
-# graph-based approach to similarity
-df_ver <- data.frame(name = c(1, 2, 3, 4, 5))
-df_edge <- data.frame(from = c(1, 2, 2, 2), to = c(2, 3, 4, 5),
-                      weights = c(1, 0.5, 0.5, 0.5))
-
-g <- graph_from_data_frame(df_edge, directed=FALSE, vertices=df_ver)
-print(g, e=TRUE, v=TRUE)
-d <- distances(
-  g,
-  v = V(g),
-  to = V(g),
-  mode = c("all"),
-  weights = df_edge$weights,
-  algorithm = c("bellman-ford")
-)
 
 # example code
 
 # set the input name
-equ.name <- "Tanytarsus"
+equ.name <- "Sinantherina socialis"
+z <- unlist( strsplit(x = equ.name, split = " ", fixed = TRUE) )
 
-# get taxon id: database specific function
+if (length(z) > 1) {
+  equ.name <- z[1]
+}
+
+# get taxon id: database specific function i.e. get taxon ID from the database
 #
-y <- get_taxon_id(database_function = "gbif", taxon_name = equ.name, ask_or_not = FALSE, tries = 5)
+y <- get_taxon_id(database_function = "gbif", taxon_name = "Flosculariaceae", ask_or_not = FALSE, tries = 5)
 #
 
 # get upwards classification: general function
@@ -39,10 +47,11 @@ y.c <- classification(y)[[1]]
 y.c$ranknum <- 1:nrow(y.c)
 
 # get target rank
-equ.rank <- y.c[y.c$name == in.name,][["ranknum"]]
+equ.rank <- y.c[y.c$name == equ.name,][["ranknum"]]
 
 # get order rank
 ord.rank <- y.c[y.c$rank == "order", ][["ranknum"]]
+ord.name <- y.c[y.c$rank == "order", ][["name"]]
 
 if (equ.rank < ord.rank) {
   
@@ -55,51 +64,40 @@ if (equ.rank < ord.rank) {
 # stop process if the equation is not suitable
 #
 
-# get taxon id: database specific function
-high_id <- get_taxon_id(database_function = "gbif", 
-                        taxon_name =  y.c[y.c$rank == "order", ][["name"]], 
-                        ask_or_not = TRUE, tries = 5)
-
-x <- get_gbifid2(sci = y.c[y.c$rank == "order", ][["name"]], ask = TRUE)
+# get taxon id: database specific function i.e. get the taxon ID of the order of the taxa from the database
+ord.id <- get_taxon_id(database_function = "gbif", 
+                        taxon_name =  ord.name, 
+                        ask_or_not = FALSE, tries = 5)
 
 
-# deal with the subscript out of bounds error
-# this seems to happen when there are too many taxa
-# will need to go up to the next taxnonomic level as an error fix
+# get a distance matrix and list of taxa downstream of the order
+if (data_base == "gbif") {
+  
+  dmat.taxlist <- downstream_gbif(ord.id = ord.id, ord.name = ord.name)
+  
+} else if (data_base = "itis") {
+  
+  dmat.taxlist <- downstream_itis(ord.id = ord.id, ord.name = ord.name)
+  
+} else {
+  
+  stop("error, specify an appropriate database: itis or gbif")
+  
+}
 
-z <- downstream(sci_id = high_id[[1]], downto = "genus", db = "gbif", intermediate = TRUE)
-z$`3343`$intermediate
 
-View(z[[1]])
+# these functions give distance matrices to the genus level
 
-# set appropriate taxonomic weights
-tax.ranks <- c('class','subclass', 
-               'superorder','order','suborder',
-               'superfamily','family', 'subfamily',
-               'genus', 'species') 
+# next step is to incorporate species level information
+# to this...
 
-u <- 
-  z$`127917`$intermediate %>%
-  bind_rows()
-View(u)
+# i.e. add one level of distance when it matches the genus
 
-# sequential sorting process
-x <- 
-  u %>%
-  select(from = parentname, to = taxonname)
-head(x)
+# this needs to be coupled to the equation database
 
-g <- graph_from_data_frame(d = x, directed=FALSE)
-print(g, e=TRUE, v=TRUE)
-plot(g)
-d <- distances(
-  g,
-  v = V(g),
-  to = V(g),
-  mode = c("all"),
-  algorithm = c("bellman-ford")
-)
-d[1:50, 1:50]
+# the search functions should be very simple
+
+# but, will need some decisions e.g. if same distance but family then choose genus
 
 # taxon name database
 db.name <- "Pediciini"
@@ -116,5 +114,5 @@ d[which(row.names(d) == db.name), which(colnames(d) == tar.name) ]
 
 
 
- ### END
+### END
 
