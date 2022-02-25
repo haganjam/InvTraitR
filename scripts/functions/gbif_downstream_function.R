@@ -1,5 +1,5 @@
 
-# get downstream taxa gbif function: downstream_gbif
+# Get downstream taxa gbif function: downstream_gbif
 
 # args:
 # ord.id - taxon ID of the order of the equation name
@@ -21,8 +21,11 @@ downstream_gbif <- function(ord.id, ord.name) {
   library(dplyr)
   library(taxize)
   
+  # get downstream with error handling and multiple tries
+  source(here("scripts/functions/get_downstream_taxa_function.R"))
+  
   # get downstream taxa and process into a usable data.frame
-  downtax.top <- downstream(sci_id = ord.id, downto = "family", db = "gbif", intermediate = FALSE)
+  downtax.top <- get_downstream_taxa(sci_id = ord.id, downto = "family", db = "gbif", intermediate = FALSE)
   downtax.top <- downtax.top[[1]]
   downtax.top$parentname <- ord.name
   downtax.top$parentrank <- "order"
@@ -31,7 +34,7 @@ downstream_gbif <- function(ord.id, ord.name) {
   downtax.int <- vector("list", length = nrow(downtax.top))
   for (i in 1:nrow(downtax.top)) {
     
-    x <- downstream(sci_id = downtax.top$key[i], downto = "genus", db = "gbif", intermediate = FALSE)
+    x <- get_downstream_taxa(sci_id = downtax.top$key[i], downto = "genus", db = "gbif", intermediate = FALSE)
     if (length(x[[1]]) == 0 ) {
       x <- NULL
     } else {

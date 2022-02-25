@@ -21,8 +21,11 @@ downstream_itis <- function(ord.id, ord.name) {
   library(dplyr)
   library(taxize)
   
+  # get downstream with error handling and multiple tries
+  source(here("scripts/functions/get_downstream_taxa_function.R"))
+  
   # get downstream taxa and process into a usable data.frame
-  downtax.top <- downstream(sci_id = ord.id, downto = "genus", db = "itis", intermediate = TRUE)
+  downtax.top <- get_downstream_taxa(sci_id = ord.id, downto = "genus", db = "itis", intermediate = TRUE)
   downtax.top <- bind_rows(downtax.top[[1]]$intermediate)
   
   # get taxonomic distance matrix
