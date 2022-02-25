@@ -7,16 +7,6 @@
 
 downstream_itis <- function(ord.id, ord.name) { 
   
-  # test for correct packages
-  if (any( !(c("taxize", "dplyr", "igraph") %in% installed.packages()[,1]) )) {
-    stop("error, this functions requires taxize dplyr and igraph to be installed")
-    warning("the function was written using taxize_0.9.99, dplyr_1.0.7 and igraph_1.2.11")
-    
-  } else {
-    warning("you have taxize and dplyr installed but, as a warning, this function was written using taxize_0.9.99 and dplyr_1.0.2")
-  }
-  message("this function was written using R version 4.0.2 (2020-06-22)")
-  
   # load relevant packages
   library(dplyr)
   library(taxize)

@@ -5,14 +5,6 @@
 
 # useful igraph link: https://kevintshoemaker.github.io/NRES-746/graph.theory.html
 
-# check for correct packages and R version
-if (any( !(c("igraph") %in% installed.packages()[,1]) )) {
-  stop("error, this functions requires igraph to be installed")
-} else {
-  warning("you have igraph installed but, as a warning, this package was written using version 1.2.11")
-}
-message("this function was written using R version 4.1.2 (2021-11-01)")
-
 # load the igraph library
 library(igraph)
 

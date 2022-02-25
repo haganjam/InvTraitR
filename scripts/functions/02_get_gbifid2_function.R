@@ -139,8 +139,6 @@ get_gbifid2 <- function (sci, ask = TRUE, messages = TRUE, rows = NA, phylum = N
   add_uri(ids, get_url_templates$gbif)
 }
 
-# assign
 environment(get_gbifid2) <- asNamespace('taxize')
-# assignInNamespace("get_gbifid", get_gbifid2, ns = 'taxize')
 
 ### END
