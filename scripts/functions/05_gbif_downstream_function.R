@@ -12,7 +12,7 @@ downstream_gbif <- function(ord.id, ord.name) {
   library(taxize)
   
   # get downstream with error handling and multiple tries
-  source(here("scripts/functions/get_downstream_taxa_function.R"))
+  source(here("scripts/functions/04_get_downstream_taxa_function.R"))
   
   # get downstream taxa and process into a usable data.frame
   downtax.top <- get_downstream_taxa(sci_id = ord.id, downto = "family", db = "gbif", intermediate = FALSE)
