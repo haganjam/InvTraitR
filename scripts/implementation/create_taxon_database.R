@@ -15,6 +15,7 @@ tax.list <- equ.dat[, c("equation_id", "equation_target_taxon", "life_stage")]
 # run the function for a few taxa on the list
 x.samp <- sample(1:nrow(tax.list), 12)
 df.test <- tax.list[x.samp,]
+print(df.test)
 
 # create the itis database
 db <- "itis"
@@ -31,6 +32,7 @@ for (i in 1:nrow(df.test)) {
 
 # get a list of suitable equations
 x <- sapply(order.info, function(x) if (x[["equation_suitable"]] == TRUE) { TRUE } else { FALSE }  )
+print(sum(x))
 order.info <- order.info[x]
 
 # get list of unique orders  

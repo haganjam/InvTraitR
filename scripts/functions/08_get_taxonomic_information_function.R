@@ -34,7 +34,7 @@ get_taxon_order <- function(equ.name.input, equ.id, data.base, life.stage = NA) 
   # if the taxon_id is not found in the database, then stop the function
   if (is.na(taxon_id)) {
     
-    taxlist <- c(equation_id = equ.id, 
+    taxlist <- list(equation_id = equ.id, 
                  equation_name = equ.name.input,
                  equation_suitable = FALSE,
                  database = data.base,
@@ -72,13 +72,14 @@ get_taxon_order <- function(equ.name.input, equ.id, data.base, life.stage = NA) 
   } else { equ.suitable <- TRUE }
   
   # put this information into an output list
-  taxlist <- c(equation_id = equ.id, 
-               equation_name = equ.name.input,
-               equation_suitable = equ.suitable,
-               database = data.base,
-               equation_rank = equ.rank.name,
-               order = ord.name,
-               life_stage = life.stage)
+  taxlist <- list(equation_id = equ.id, 
+                  equation_name = equ.name.input,
+                  equation_suitable = equ.suitable,
+                  database = data.base,
+                  equation_rank = equ.rank.name,
+                  order = ord.name,
+                  life_stage = life.stage
+                  )
   
   # add relevant synonymns
   if(data.base == "itis") {
