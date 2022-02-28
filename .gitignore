@@ -2,6 +2,7 @@
 *.csv
 *.txt
 *.xlsx
+*.rds
 
 # History files
 .Rhistory
