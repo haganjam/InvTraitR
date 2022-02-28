@@ -28,6 +28,11 @@ downstream_itis <- function(ord.id, ord.name) {
   # join the missing ranks
   downtax.top <- left_join(downtax.top, missing.ranks, by = "parentname")
   
+  # remove species names as they should not be searched
+  downtax.top <- 
+    downtax.top %>%
+    filter(rankname != "species")
+  
   # apply taxonomic weights
   weights <- mapply(function(x, y) tax.d[which(row.names(tax.d) == x), which(colnames(tax.d) == y) ],
                     x = downtax.top$rankname,
