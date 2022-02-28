@@ -1,4 +1,6 @@
 
+# Search taxon database
+
 # next steps:
 
 # run all of these steps for each species in our equation database for
@@ -6,7 +8,6 @@
 # at each run, we must add the equation id
 # thus, when there is a match, we can immediately get to the relevant dataset
 # and calculate the taxonomic proximity
-
 
 # to do:
 
@@ -20,7 +21,6 @@
 
 in.dat <- readxl::read_xlsx(here("raw_data/variable_input_data.xlsx"))
 in.dat <- in.dat[!is.na(in.dat$equation_id),]
-
 
 ## some possible search function options
 
@@ -36,7 +36,3 @@ tar.name
 d[which(row.names(d) == db.name), which(colnames(d) == tar.name) ]
 
 # rank of all the different names
-
-
-
-

@@ -54,6 +54,6 @@ tax.database <- lapply(order.info, function(x) {
   
 } )
 
-tax.database
+saveRDS(tax.database, file = here("database/itis_taxon_database.rds") )
 
 ### END
