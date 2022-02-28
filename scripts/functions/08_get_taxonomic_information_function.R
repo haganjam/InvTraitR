@@ -92,7 +92,7 @@ get_taxon_order <- function(equ.name.input, equ.id, data.base, life.stage = NA) 
   } else { equ.syn <- NA }
   
   # combine into dmat.taxlist
-  taxlist <- c(taxlist, synonymns = equ.syn)
+  taxlist <- c(taxlist, list(synonymns = equ.syn) )
   
   return(taxlist)
   

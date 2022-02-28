@@ -2,6 +2,7 @@
 # Get taxonomic information for each equation in the database
 
 # load relevant functions
+library(here)
 source(here("scripts/functions/08_get_taxonomic_information_function.R"))
 
 # implement the function for all taxa in the equation database
