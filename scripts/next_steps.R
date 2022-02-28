@@ -22,6 +22,20 @@ in.dat <- readxl::read_xlsx(here("raw_data/variable_input_data.xlsx"))
 in.dat <- in.dat[!is.na(in.dat$equation_id),]
 
 
+## some possible search function options
+
+# taxon name database
+db.name <- "Pediciini"
+db.name
+
+# target name
+tar.name <- "Limnophila costata"
+tar.name
+
+# this calculation across all the different distance matrices
+d[which(row.names(d) == db.name), which(colnames(d) == tar.name) ]
+
+# rank of all the different names
 
 
 

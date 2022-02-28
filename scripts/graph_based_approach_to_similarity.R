@@ -22,9 +22,10 @@ source(here("scripts/functions/06_itis_downstream_function.R"))
 # args
 # equ.name.input - taxonomic name from the equation database
 # equ.id - equation id from the equation database
-# data_base - taxonomic database ( "itis" or "gbif" are supported)
+# data.base - taxonomic database ( "itis" or "gbif" are supported)
+# life.stage - life stage of the equation
 
-get_taxonomic_info <- function(equ.name.input, equ.id, data_base = "itis") {
+get_taxonomic_info <- function(equ.name.input, equ.id, data.base = "itis", life.stage = NA) {
   
   # if the input name is a species then extract the genus
   z <- unlist( strsplit(x = equ.name.input, split = " ", fixed = TRUE) )
@@ -33,7 +34,7 @@ get_taxonomic_info <- function(equ.name.input, equ.id, data_base = "itis") {
   } else {equ.name <- equ.name.input}
   
   # get the taxon_id from the correct database
-  taxon_id <- get_taxon_id(database_function = data_base, taxon_name = equ.name, ask_or_not = FALSE, tries = 5)
+  taxon_id <- get_taxon_id(database_function = data.base, taxon_name = equ.name, ask_or_not = FALSE, tries = 5)
   
   # get the upwards classification for the taxon_id
   y.c <- classification(taxon_id)[[1]]
@@ -65,7 +66,9 @@ get_taxonomic_info <- function(equ.name.input, equ.id, data_base = "itis") {
     # set the output for the unsuitable equation
     dmat.taxlist <- c(equation_id = equ.id, 
                       equation_name = equ.name.input, 
+                      database = data.base,
                       equation_rank = equ.rank.name,
+                      life_stage = life.stage,
                       tax_distance = NA,
                       tax_names = NA,
                       synonymns = NA)
@@ -77,22 +80,22 @@ get_taxonomic_info <- function(equ.name.input, equ.id, data_base = "itis") {
   }
   
   # get taxon id: database specific function i.e. get the taxon ID of the order of the taxa from the database
-  ord.id <- get_taxon_id(database_function = data_base, 
+  ord.id <- get_taxon_id(database_function = data.base, 
                          taxon_name =  ord.name, 
                          ask_or_not = FALSE, tries = 5)
   ord.id <- ord.id[[1]]
   
   # get a distance matrix and list of taxa downstream of the order
-  if (data_base == "gbif") {
+  if (data.base == "gbif") {
     
     dmat.taxlist <- downstream_gbif(ord.id = ord.id, ord.name = ord.name)
     
-  } else if (data_base == "itis") {
+  } else if (data.base == "itis") {
     
     dmat.taxlist <- downstream_itis(ord.id = ord.id, ord.name = ord.name)
     
     # add synonymns here
-    equ.syn <- taxize::synonyms(taxon_id, db = data_base)
+    equ.syn <- taxize::synonyms(taxon_id, db = data.base)
     equ.syn <- equ.syn[[1]]$syn_name
     if (is.null(equ.syn)) {
       equ.syn <- NA
@@ -109,8 +112,10 @@ get_taxonomic_info <- function(equ.name.input, equ.id, data_base = "itis") {
   
   # add the equation taxon name and the rank
   dmat.taxlist <- c(equation_id = equ.id, 
-                    equation_name = equ.name.input, 
+                    equation_name = equ.name.input,
+                    database = data.base,
                     equation_rank = equ.rank.name,
+                    life_stage = life.stage,
                     dmat.taxlist)
   
   # return the list with relevant taxonomic information
@@ -121,38 +126,35 @@ get_taxonomic_info <- function(equ.name.input, equ.id, data_base = "itis") {
 # test the function on a species
 x <- get_taxonomic_info(equ.name.input = "Sinantherina socialis", 
                         equ.id = 31, 
-                        data_base = "itis") 
+                        data.base = "itis") 
 
-# test the function on an order
+# test the function on a rank above order
 y <- get_taxonomic_info(equ.name.input = "Insecta", 
                         equ.id = 45, 
-                        data_base = "itis") 
+                        data.base = "itis") 
 
-# these functions give distance matrices to the genus level
 
-# next step is to incorporate species level information
-# to this...
+# implement the function for all taxa in the equation database
+equ.dat <- readxl::read_xlsx(here("raw_data/equation_data.xlsx"))
+equ.dat <- equ.dat[!is.na(equ.dat$equation_id),]
 
-# i.e. add one level of distance when it matches the genus
+# taxon list
+tax.list <- equ.dat[, c("equation_id", "equation_target_taxon", "life_stage")]
 
-# this needs to be coupled to the equation database
+# run the function for a few taxa on the list
+x.samp <- sample(1:nrow(tax.list), 5)
+df.test <- tax.list[x.samp,]
 
-# the search functions should be very simple
+tax.info <- vector("list", length = nrow(df.test))
+for (i in 1:nrow(df.test)) {
+  v <- 
+    get_taxonomic_info(equ.name.input = df.test$equation_target_taxon[i], 
+                       equ.id = df.test$equation_id[i], 
+                       data.base = "itis") 
+  tax.info[[i]] <- v
+}
 
-# but, will need some decisions e.g. if same distance but family then choose genus
 
-# taxon name database
-db.name <- "Pediciini"
-db.name
-
-# target name
-tar.name <- "Limnophila costata"
-tar.name
-
-# this calculation across all the different distance matrices
-d[which(row.names(d) == db.name), which(colnames(d) == tar.name) ]
-
-# rank of all the different names
 
 
 

@@ -52,8 +52,6 @@ View(u)
 u1 <- downstream(sci_id = y[[1]], downto = "subfamily", db = "itis", intermediate = FALSE)
 u1$`118840`$tsn[1]
 
-
-
 taxize::classification(sci_id = y[[1]], db = "itis")
 x.out[[1]]
 
