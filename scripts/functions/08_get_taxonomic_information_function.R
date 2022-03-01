@@ -128,10 +128,6 @@ get_taxon_distance <- function(ord.name, data.base = "itis") {
     
   }
   
-  # add the equation taxon name and the rank
-  dmat <- c(order = ord.name,
-            dmat)
-  
   return(dmat)
   
 }
