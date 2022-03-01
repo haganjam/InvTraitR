@@ -55,6 +55,13 @@ downstream_gbif <- function(ord.id, ord.name) {
     algorithm = c("bellman-ford")
   )
   
+  # convert symmetrical values in upper matrix to zeros
+  d.g.dist [upper.tri(d.g.dist , diag = FALSE)] <- 0
+  
+  # convert the distance matrix into a sparse matrix
+  library(Matrix)
+  d.g.dist  <- Matrix(d.g.dist, sparse = TRUE)
+  
   # get a data.frame of unique taxonomic names and their 
   par.dat <- downtax.top[, c("parentname", "parentrank")]
   names(par.dat) <- c("taxonname", "rank")

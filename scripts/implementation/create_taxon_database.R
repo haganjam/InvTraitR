@@ -13,7 +13,7 @@ equ.dat <- equ.dat[!is.na(equ.dat$equation_id),]
 tax.list <- equ.dat[, c("equation_id", "equation_target_taxon", "life_stage")]
 
 # run the function for a few taxa on the list
-x.samp <- sample(1:nrow(tax.list), 12)
+x.samp <- sample(1:nrow(tax.list), 15)
 df.test <- tax.list[x.samp,]
 print(df.test)
 
@@ -48,15 +48,19 @@ for (j in 1:length(uni.order)) {
   
 }
 
-# list of orders in dmat
-tax.database <- lapply(order.info, function(x) {
-  
-  y <- uni.order == x[["order"]]
-  z <- c(x, dmat.order[y][[1]])
-  return(z)
-  
-} )
+# subset out the orders where taxononomic information is available for the order
+x <- lapply(dmat.order, function(x) x$tax_available)
+dmat.order <- dmat.order[x]
+uni.order.in <- uni.order[unlist(x)]
 
-saveRDS(tax.database, file = here("database/itis_taxon_database.rds") )
+# subset out any equations where the order information is not available
+y <- sapply(order.info, function(x) if (x[["order"]] %in% uni.order.in) { TRUE } else { FALSE }  )
+order.info <- order.info[unlist(y)]
+
+# save an equation database with taxonomic identifiers
+saveRDS(order.info, file = here("database/itis_taxon_identifiers.rds") )
+
+# save an equation database with the taxonomic information for each order
+saveRDS(dmat.order, file = here("database/itis_order_taxon_information.rds") )
 
 ### END

@@ -1,13 +1,10 @@
 
 # Search taxon database
 
-# next steps:
+# Next steps:
 
-# need to save memory:
-
-# 1. use a sparse matrix to store the taxonomic information
-# 2. do not store copies of each order's taxonomic information i.e. only unique orders
-# - link the order information when required
+# implement some maximum taxonomic distance cut-off
+# use the best equation to calculate the mass from some given length
 
 # load relevant libraries
 library(here)
@@ -16,15 +13,16 @@ library(dplyr)
 # read in the equation data
 equ.dat <- readxl::read_xlsx(here("raw_data/equation_data.xlsx"))
 equ.dat <- equ.dat[!is.na(equ.dat$equation_id),]
-View(equ.dat)
 
 # read in the variable inputs
 in.dat <- readxl::read_xlsx(here("raw_data/variable_input_data.xlsx"))
 in.dat <- in.dat[!is.na(in.dat$equation_id),]
-View(in.dat)
 
-# read in the taxonomic data
-td <- readRDS(file = here("database/itis_taxon_database.rds"))
+# read in the taxonomic identifiers
+td.dat <- readRDS(file = here("database/itis_taxon_identifiers.rds"))
+
+# read in the taxonomic information for each order
+td.dist <- readRDS(file = here("database/itis_order_taxon_information.rds"))
 
 # list of equation IDs with only length data
 x <- aggregate(in.dat$equation_id, by = list(in.dat$equation_id), length, simplify = TRUE)
@@ -35,24 +33,23 @@ id.length <- y[y$size_measurement == "body_length", ]$equation_id
 # function to search database for best equations
 
 # args
-target.name <- "Borboropsinae"
+target.name <- "Ptilonyssus"
 length.only <- TRUE
 data.base <- "itis"
 
+# load the relevant functions
+source(here("scripts/functions/08_get_taxonomic_information_function.R"))
+
 # if the input name is a species then extract the genus
-z <- unlist( strsplit(x = target.name, split = " ", fixed = TRUE) )
-if (length(z) > 1) {
-  search.name <- z[1]
-} else {search.name <- target.name}
+search.name <- extract_genus(binomial = target.name)
 
 # if length.only = TRUE then subset equations with only length data
 if (length.only == TRUE) {
-  x <- lapply(td, function(x) x$equation_id %in% id.length)
-  td <- td[unlist(x)]
-} 
+  x <- lapply(td.dat, function(x) x$equation_id %in% id.length)
+  td <- td.dat[unlist(x)]
+} else {td <- td.dat}
 
 # get the order of the target
-source(here("scripts/functions/08_get_taxonomic_information_function.R"))
 search.order <- get_taxon_order(equ.name.input = search.name, equ.id = NA, data.base = data.base, life.stage = NA)
 search.order <- search.order$order
 
@@ -65,38 +62,45 @@ if (sum(y) == 0) {
 }
 td <- td[y]
 
-td.dist <- 
+# select the correct taxonomic distance matrix
+# select the correct distance matrix
+order.dist <- td.dist[unlist(lapply(td.dist, function(x) x$order == search.order))][[1]]
+dist.m <- order.dist$tax_distance
+tax.names <- order.dist$tax_names
+rm(order.dist)
+
+equ.dist <- 
   lapply(td, function(x) { 
-  
+    
   if (x$equation_name == target.name) {
     d <- 0
-  } else if ( (search.name %in% x$tax_names$taxonname) | (search.name %in% x$synonymns) ) {
-    dist.m <- x$tax_distance
-    d1 <- dist.m[which(row.names(dist.m) == x$equation_name), which(colnames(dist.m) == search.name) ]
-    d2 <- dist.m[which(row.names(dist.m) == search.name), which(colnames(dist.m) == x$equation_name) ]
+  } else if ( (search.name %in% tax.names$taxonname) | (search.name %in% x$synonymns) ) {
+    z <- extract_genus( x$equation_name)
+    d1 <- dist.m[which(row.names(dist.m) == z), which(colnames(dist.m) == search.name) ]
+    d2 <- dist.m[which(row.names(dist.m) == search.name), which(colnames(dist.m) == z ) ]
     d <- max(c(d1, d2))
+    if (x$equation_rank == "species") {d <- d+1} # add species level distance
   } else {d <- NA}
   
   return(d)
   
   } )
+rm(dist.m)
 
 # unlist the distances
-td.dist <- unlist(td.dist)
-td.min <- which(near(min(td.dist), td.dist))
+equ.dist <- unlist(equ.dist)
+equ.min <- which(near(min(equ.dist), equ.dist))
 
 # get the taxonomic rank table
 tax.hier <- c("order", "suborder", "infraorder", "section", "subsection", "superfamily",
               "family", "subfamily", "tribe", "subtribe", "genus")
-if (length(td.min) > 1 ) {
-  equ.ranks <- lapply(td[td.min], function(x) {x$equation_rank} )
+if (length(equ.min) > 1 ) {
+  equ.ranks <- lapply(td[equ.min], function(x) {x$equation_rank} )
   x <- which(tax.hier %in% unlist(equ.ranks) )
   y <- which(x == min(x))
-  best.equ <- td[td.min[y]][[1]]$equation_id 
+  best.equ <- td[equ.min[y]][[1]]$equation_id 
   } else {
-    best.equ <- td[td.min]$equation_id
+    best.equ <- td[equ.min][[1]]$equation_id
   }
+print(best.equ)
 
-
-
-# rank of all the different names

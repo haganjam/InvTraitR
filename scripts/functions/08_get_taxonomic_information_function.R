@@ -113,6 +113,19 @@ get_taxon_distance <- function(ord.name, data.base = "itis") {
                          ask_or_not = FALSE, tries = 5)
   ord.id <- ord.id[[1]]
   
+  # if the taxon_id is not found in the database, then stop the function
+  if (is.na(ord.id)) {
+    
+    dmat <- c(list(order = ord.name),
+              list(tax_available = FALSE),
+              list(tax_distance = NA,
+                   tax_names = NA)) 
+    
+    return(dmat)
+    stop("Could not find this order name in the database")
+    
+  }
+  
   # get a distance matrix and list of taxa downstream of the order
   if (data.base == "gbif") {
     
@@ -128,8 +141,25 @@ get_taxon_distance <- function(ord.name, data.base = "itis") {
     
   }
   
+  dmat <- c(list(order = ord.name),
+            list(tax_available = TRUE),
+            dmat)
+  
   return(dmat)
   
+}
+
+# define a function to extract the genus from a binomial
+
+# args
+# binomial - binomial character string separated by a space (e.g. "Loxodonta loxodonta")
+
+extract_genus <- function(binomial) {
+  z <- unlist( strsplit(x = binomial, split = " ", fixed = TRUE) )
+  if (length(z) > 1) {
+    search.name <- z[1]
+  } else {search.name <- binomial}
+  return(search.name)
 }
 
 ### END
