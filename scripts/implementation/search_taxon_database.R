@@ -17,9 +17,11 @@ equ.dat <- equ.dat[!is.na(equ.dat$equation_id),]
 # read in the variable inputs
 in.dat <- readxl::read_xlsx(here("raw_data/variable_input_data.xlsx"))
 in.dat <- in.dat[!is.na(in.dat$equation_id),]
+View(in.dat)
 
 # read in the taxonomic identifiers
 td.dat <- readRDS(file = here("database/itis_taxon_identifiers.rds"))
+td.dat
 
 # read in the taxonomic information for each order
 td.dist <- readRDS(file = here("database/itis_order_taxon_information.rds"))
@@ -33,8 +35,8 @@ id.length <- y[y$size_measurement == "body_length", ]$equation_id
 # function to search database for best equations
 
 # args
-target.name <- "Ptilonyssus"
-length.only <- TRUE
+target.name <- "Lopocharis ambidentata"
+length.only <- FALSE
 data.base <- "itis"
 
 # load the relevant functions
@@ -52,6 +54,7 @@ if (length.only == TRUE) {
 # get the order of the target
 search.order <- get_taxon_order(equ.name.input = search.name, equ.id = NA, data.base = data.base, life.stage = NA)
 search.order <- search.order$order
+print(paste("order: ", search.order))
 
 # get the equations with the correct order
 y <- lapply(td, function(y) y$order == search.order)
@@ -66,6 +69,7 @@ td <- td[y]
 # select the correct distance matrix
 order.dist <- td.dist[unlist(lapply(td.dist, function(x) x$order == search.order))][[1]]
 dist.m <- order.dist$tax_distance
+print(paste("dimension: ", paste(dim(dist.m), collapse = " x ") ))
 tax.names <- order.dist$tax_names
 rm(order.dist)
 
@@ -79,7 +83,10 @@ equ.dist <-
     d1 <- dist.m[which(row.names(dist.m) == z), which(colnames(dist.m) == search.name) ]
     d2 <- dist.m[which(row.names(dist.m) == search.name), which(colnames(dist.m) == z ) ]
     d <- max(c(d1, d2))
-    if (x$equation_rank == "species") {d <- d+1} # add species level distance
+    
+    # add extra distances for the species level
+    if (x$equation_rank == "species") {d <- d+0.25} # add species level distance
+    if (length(unlist( strsplit(x = target.name, split = " ", fixed = TRUE) )) > 1) {d <- d+0.25}
   } else {d <- NA}
   
   return(d)
@@ -90,6 +97,7 @@ rm(dist.m)
 # unlist the distances
 equ.dist <- unlist(equ.dist)
 equ.min <- which(near(min(equ.dist), equ.dist))
+print(equ.dist[equ.min])
 
 # get the taxonomic rank table
 tax.hier <- c("order", "suborder", "infraorder", "section", "subsection", "superfamily",
@@ -104,3 +112,4 @@ if (length(equ.min) > 1 ) {
   }
 print(best.equ)
 
+### END
