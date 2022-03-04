@@ -17,14 +17,15 @@ equ.dat <- equ.dat[!is.na(equ.dat$equation_id),]
 # read in the variable inputs
 in.dat <- readxl::read_xlsx(here("raw_data/variable_input_data.xlsx"))
 in.dat <- in.dat[!is.na(in.dat$equation_id),]
-View(in.dat)
 
 # read in the taxonomic identifiers
 td.dat <- readRDS(file = here("database/itis_taxon_identifiers.rds"))
-td.dat
+td.dat[[8]]
 
 # read in the taxonomic information for each order
 td.dist <- readRDS(file = here("database/itis_order_taxon_information.rds"))
+lapply(td.dist, function(x) x$order)
+td.dist[[4]]$tax_names
 
 # list of equation IDs with only length data
 x <- aggregate(in.dat$equation_id, by = list(in.dat$equation_id), length, simplify = TRUE)
@@ -35,7 +36,7 @@ id.length <- y[y$size_measurement == "body_length", ]$equation_id
 # function to search database for best equations
 
 # args
-target.name <- "Lopocharis ambidentata"
+target.name <- "Sinantherina socialis"
 length.only <- FALSE
 data.base <- "itis"
 
@@ -44,6 +45,22 @@ source(here("scripts/functions/08_get_taxonomic_information_function.R"))
 
 # if the input name is a species then extract the genus
 search.name <- extract_genus(binomial = target.name)
+
+# extract target.name ID
+syn.id <- get_taxon_id(database_function = data.base, 
+                       taxon_name = search.name, ask_or_not = FALSE, tries = 5)
+
+if (is.na(syn.id)) {
+  message( paste("Target taxon name is not in the ", data.base, " database", sep = "" ) )
+}
+# extract synonyms associated with the target.name ID
+syn.df <- synonyms(syn.id)[[1]]
+
+# if the target.name is not the accepted name then replace it with the accepted name
+if ( any(syn.df$sub_tsn != syn.df$acc_tsn) ) { 
+  warning(paste(nrow(syn.df), " synonyms: ", paste(syn.df$syn_name, collapse = ", "), " | Using accepted name: ", syn.df$acc_name[1], sep = ""  ))
+  target.name <- syn.df$acc_name[1] 
+} else {print("No synonymns for this taxon name")}
 
 # if length.only = TRUE then subset equations with only length data
 if (length.only == TRUE) {
