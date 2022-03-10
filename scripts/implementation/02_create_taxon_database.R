@@ -6,8 +6,8 @@ library(here)
 source(here("scripts/functions/08_get_taxonomic_information_function.R"))
 
 # implement the function for all taxa in the equation database
-equ.dat <- readxl::read_xlsx(here("raw_data/equation_data.xlsx"))
-equ.dat <- equ.dat[!is.na(equ.dat$equation_id),]
+equ_id <- readRDS(file = here("database/equation_vars_database.rds"))
+equ.dat <- equ_id$equation_data
 
 # taxon list
 tax.list <- equ.dat[, c("equation_id", "equation_target_taxon", "life_stage")]

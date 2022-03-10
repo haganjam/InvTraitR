@@ -9,26 +9,6 @@
 library(here)
 library(dplyr)
 
-# read in the equation data
-equ.dat <- readxl::read_xlsx(here("raw_data/equation_data.xlsx"))
-equ.dat <- equ.dat[!is.na(equ.dat$equation_id),]
-
-# read in the variable inputs
-in.dat <- readxl::read_xlsx(here("raw_data/variable_input_data.xlsx"))
-in.dat <- in.dat[!is.na(in.dat$equation_id),]
-
-# read in the taxonomic identifiers
-td.dat <- readRDS(file = here("database/itis_taxon_identifiers.rds"))
-
-# read in the taxonomic information for each order
-td.dist <- readRDS(file = here("database/itis_order_taxon_information.rds"))
-
-# list of equation IDs with only length data
-x <- aggregate(in.dat$equation_id, by = list(in.dat$equation_id), length, simplify = TRUE)
-y <- in.dat[in.dat$equation_id %in% x[x$x == 1, ]$Group.1, ]
-id.length <- y[y$size_measurement == "body_length", ]$equation_id
-
-
 # function to search database for best equations
 
 # args
