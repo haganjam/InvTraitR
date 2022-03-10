@@ -12,6 +12,21 @@ source(here("scripts/functions/03_get_taxon_id_function.R"))
 source(here("scripts/functions/05_gbif_downstream_function.R"))
 source(here("scripts/functions/06_itis_downstream_function.R"))
 
+
+# define a function to extract the genus from a binomial
+
+# args
+# binomial - binomial character string separated by a space (e.g. "Loxodonta loxodonta")
+
+extract_genus <- function(binomial) {
+  z <- unlist( strsplit(x = binomial, split = " ", fixed = TRUE) )
+  if (length(z) > 1) {
+    search.name <- z[1]
+  } else {search.name <- binomial}
+  return(search.name)
+}
+
+
 # define a function to get the order for each taxon in the equation database
 
 # args
@@ -23,10 +38,7 @@ source(here("scripts/functions/06_itis_downstream_function.R"))
 get_taxon_order <- function(equ.name.input, equ.id, data.base, life.stage = NA) {
   
   # if the input name is a species then extract the genus
-  z <- unlist( strsplit(x = equ.name.input, split = " ", fixed = TRUE) )
-  if (length(z) > 1) {
-    equ.name <- z[1]
-  } else {equ.name <- equ.name.input}
+  equ.name <- extract_genus(binomial = equ.name.input)
   
   # get the taxon_id from the correct database
   taxon_id <- get_taxon_id(database_function = data.base, taxon_name = equ.name, ask_or_not = FALSE, tries = 5)
@@ -147,19 +159,6 @@ get_taxon_distance <- function(ord.name, data.base = "itis") {
   
   return(dmat)
   
-}
-
-# define a function to extract the genus from a binomial
-
-# args
-# binomial - binomial character string separated by a space (e.g. "Loxodonta loxodonta")
-
-extract_genus <- function(binomial) {
-  z <- unlist( strsplit(x = binomial, split = " ", fixed = TRUE) )
-  if (length(z) > 1) {
-    search.name <- z[1]
-  } else {search.name <- binomial}
-  return(search.name)
 }
 
 ### END
