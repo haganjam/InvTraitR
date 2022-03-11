@@ -12,10 +12,11 @@ library(dplyr)
 # function to search database for best equations
 
 # args
-target.name <- "Gammarus roeseli"
+target.name <- "Toxomerini"
 length.only <- FALSE
 data.base <- "itis"
 max_tax_dist <- 6
+sim_level <- 1
 
 # load the equation database
 if (!exists("equ_id")) {
@@ -23,17 +24,19 @@ if (!exists("equ_id")) {
 }
 
 # load the taxon information database
-if (!exists("td")) {
-  td <- readRDS(file = here("database/itis_taxon_identifiers.rds"))
+if (!exists("td.dat")) {
+  td.dat <- readRDS(file = here("database/itis_taxon_identifiers.rds"))
 }
+td <- td.dat
 
 # read in the taxonomic distance database
-if (!exists("td.dist")) {
-  td.dist <- readRDS(file = here("database/itis_order_taxon_information.rds"))
+if (!exists("td.dist.dat")) {
+  td.dist.dat <- readRDS(file = here("database/itis_order_taxon_information.rds"))
 }
+td.dist <- td.dist.dat
 
 # load the relevant functions
-source(here("scripts/functions/08_get_taxonomic_information_function.R"))
+source(here("scripts/functions/01_get_taxon_id_function.R"))
 
 # if the input name is a species then extract the genus
 search.name <- extract_genus(binomial = target.name)
@@ -68,7 +71,7 @@ if ( any(is.na(syn.df)) ) {
     }
 
 # if length.only = TRUE then subset equations with only length data
-if (length.only == TRUE) {
+if (length.only) {
   
   x <- lapply(td, function(x) x$equation_id %in% equ_id$id_only_equ_ID)
   td <- td[unlist(x)]
@@ -123,15 +126,20 @@ equ.dist <-
     
     } 
     
-    else {d <- NA}
+    else {d3 <- NA}
   
-  return(d)
+  return(d3)
   
   } )
 rm(dist.m)
 
 # unlist the distances
 equ.dist <- unlist(equ.dist)
+
+# add equation range data i.e. min length individual and max length individual...
+
+# choose output type i.e. single mass value or a spreadsheet with options?
+
 equ.min <- which(near(min(equ.dist), equ.dist))
 print(equ.dist[equ.min])
 

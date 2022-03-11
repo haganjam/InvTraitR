@@ -13,20 +13,6 @@ source(here("scripts/create_database/03_gbif_downstream_function.R"))
 source(here("scripts/create_database/04_itis_downstream_function.R"))
 
 
-# define a function to extract the genus from a binomial
-
-# args
-# binomial - binomial character string separated by a space (e.g. "Loxodonta loxodonta")
-
-extract_genus <- function(binomial) {
-  z <- unlist( strsplit(x = binomial, split = " ", fixed = TRUE) )
-  if (length(z) > 1) {
-    search.name <- z[1]
-  } else {search.name <- binomial}
-  return(search.name)
-}
-
-
 # define a function to get the order for each taxon in the equation database
 
 # args
