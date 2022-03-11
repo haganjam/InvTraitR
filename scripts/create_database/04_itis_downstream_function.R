@@ -12,14 +12,14 @@ downstream_itis <- function(ord.id, ord.name) {
   library(taxize)
   
   # get downstream with error handling and multiple tries
-  source(here("scripts/functions/04_get_downstream_taxa_function.R"))
+  source(here("scripts/create_database/02_get_downstream_taxa_function.R"))
   
   # get downstream taxa and process into a usable data.frame
   downtax.top <- get_downstream_taxa(sci_id = ord.id, downto = "genus", db = "itis", intermediate = TRUE)
   downtax.top <- bind_rows(downtax.top[[1]]$intermediate)
   
   # get taxonomic distance matrix
-  source(here("scripts/functions/07_taxon_matrix_itis_function.R"))
+  source(here("scripts/create_database/05_taxon_matrix_itis_function.R"))
   
   # extract the missing ranks
   missing.ranks <- rbind(downtax.top[downtax.top$rankname != "genus", c("rankname", "taxonname")], c("order", ord.name) )

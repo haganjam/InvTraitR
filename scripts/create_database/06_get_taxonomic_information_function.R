@@ -5,12 +5,12 @@
 library(here)
 
 # check for the correct packages:
-source(here("scripts/functions/01_version_package_warnings.R"))
+source(here("scripts/create_database/01_version_package_warnings.R"))
 
 # load relevant functions
-source(here("scripts/functions/03_get_taxon_id_function.R"))
-source(here("scripts/functions/05_gbif_downstream_function.R"))
-source(here("scripts/functions/06_itis_downstream_function.R"))
+source(here("scripts/functions/01_get_taxon_id_function.R"))
+source(here("scripts/create_database/03_gbif_downstream_function.R"))
+source(here("scripts/create_database/04_itis_downstream_function.R"))
 
 
 # define a function to extract the genus from a binomial

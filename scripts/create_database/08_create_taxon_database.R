@@ -3,7 +3,7 @@
 
 # load relevant functions
 library(here)
-source(here("scripts/functions/08_get_taxonomic_information_function.R"))
+source(here("scripts/create_database/06_get_taxonomic_information_function.R"))
 
 # implement the function for all taxa in the equation database
 equ_id <- readRDS(file = here("database/equation_vars_database.rds"))
