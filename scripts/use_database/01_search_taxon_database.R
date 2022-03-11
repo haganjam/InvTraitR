@@ -4,6 +4,7 @@
 # Next steps:
 
 # use the best equation to calculate the mass from some given length
+# implement spread-sheet output
 
 # load relevant libraries
 library(here)
