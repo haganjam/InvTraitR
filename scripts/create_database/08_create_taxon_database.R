@@ -16,12 +16,12 @@ equ_id <- readRDS(file = here("database/equation_vars_database.rds"))
 equ_dat <- equ_id$equation_data
 
 # run the function for a few taxa on the list
-equ.test <- equ_dat[sample(1:nrow(equ_dat), 5), ]
+equ.test <- equ_dat[sample(1:nrow(equ_dat), 15), ]
 print(equ.test)
 
 # get the order for each equation in the database
 order.equ <- vector("list", length = nrow(equ.test))
-for (i in 1:nrow(df.test)) {
+for (i in 1:nrow(equ.test)) {
   
   order.equ[[i]] <- 
     get_taxon_order(name.input = equ.test$equation_target_taxon[i], 
@@ -40,12 +40,12 @@ order.equ <- order.equ[ sapply(order.equ, function(x) ifelse(x[["suitable"]], TR
 len_dat <- readRDS(file = here("database/default_length_database.rds"))
 
 # run the function for a few taxa on the list
-len.test <- len_dat[sample(1:nrow(len_dat), 5), ]
+len.test <- len_dat[sample(1:nrow(len_dat), 15), ]
 print(len.test)
 
 # get the order for each equation in the database
 order.len <- vector("list", length = nrow(len.test))
-for (i in 1:nrow(df.test)) {
+for (i in 1:nrow(len.test)) {
   
   order.len[[i]] <- 
     get_taxon_order(name.input = len.test$target_taxon[i], 
