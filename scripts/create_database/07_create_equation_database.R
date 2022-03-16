@@ -23,4 +23,20 @@ equ_vars <-
 # merge into a list
 saveRDS(equ_vars, file = here("database/equation_vars_database.rds") )
 
+
+# Create a database of default lengths
+dl.dat <- readr::read_csv("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/default_length_data.csv")
+head(dl.dat)
+
+# load dplyr
+library(dplyr)
+
+# add a target taxon column
+dl.dat <- 
+  dl.dat %>%
+  mutate(target_taxon = if_else(is.na(Species), Genus, Species) )
+
+# save as a .RDS file
+saveRDS(dl.dat, file = here("database/default_length_database.rds") )
+
 ### END
