@@ -36,6 +36,12 @@ dl.dat <-
   dl.dat %>%
   mutate(target_taxon = if_else(is.na(Species), Genus, Species) )
 
+# add a length id column
+dl.dat$length_id <- 1:nrow(dl.dat)
+
+# reorder the columns
+dl.dat <- dl.dat[, c(7,6, 1:5)]
+
 # save as a .RDS file
 saveRDS(dl.dat, file = here("database/default_length_database.rds") )
 

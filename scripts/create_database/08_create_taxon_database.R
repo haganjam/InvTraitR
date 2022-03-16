@@ -5,38 +5,63 @@
 library(here)
 source(here("scripts/create_database/06_get_taxonomic_information_function.R"))
 
-# implement the function for all taxa in the equation database
-equ_id <- readRDS(file = here("database/equation_vars_database.rds"))
-equ.dat <- equ_id$equation_data
-
-# taxon list
-tax.list <- equ.dat[, c("equation_id", "equation_target_taxon", "life_stage")]
-
-# run the function for a few taxa on the list
-x.samp <- sample(1:nrow(tax.list), 15)
-df.test <- tax.list[x.samp,]
-print(df.test)
-
-# create the itis database
+# set database to search
 db <- "itis"
 
+
+## Equation database
+
+# implement the function for all taxa in the equation database
+equ_id <- readRDS(file = here("database/equation_vars_database.rds"))
+equ_dat <- equ_id$equation_data
+
+# run the function for a few taxa on the list
+equ.test <- equ_dat[sample(1:nrow(equ_dat), 5), ]
+print(equ.test)
+
 # get the order for each equation in the database
-order.info <- vector("list", length = nrow(df.test))
+order.equ <- vector("list", length = nrow(equ.test))
 for (i in 1:nrow(df.test)) {
-  v <- 
-    get_taxon_order(equ.name.input = df.test$equation_target_taxon[i], 
-                       equ.id = df.test$equation_id[i], 
-                       data.base = db) 
-  order.info[[i]] <- v
+  
+  order.equ[[i]] <- 
+    get_taxon_order(name.input = equ.test$equation_target_taxon[i], 
+                    id = equ.test$equation_id[i], 
+                    data.base = db) 
+  
 }
 
 # get a list of suitable equations
-x <- sapply(order.info, function(x) if (x[["equation_suitable"]] == TRUE) { TRUE } else { FALSE }  )
-print(sum(x))
-order.info <- order.info[x]
+order.equ <- order.equ[ sapply(order.equ, function(x) ifelse(x[["suitable"]], TRUE, FALSE))]
 
-# get list of unique orders  
-uni.order <- unique(sapply(order.info, function(x) x[["order"]]))
+
+## Default length database
+
+# implement the function for all taxa in the default length database
+len_dat <- readRDS(file = here("database/default_length_database.rds"))
+
+# run the function for a few taxa on the list
+len.test <- len_dat[sample(1:nrow(len_dat), 5), ]
+print(len.test)
+
+# get the order for each equation in the database
+order.len <- vector("list", length = nrow(len.test))
+for (i in 1:nrow(df.test)) {
+  
+  order.len[[i]] <- 
+    get_taxon_order(name.input = len.test$target_taxon[i], 
+                    id = len.test$length_id[i], 
+                    data.base = db) 
+  
+}
+
+# get a list of suitable default lengths
+order.len <- order.len[ sapply(order.len, function(x) ifelse(x[["suitable"]], TRUE, FALSE))]
+
+
+## Get taxonomic distances for each order
+uni.order <- unique(c(sapply(order.len, function(x) x[["order"]]), 
+                      sapply(order.equ, function(x) x[["order"]])
+                      ))
 
 # for each unique order, get the taxonomic distance matrix
 dmat.order <- vector("list", length = length(uni.order))
@@ -48,19 +73,36 @@ for (j in 1:length(uni.order)) {
   
 }
 
-# subset out the orders where taxononomic information is available for the order
+# subset out the orders where taxonomic information is available for the order
 x <- lapply(dmat.order, function(x) x$tax_available)
-dmat.order <- dmat.order[x]
+dmat.order <- dmat.order[unlist(x)]
+
+# get the orders from the unique order list where taxonomic information is available
 uni.order.in <- uni.order[unlist(x)]
 
+
+## Equation data
+
 # subset out any equations where the order information is not available
-y <- sapply(order.info, function(x) if (x[["order"]] %in% uni.order.in) { TRUE } else { FALSE }  )
-order.info <- order.info[unlist(y)]
+order.equ <- order.equ[ sapply(order.equ, function(x) ifelse(x[["order"]] %in% uni.order.in, TRUE, FALSE)) ]
 
 # save an equation database with taxonomic identifiers
-saveRDS(order.info, file = here("database/itis_taxon_identifiers.rds") )
+saveRDS(order.equ, file = here("database/itis_taxon_identifiers.rds") )
+
+
+## Default length data
+
+# subset out any equations where the order information is not available
+order.len <- order.len[ sapply(order.len, function(x) ifelse(x[["order"]] %in% uni.order.in, TRUE, FALSE)) ]
+
+# save an equation database with taxonomic identifiers
+saveRDS(order.len, file = here("database/itis_taxon_identifiers_length.rds") )
+
+
+## Taxon order matrices
 
 # save an equation database with the taxonomic information for each order
 saveRDS(dmat.order, file = here("database/itis_order_taxon_information.rds") )
+
 
 ### END

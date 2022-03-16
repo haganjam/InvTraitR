@@ -21,22 +21,22 @@ source(here("scripts/create_database/04_itis_downstream_function.R"))
 # data.base - taxonomic database ( "itis" or "gbif" are supported)
 # life.stage - life stage of the equation
 
-get_taxon_order <- function(equ.name.input, equ.id, data.base, life.stage = NA) {
+get_taxon_order <- function(name.input, id, data.base, life.stage = NA) {
   
   # if the input name is a species then extract the genus
-  equ.name <- extract_genus(binomial = equ.name.input)
+  name.in <- extract_genus(binomial = name.input)
   
   # get the taxon_id from the correct database
-  taxon_id <- get_taxon_id(database_function = data.base, taxon_name = equ.name, ask_or_not = FALSE, tries = 5)
+  taxon_id <- get_taxon_id(database_function = data.base, taxon_name = name.in, ask_or_not = FALSE, tries = 5)
   
   # if the taxon_id is not found in the database, then stop the function
   if (is.na(taxon_id)) {
     
-    taxlist <- list(equation_id = equ.id, 
-                 equation_name = equ.name.input,
-                 equation_suitable = FALSE,
+    taxlist <- list(id = id, 
+                 name = name.input,
+                 suitable = FALSE,
                  database = data.base,
-                 equation_rank = NA,
+                 rank = NA,
                  order = NA,
                  life_stage = NA)
     
@@ -50,12 +50,12 @@ get_taxon_order <- function(equ.name.input, equ.id, data.base, life.stage = NA) 
   y.c$ranknum <- 1:nrow(y.c)
   
   # get the taxonomic rank for the taxon_id
-  equ.rank <- y.c[y.c$name == equ.name,][["ranknum"]]
+  rank <- y.c[y.c$name == name.in,][["ranknum"]]
   
   # get the taxonomic rank name for the taxon_id
-  if (length(z) > 1) {
-    equ.rank.name <- "species"
-  } else { equ.rank.name <- y.c[y.c$name == equ.name,][["rank"]] }
+  if (length(unlist( strsplit(x = name.in, split = " ", fixed = TRUE) )) > 1) {
+    rank.name <- "species"
+  } else { rank.name <- y.c[y.c$name == name.in,][["rank"]] }
   
   # get the order name and rank number for the taxon_id
   ord.rank <- y.c[y.c$rank == "order", ][["ranknum"]]
@@ -65,33 +65,33 @@ get_taxon_order <- function(equ.name.input, equ.id, data.base, life.stage = NA) 
   if( !("order" %in% y.c$rank) ) {
     
     message("equation above the rank of order")
-    equ.suitable <- FALSE
+    suitable <- FALSE
     
-  } else { equ.suitable <- TRUE }
+  } else { suitable <- TRUE }
   
   # put this information into an output list
-  taxlist <- list(equation_id = equ.id, 
-                  equation_name = equ.name.input,
-                  equation_suitable = equ.suitable,
+  taxlist <- list(id = id, 
+                  name = name.input,
+                  suitable = suitable,
                   database = data.base,
-                  equation_rank = equ.rank.name,
+                  rank = rank.name,
                   order = ord.name,
                   life_stage = life.stage
                   )
   
   # add relevant synonymns
   if(data.base == "itis") {
-    equ.syn <- taxize::synonyms(taxon_id, db = data.base)
-    equ.syn <- equ.syn[[1]]$syn_name
+    syn <- taxize::synonyms(taxon_id, db = data.base)
+    syn <- syn[[1]]$syn_name
     
-    if (is.null(equ.syn)) {
-      equ.syn <- NA
+    if (is.null(syn)) {
+      syn <- NA
     }
     
-  } else { equ.syn <- NA }
+  } else { syn <- NA }
   
   # combine into dmat.taxlist
-  taxlist <- c(taxlist, list(synonymns = equ.syn) )
+  taxlist <- c(taxlist, list(synonymns = syn) )
   
   return(taxlist)
   
