@@ -6,6 +6,8 @@
 # use the best equation to calculate the mass from some given length
 # implement spread-sheet output
 
+# build the default length data into this
+
 # load relevant libraries
 library(here)
 library(dplyr)
