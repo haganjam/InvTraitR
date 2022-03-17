@@ -27,16 +27,14 @@ if (!exists("equ_id")) {
 }
 
 # load the taxon information database
-if (!exists("td.dat")) {
-  td.dat <- readRDS(file = here("database/itis_taxon_identifiers.rds"))
+if (!exists("d.td")) {
+  d.td <- readRDS(file = here("database/itis_taxon_identifiers.rds"))
 }
-td <- td.dat
 
 # read in the taxonomic distance database
-if (!exists("td.dist.dat")) {
-  td.dist.dat <- readRDS(file = here("database/itis_order_taxon_information.rds"))
+if (!exists("d.dist")) {
+  d.dist <- readRDS(file = here("database/itis_order_taxon_information.rds"))
 }
-td.dist <- td.dist.dat
 
 # load the relevant functions
 source(here("scripts/functions/01_get_taxon_id_function.R"))
@@ -73,58 +71,68 @@ if ( any(is.na(syn.df)) ) {
     
     }
 
+### EQUATION DATA
+
 # if length.only = TRUE then subset equations with only length data
 if (length.only) {
   
-  x <- lapply(td, function(x) x$equation_id %in% equ_id$id_only_equ_ID)
-  td <- td[unlist(x)]
+  d.td1 <- d.td[ sapply(d.td, function(x) x$equation_id %in% equ_id$id_only_equ_ID) ]
   
-}
+} else { d.td1 <- d.td }
 
-# subset the distance matrices that contain the taxon name
-x <- lapply(td.dist, function(x) search.name %in% x$tax_names$taxonname)
-y <- unlist(x)
-td.dist.sel <- td.dist[y]
+# extract the orders present in the equation database
+equ_orders <- sapply( d.td1, function(x) x$order)
+
+# subset the distance matrices for the equations
+equ_dist <- d.dist[ sapply(d.dist, function(x) x$order %in%  equ_orders) ]
+
+# select the taxonomic distance matrix consistent with the taxonname
+equ_dist <- equ_dist[ sapply(equ_dist, function(x) search.name %in% x$tax_names$taxonname) ]
 
 # select the correct taxonomic distance matrix
-dist.m <- td.dist.sel[[1]]$tax_distance
-print(paste("dimension: ", paste(dim(dist.m), collapse = " x ") ))
+equ_dist.m <- equ_dist[[1]]$tax_distance
+print(paste("dimension: ", paste(dim(equ_dist.m), collapse = " x ") ))
 
 # get the list of taxonomic names
-tax.names <- td.dist.sel[[1]]$tax_names$taxonname
+equ_tax.names <- equ_dist[[1]]$tax_names$taxonname
 
 # extract the order from the list
-search.order <- unlist(lapply(td.dist.sel, function(x) x$order))[1]
+equ.order <- equ_dist[[1]]$order
 
 # get the equations with the correct order
-y <- lapply(td, function(y) y$order == search.order)
-y <- unlist(y)
-
+y <- sapply(d.td1, function(y) y$order == equ.order)
 if (sum(y) == 0) {
   
   equation_id <- NA
   stop("No suitable equation in the data for the target taxon name")
   
 }
-td <- td[y]
+d.td1 <- d.td1[y]
+
+
+### DEFAULT LENGTH DATA
+
+
+### WRITE INTO A FUNCTION to use on both the equations and default length data
 
 # get the equation distance
-equ.dist <- 
-  lapply(td, function(x) { 
+equ_tax.dist <- 
+  
+  sapply(d.td1, function(x) { 
     
-  if (x$equation_name == target.name) {
+  if (x$name == target.name) {
     
     d <- 0
     
-    } else if ( (search.name %in% tax.names) | (search.name %in% x$synonymns) ) {
+    } else if ( (search.name %in% equ_tax.names) | (search.name %in% x$synonymns) ) {
       
-    z <- extract_genus( x$equation_name)
-    d1 <- dist.m[which(row.names(dist.m) == z), which(colnames(dist.m) == search.name) ]
-    d2 <- dist.m[which(row.names(dist.m) == search.name), which(colnames(dist.m) == z ) ]
+    z <- extract_genus( x$name)
+    d1 <- equ_dist.m[which(row.names(equ_dist.m) == z), which(colnames(equ_dist.m) == search.name) ]
+    d2 <- equ_dist.m[which(row.names(equ_dist.m) == search.name), which(colnames(equ_dist.m) == z ) ]
     d3 <- max(c(d1, d2))
     
     # add extra distances for the species level
-    if (x$equation_rank == "species") { d3 <- d3+0.25 } # add species level distance
+    if (x$rank == "species") { d3 <- d3+0.25 } # add species level distance
     if (length(unlist( strsplit(x = target.name, split = " ", fixed = TRUE) )) > 1) { d3 <- d3+0.25 }
     
     } 
@@ -134,17 +142,14 @@ equ.dist <-
   return(d3)
   
   } )
-rm(dist.m)
-
-# unlist the distances
-equ.dist <- unlist(equ.dist)
+rm(equ_dist.m)
 
 # add equation range data i.e. min length individual and max length individual...
 
 # choose output type i.e. single mass value or a spreadsheet with options?
 
-equ.min <- which(near(min(equ.dist), equ.dist))
-print(equ.dist[equ.min])
+equ.min <- which(near(min(equ_tax.dist), equ_tax.dist))
+print(equ_tax.dist[equ.min])
 
 # check if the minimum taxonomic is within the chosen threshold: max_tax_dist
 if ( any(equ.min > max_tax_dist ) ) {
@@ -162,14 +167,14 @@ tax.hier <- c("order", "suborder", "infraorder", "section", "subsection", "super
 # choose the higher taxonomic level
 if (length(equ.min) > 1 ) {
   
-  equ.ranks <- lapply(td[equ.min], function(x) { x$equation_rank } )
-  x <- which(tax.hier %in% unlist(equ.ranks) )
+  equ.ranks <- sapply(td[equ.min], function(x) { x$rank } )
+  x <- which(tax.hier %in% equ.ranks )
   y <- which(x == min(x))
-  best.equ <- td[equ.min[y]][[1]]$equation_id 
+  best.equ <- d.td1[equ.min[y]][[1]]$id 
   
   } else {
     
-    best.equ <- td[equ.min][[1]]$equation_id
+    best.equ <- d.td1[equ.min][[1]]$id
     
   }
 
