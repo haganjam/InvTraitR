@@ -133,7 +133,7 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
   
   # get the id's of the lowest taxonomic distances
   id.min <- which( near(min(tax.dist), tax.dist) )
-  print(tax.dist[id.min])
+  print(paste("taxonomic distances: ", paste(tax.dist[id.min], collapse = " ") ) )
   
   # check if the minimum taxonomic is within the chosen threshold: max_tax_dist
   if ( any(id.min > max_tax_dist ) ) {
@@ -144,34 +144,13 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
     
   }
   
-  # add equation range data i.e. min length individual and max length individual...
+  # create an output data.frame
+  dist.df <- data.frame(id = sapply(id_info1[id.min], function(x) x$id),
+                        rank = sapply(id_info1[id.min], function(x) { x$rank } ),
+                        dist_to_target = tax.dist)
   
-  # choose output type i.e. single mass value or a spreadsheet with options?
-  
-  # get the taxonomic rank table
-  tax.hier <- c("order", "suborder", "infraorder", "section", "subsection", "superfamily",
-                "family", "subfamily", "tribe", "subtribe", "genus")
-  
-  # if there are more than one suitable equation with the same minimum taxonomic distance
-  # choose the higher taxonomic level
-  if (length(id.min) > 1 ) {
-    
-    ranks <- sapply(id_info1[id.min], function(x) { x$rank } )
-    x <- which(tax.hier %in% ranks )
-    y <- which(x == min(x))
-    best.id <- id_info1[id.min[y]][[1]]$id 
-    
-  } else {
-    
-    best.id <- id_info1[id.min][[1]]$id
-    
-  }
-  
-  # print the best.equation ID
-  print(paste("Best fitting id: ", best.id) )
-  
-  return(best.id)
-  
+  return(dist.df)
+
   }
 
 # test the function
@@ -179,9 +158,65 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
                            # id_info = l_ti, 
                            # equ_len = "length", 
                            # length_only = FALSE,
-                           # data.base = "itis", max_tax_dist = 3,
-                           # d.dist = d.dist
-                           # )
+                           # data.base = "itis", max_tax_dist = 6,
+                           # d.dist = d.dist )
+# id.out
+
+
+# Function to select the best equation from the set of suitable equations
+id.out
+head(equ_id)
+head(len_id)
+
+# join the databases
+left_join(as_tibble(id.out), len_id, by = "id")
+
+# check the life stage first
+
+# then check for differences in rank?
+
+# finally, take the average or use all of them?
+
+# args
+# length_auto
+# life_stage
+
+# multiple_equations
+
+
+
+
+# add equation range data i.e. min length individual and max length individual...
+
+# choose output type i.e. single mass value or a spreadsheet with options?
+
+# get the taxonomic rank table
+tax.hier <- c("order", "suborder", "infraorder", "section", "subsection", "superfamily",
+              "family", "subfamily", "tribe", "subtribe", "genus")
+
+# if there are more than one suitable equation with the same minimum taxonomic distance
+# choose the higher taxonomic level
+if (length(id.min) > 1 ) {
+  
+  ranks <- sapply(id_info1[id.min], function(x) { x$rank } )
+  x <- which(tax.hier %in% ranks )
+  y <- which(x == min(x))
+  best.id <- id_info1[id.min[y]][[1]]$id 
+  
+} else {
+  
+  best.id <- id_info1[id.min][[1]]$id
+  
+}
+
+# print the best.equation ID
+print(paste("Best fitting id: ", best.id) )
+
+return(best.id)
+
+
+
+
 
 ### END
 

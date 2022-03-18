@@ -175,7 +175,7 @@ tach$TL_middle <-
   
   apply(tach[, -c(1:5)], 1, function(z) { 
   
-  a <- mapply(function(x, y) x*y, x1, z) 
+  a <- mapply(function(x, y) x*y, r.prob, z) 
   b <- rep(unlist(r.seq), round(unlist(a), 0)) 
   mean ( b[b>0] ) * 10 # convert to mm
   

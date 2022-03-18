@@ -19,69 +19,52 @@ target.name <- "Toxomerini"
 length.only <- FALSE
 data.base <- "itis"
 max_tax_dist <- 6
-sim_level <- 1
+
+## Equation data
 
 # load the equation database
 if (!exists("equ_id")) {
   equ_id <- readRDS(file = here("database/equation_vars_database.rds"))
 }
 
-# load the taxon information database
-if (!exists("d.td")) {
-  d.td <- readRDS(file = here("database/itis_taxon_identifiers.rds"))
+# load the taxon information database from the equations
+if (!exists("e_ti")) {
+  e_ti <- readRDS(file = here("database/itis_taxon_identifiers_equation.rds"))
 }
+
+## Default length data
+if (!exists("len_id")) {
+  len_id <- readRDS(file = here("database/default_length_database.rds"))
+}
+
+# load the taxon information database from the equations
+if (!exists("l_ti")) {
+  l_ti <- readRDS(file = here("database/itis_taxon_identifiers_length.rds"))
+}
+
+
+## Taxonomic distance data 
 
 # read in the taxonomic distance database
 if (!exists("d.dist")) {
   d.dist <- readRDS(file = here("database/itis_order_taxon_information.rds"))
 }
 
-# load the relevant functions
-source(here("scripts/functions/01_get_taxon_id_function.R"))
 
-# if the input name is a species then extract the genus
-search.name <- extract_genus(binomial = target.name)
 
-# extract target.name ID
-syn.id <- get_taxon_id(database_function = data.base, 
-                       taxon_name = search.name, ask_or_not = FALSE, tries = 5)
 
-# if the search.name is not in the database, then throw a warning
-if (is.na(syn.id)) {
-  message( paste("Target taxon name is not in the ", data.base, " database", sep = "" ) )
-}
 
-# extract synonyms associated with the target.name ID
-syn.df <- synonyms(syn.id)[[1]]
-
-# if the target.name is not the accepted name then replace it with the accepted name
-if ( any(is.na(syn.df)) ) { 
-  
-  print(paste("No synonymns for this taxon name in the ", data.base, " database", sep = "" ))
-  
-  }  else if ( any(syn.df$sub_tsn != syn.df$acc_tsn) ) { 
-  
-  warning(paste(nrow(syn.df), " synonyms: ", paste(syn.df$syn_name, collapse = ", "), " | Using accepted name: ", syn.df$acc_name[1], sep = ""  ))
-  target.name <- syn.df$acc_name[1] 
-  search.name <- extract_genus(binomial = target.name)
-  
-  } else { 
-  
-    print(paste("Synonymns present but not accepted in the ", data.base, " database", sep = "" )) 
-    
-    }
-
-### EQUATION DATA
+## Equation data
 
 # if length.only = TRUE then subset equations with only length data
 if (length.only) {
   
-  d.td1 <- d.td[ sapply(d.td, function(x) x$equation_id %in% equ_id$id_only_equ_ID) ]
+  e_ti1 <- e_ti[ sapply(e_ti, function(x) x$id %in% equ_id$id_only_equ_ID) ]
   
-} else { d.td1 <- d.td }
+} else { e_ti1 <- e_ti }
 
 # extract the orders present in the equation database
-equ_orders <- sapply( d.td1, function(x) x$order)
+equ_orders <- sapply( e_ti1, function(x) x$order)
 
 # subset the distance matrices for the equations
 equ_dist <- d.dist[ sapply(d.dist, function(x) x$order %in%  equ_orders) ]
@@ -100,17 +83,17 @@ equ_tax.names <- equ_dist[[1]]$tax_names$taxonname
 equ.order <- equ_dist[[1]]$order
 
 # get the equations with the correct order
-y <- sapply(d.td1, function(y) y$order == equ.order)
+y <- sapply(e_ti1, function(y) y$order == equ.order)
 if (sum(y) == 0) {
   
   equation_id <- NA
   stop("No suitable equation in the data for the target taxon name")
   
 }
-d.td1 <- d.td1[y]
+e_ti1 <- e_ti1[y]
 
 
-### DEFAULT LENGTH DATA
+## Default length data
 
 
 ### WRITE INTO A FUNCTION to use on both the equations and default length data
@@ -118,13 +101,13 @@ d.td1 <- d.td1[y]
 # get the equation distance
 equ_tax.dist <- 
   
-  sapply(d.td1, function(x) { 
+  sapply(e_ti1, function(x) { 
     
   if (x$name == target.name) {
     
     d <- 0
     
-    } else if ( (search.name %in% equ_tax.names) | (search.name %in% x$synonymns) ) {
+    } else if ( (search.name %in% equ_tax.names) ) {
       
     z <- extract_genus( x$name)
     d1 <- equ_dist.m[which(row.names(equ_dist.m) == z), which(colnames(equ_dist.m) == search.name) ]
@@ -167,14 +150,14 @@ tax.hier <- c("order", "suborder", "infraorder", "section", "subsection", "super
 # choose the higher taxonomic level
 if (length(equ.min) > 1 ) {
   
-  equ.ranks <- sapply(td[equ.min], function(x) { x$rank } )
+  equ.ranks <- sapply(e_ti1[equ.min], function(x) { x$rank } )
   x <- which(tax.hier %in% equ.ranks )
   y <- which(x == min(x))
-  best.equ <- d.td1[equ.min[y]][[1]]$id 
+  best.equ <- e_ti1[equ.min[y]][[1]]$id 
   
   } else {
     
-    best.equ <- d.td1[equ.min][[1]]$id
+    best.equ <- e_ti1[equ.min][[1]]$id
     
   }
 

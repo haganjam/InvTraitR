@@ -42,6 +42,11 @@ dl.dat$length_id <- 1:nrow(dl.dat)
 # reorder the columns
 dl.dat <- dl.dat[, c(7,6, 1:5)]
 
+# rename the columns
+dl.dat <- 
+  dl.dat %>%
+  rename(id = length_id, life_stage = LifeStage)
+
 # save as a .RDS file
 saveRDS(dl.dat, file = here("database/default_length_database.rds") )
 
