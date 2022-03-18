@@ -87,7 +87,7 @@ uni.order.in <- uni.order[unlist(x)]
 order.equ <- order.equ[ sapply(order.equ, function(x) ifelse(x[["order"]] %in% uni.order.in, TRUE, FALSE)) ]
 
 # save an equation database with taxonomic identifiers
-saveRDS(order.equ, file = here("database/itis_taxon_identifiers.rds") )
+saveRDS(order.equ, file = here("database/itis_taxon_identifiers_equation.rds") )
 
 
 ## Default length data
