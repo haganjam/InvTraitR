@@ -53,7 +53,7 @@ get_taxon_order <- function(name.input, id, data.base, life.stage = NA) {
   rank <- y.c[y.c$name == name.in,][["ranknum"]]
   
   # get the taxonomic rank name for the taxon_id
-  if (length(unlist( strsplit(x = name.in, split = " ", fixed = TRUE) )) > 1) {
+  if (length(unlist( strsplit(x = name.input, split = " ", fixed = TRUE) )) > 1) {
     rank.name <- "species"
   } else { rank.name <- y.c[y.c$name == name.in,][["rank"]] }
   

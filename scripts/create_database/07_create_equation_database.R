@@ -3,21 +3,23 @@
 
 # read in the equation data
 equ.dat <- readxl::read_xlsx("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/equation_data.xlsx")
-equ.dat <- equ.dat[!is.na(equ.dat$equation_id),]
+equ.dat <- equ.dat[!is.na(equ.dat$id),]
+equ.dat[equ.dat == "NA"] <- NA
 
 # read in the variable inputs
 in.dat <- readxl::read_xlsx("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/variable_input_data.xlsx")
-in.dat <- in.dat[!is.na(in.dat$equation_id),]
+in.dat <- in.dat[!is.na(in.dat$id),]
+in.dat[in.dat == "NA"] <- NA
 
 # list of equation IDs with only length data
-x <- aggregate(in.dat$equation_id, by = list(in.dat$equation_id), length, simplify = TRUE)
-y <- in.dat[in.dat$equation_id %in% x[x$x == 1, ]$Group.1, ]
-id.length <- y[y$size_measurement == "body_length", ]$equation_id
+x <- aggregate(in.dat$id, by = list(in.dat$id), length, simplify = TRUE)
+y <- in.dat[in.dat$id %in% x[x$x == 1, ]$Group.1, ]
+id.length <- y[y$size_measurement == "body_length", ]$id
 
 # pull these data into a list
 equ_vars <- 
-  list(equation_data = equ.dat,
-       variable_input_data = in.dat,
+  list(equation_data = as_tibble(equ.dat),
+       variable_input_data = as_tibble(in.dat),
        id_only_equ_ID = id.length)
 
 # merge into a list
@@ -46,6 +48,9 @@ dl.dat <- dl.dat[, c(7,6, 1:5)]
 dl.dat <- 
   dl.dat %>%
   rename(id = length_id, life_stage = LifeStage)
+
+# replace NA characters with true NAs
+dl.dat[dl.dat == "NA"] <- NA
 
 # save as a .RDS file
 saveRDS(dl.dat, file = here("database/default_length_database.rds") )

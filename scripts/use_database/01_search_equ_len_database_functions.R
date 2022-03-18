@@ -1,4 +1,42 @@
 
+### Functions to search the equation and length databases
+
+# load relevant libraries
+library(here)
+library(dplyr)
+
+## Load the different databases
+
+## Equation data
+
+# load the equation database
+if (!exists("equ_id")) {
+  equ_id <- readRDS(file = here("database/equation_vars_database.rds"))
+}
+
+# load the taxon information database from the equations
+if (!exists("e_ti")) {
+  e_ti <- readRDS(file = here("database/itis_taxon_identifiers_equation.rds"))
+}
+
+## Default length data
+if (!exists("len_id")) {
+  len_id <- readRDS(file = here("database/default_length_database.rds"))
+}
+
+# load the taxon information database from the equations
+if (!exists("l_ti")) {
+  l_ti <- readRDS(file = here("database/itis_taxon_identifiers_length.rds"))
+}
+
+## Taxonomic distance data 
+
+# read in the taxonomic distance database
+if (!exists("d.dist")) {
+  d.dist <- readRDS(file = here("database/itis_order_taxon_information.rds"))
+}
+
+
 # Function to replace target.name with accepted name
 
 # args
@@ -38,7 +76,7 @@ syn_correct <- function(target.name, data.base = "itis") {
     
   } else { 
     
-    print(paste("Synonymns present but not accepted in the ", data.base, " database", sep = "" )) 
+    message(paste("Synonymns present but not accepted in the ", data.base, " database", sep = "" )) 
     
   }
   
@@ -78,7 +116,15 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
   dist <- d.dist[ sapply(d.dist, function(x) x$order %in% orders) ]
   
   # select the taxonomic distance matrix consistent with the taxonname
-  dist <- dist[ sapply(dist, function(x) search.name %in% x$tax_names$taxonname) ]
+  u <- sapply(dist, function(x) search.name %in% x$tax_names$taxonname)
+  dist <- dist[ u ]
+  
+  # check if the name is found in the order taxonomic matrices
+  if (all(u == FALSE)) {
+    message(paste("No suitable ", equ_len, " in the data for the target taxon name"))
+    message("Returning an NA")
+    return(NA)
+  }
   
   # select the correct taxonomic distance matrix
   dist.m <- dist[[1]]$tax_distance
@@ -94,8 +140,9 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
   y <- sapply(id_info1, function(y) y$order == id.order)
   if (sum(y) == 0) {
     
-    print(NA)
-    stop(paste("No suitable ", equ_len, " in the data for the target taxon name"))
+    message(paste("No suitable ", equ_len, " in the data for the target taxon name"))
+    message("Returning an NA")
+    return(NA)
     
   }
   id_info1 <- id_info1[y]
@@ -122,7 +169,13 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
         
       } 
       
-      else {d3 <- NA}
+      else {
+      
+      message(paste("No suitable", equ_len) )
+      message("Returning an NA")
+      return(NA)
+      
+      }
       
       return(d3)
       
@@ -138,81 +191,134 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
   # check if the minimum taxonomic is within the chosen threshold: max_tax_dist
   if ( any(id.min > max_tax_dist ) ) {
     
-    print(NA)
-    stop(paste( paste("No suitable ", equ_len, " in the data for the target taxon name"), 
-                "as the maximum taxonomic distance is greater than ", max_tax_dist, dep = "") )
+    message(paste( paste("No suitable ", equ_len, " in the data for the target taxon name"), 
+                   "as the maximum taxonomic distance is greater than ", max_tax_dist, dep = "") )
+    message("Returning an NA")
+    return(NA)
     
   }
   
   # create an output data.frame
   dist.df <- data.frame(id = sapply(id_info1[id.min], function(x) x$id),
                         rank = sapply(id_info1[id.min], function(x) { x$rank } ),
-                        dist_to_target = tax.dist)
+                        dist_to_target = tax.dist[id.min])
   
   return(dist.df)
 
   }
 
-# test the function
-# id.out <- get_tax_distance(target.name = "Toxomerini", 
-                           # id_info = l_ti, 
-                           # equ_len = "length", 
-                           # length_only = FALSE,
-                           # data.base = "itis", max_tax_dist = 6,
-                           # d.dist = d.dist )
-# id.out
-
 
 # Function to select the best equation from the set of suitable equations
-id.out
-head(equ_id)
-head(len_id)
-
-# join the databases
-left_join(as_tibble(id.out), len_id, by = "id")
-
-# check the life stage first
-
-# then check for differences in rank?
-
-# finally, take the average or use all of them?
 
 # args
-# length_auto
-# life_stage
+# target.name - name of the target.taxon
+# life.stage - life stage
+# id_info - database of id information (l_ti/e_ti)
+# equ_len - "equation" or "length"
+# data.base - "itis" or "gbif"
+# max_tax_dist - maximum acceptable taxonomic difference
+# d.dist - list of orders with distance matrices
 
-# multiple_equations
-
-
-
-
-# add equation range data i.e. min length individual and max length individual...
-
-# choose output type i.e. single mass value or a spreadsheet with options?
-
-# get the taxonomic rank table
-tax.hier <- c("order", "suborder", "infraorder", "section", "subsection", "superfamily",
-              "family", "subfamily", "tribe", "subtribe", "genus")
-
-# if there are more than one suitable equation with the same minimum taxonomic distance
-# choose the higher taxonomic level
-if (length(id.min) > 1 ) {
+get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
+                                 data.base = "itis", max_tax_dist, d.dist,
+                                 len_equ_data, length_only = FALSE) {
   
-  ranks <- sapply(id_info1[id.min], function(x) { x$rank } )
-  x <- which(tax.hier %in% ranks )
-  y <- which(x == min(x))
-  best.id <- id_info1[id.min[y]][[1]]$id 
+  df <- get_tax_distance(target.name = target.name, 
+                         id_info = id_info, 
+                         equ_len = equ_len, 
+                         length_only = length_only,
+                         data.base = data.base, max_tax_dist = max_tax_dist,
+                         d.dist = d.dist)
   
-} else {
+  if (is.na(df[1])) {
+    return(NA)
+  }
   
-  best.id <- id_info1[id.min][[1]]$id
+  # join these id's to the length data
+  df <- left_join(as_tibble(df), len_equ_data, by = "id")
+  
+  # test if the life stages are explicitly different
+  if ( all(!is.na(df$life_stage)) & is.na(life.stage) | 
+       !is.na(life.stage) & all(is.na(df$life_stage)) |
+        !is.na(life.stage) & any(life.stage != df$life_stage[!is.na(df$life_stage)] )  ) {
+    
+    message(paste("No suitable", equ_len,  ": Life stages differ") )
+    message("Returning an NA")
+    return(NA)
+    
+  }
+  
+  # check if the life stages match
+  x <- (df$life_stage == life.stage) & !is.na(df$life_stage)
+  if ( any( x ) ) {
+    
+    df.out <- df[x,]
+    
+    # if no matching life stages, then choose the highest ranking taxon  
+  } else if (length(unique(df$rank)) > 1) {
+    
+    # set the taxonomic hierarchy
+    tax.hier <- c("order", "suborder", "infraorder", "section", "subsection", "superfamily",
+                  "family", "subfamily", "tribe", "subtribe", "genus")
+    
+    # get the highest ranking equation
+    rank.in <- tax.hier[ min( which(tax.hier %in% df$rank ) ) ]
+    
+    # output the full table and the length
+    df.out <- df[df$rank == rank.in, ]
+    
+    # otherwise, we keep them all  
+  } else {
+    
+    return(df)
+    
+  }
+  
+  return(df.out)
   
 }
 
-# print the best.equation ID
-print(paste("Best fitting id: ", best.id) )
+## Production function
 
-return(best.id)
+# target.name = "Toxomerini"
+target.name = "Cerastoderma"
+life.stage = NA
+target.length <- 6
+
+# decide whether we want the function to get default length data
+def_length = TRUE
+
+if (def_length) {
+  
+  len.out <- get_matching_len_equ(target.name = target.name, life.stage = life.stage, 
+                                  id_info = l_ti, equ_len = "length",
+                                  data.base = "itis", max_tax_dist = 6, d.dist = d.dist,
+                                  len_equ_data = len_id)
+  
+  # if the len.out output is NA, then we stop the function
+  if(is.na(len.out[1])) {
+    return(NA)
+  }
+  
+  # calculate the mean, sd and n of all individual entries left over
+  len.in <- c("mean" = mean(len.out$length_mid_mm),
+              "sd" = sd(len.out$length_mid_mm),
+              "n" = length(len.out$length_mid_mm))
+  
+  len.x <- list(len.out, len.in)
+  len.use <- len.in[1]
+  
+} else { 
+  
+  len.use <- target.length
+  
+}
+
+equ.out <- get_matching_len_equ(target.name = target.name, 
+                                life.stage = life.stage, 
+                                id_info = e_ti, equ_len = "equation",
+                                data.base = "itis", max_tax_dist = 6, d.dist = d.dist,
+                                len_equ_data = equ_id$equation_data, length_only = FALSE)
 
 
 
