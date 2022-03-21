@@ -256,12 +256,15 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
   
   # check if the life stages match and select that equation
   x <- (df$life_stage == life.stage) & !is.na(df$life_stage)
-  if ( any( x ) ) {
+  if ( any( !is.na(x) &  (x == TRUE ) ) ) {
     
     df.out <- df[x,]
     
   # if no direct matching life stages but all are NA, then choose the highest ranking taxon  
-  } else if (length(unique(df$rank)) > 1) {
+  } else if (any(is.na(df$life_stage)) & is.na(life.stage)) {
+    
+    # get the entries where the life.stage is NA
+    df <- df[is.na(df$life_stage),]
     
     # set the taxonomic hierarchy
     tax.hier <- c("order", "suborder", "infraorder", "section", "subsection", "superfamily",
@@ -290,10 +293,17 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
 
 target.name = "Toxomerini"
 target.name = "Cerastoderma"
-target.name = "Prostigmata"
-life.stage = "pupa"
-target.length <- 6
-length_only <- FALSE
+target.name = "Chironominae"
+life.stage = NA
+target.length = 6
+length_only = TRUE
+def_length = FALSE
+table_out = FALSE
+
+# test the if the length_only argument has been specified
+if (is.na(length_only)) {
+  stop("Specify if length_only = TRUE/FALSE")
+}
 
 # get the suitable equations
 equ.out <- get_matching_len_equ(target.name = target.name, 
@@ -302,17 +312,12 @@ equ.out <- get_matching_len_equ(target.name = target.name,
                                 data.base = "itis", max_tax_dist = 6, d.dist = d.dist,
                                 len_equ_data = equ_id$equation_data, length_only = length_only)
 
-# test the if the length_only argument has been specified
-if (is.na(length_only)) {
-  stop("Specify if length_only = TRUE/FALSE")
-}
+# join the suitable equations with the variable input data
+equ_join <- left_join(equ.out, equ_id$variable_input_data[, -c(7,8)], 
+                      by = c("id", "target_taxon", "life_stage"))
 
 # if length_only = FALSE is specified
-if (length_only == FALSE) {
-  
-  # join the suitable equations with the variable input data
-  equ_join <- left_join(equ.out, equ_id$variable_input_data[, -c(7,8)], 
-                        by = c("id", "target_taxon", "life_stage"))
+if (length_only == FALSE | table_out == TRUE) {
   
   # test if all the equations are body_length equations anyway
   if( all(equ_join$size_measurement == "body_length")) {
@@ -325,8 +330,6 @@ if (length_only == FALSE) {
 }
 
 # decide whether we want the function to get default length data
-def_length = TRUE
-
 if (def_length) {
   
   len.out <- get_matching_len_equ(target.name = target.name, life.stage = life.stage, 
@@ -363,25 +366,49 @@ if (def_length) {
 }
 
 
+equ.out <- equ_id$equation_data[equ_id$equation_data$id %in% c(21, 22), ]
 
+len.use <- rnorm(n = 10, mean = 10, sd = 1)
+len.use <- 7
 
+ids <- equ.out$id
 
-# match the variable input data to the equation(s)
-var.dat <- equ_id$variable_input_data[equ_id$variable_input_data$id == equ.out$id, ]
-var.dat
-
-# calculate the mass from the length
-
-# assign the length(s) to the variable
-assign(x = var.dat[["variable"]], value = len.use)
-var1 <- rnorm(n = 10, mean = 7.6, sd = 1)
+x <- 
+  sapply(ids, function(x) {
   
-# implement the equation
-parsed_eq <- parse(text = equ.out[["equation"]] )
-eval(parsed_eq)
+  # match the variable input data to the equation(s)
+  var.dat <- equ_id$variable_input_data[equ_id$variable_input_data$id == x, ]
+  
+  # calculate the mass from the length
+  
+  # assign the length(s) to the variable
+  assign(x = var.dat[["variable"]], value = len.use)
+  
+  # implement the equation
+  parsed_eq <- parse(text = equ.out[equ.out$id == x,][["equation"]] )
+  eval(parsed_eq)
+  
+} )
 
-# return this as a variable
-c(suitable_equations, mass_out_g = eval(parsed_eq))
+
+# algorithmic choice or just output the raw data?
+
+
+# if there are multiple lengths and multiple equations then, calculate mean across equations for each length
+if ( (length(len.use) > 1) & (length(ids) > 1) ) {
+  
+  x <- apply(x, 1, mean)
+
+# if there are only multiple equations, then calculate the mean across equations    
+} else if ((length(ids) > 1)) {
+  
+  x <- mean(x)
+  
+}
+
+
+
+x
 
 
 
