@@ -154,7 +154,7 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
       
       if (x$name == target.name) {
         
-        d <- 0
+        d3 <- 0
         
       } else if ( (search.name %in% tax.names) ) {
         
@@ -223,6 +223,7 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
                                  data.base = "itis", max_tax_dist, d.dist,
                                  len_equ_data, length_only = FALSE) {
   
+  # get a set of equations within the suitable maximum taxonomic distance
   df <- get_tax_distance(target.name = target.name, 
                          id_info = id_info, 
                          equ_len = equ_len, 
@@ -230,17 +231,22 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
                          data.base = data.base, max_tax_dist = max_tax_dist,
                          d.dist = d.dist)
   
-  if (is.na(df[1])) {
+  # if there is no suitable equation within the maximum taxonomic distance, then we return an NA
+  if (is.na( unlist(df)[1] ) & (length(df) == 1 )) {
     return(NA)
   }
   
   # join these id's to the length data
   df <- left_join(as_tibble(df), len_equ_data, by = "id")
+  message("Suitable taxonomic distances:")
+  print(df)
+  
+  # determine if the life-stages match the chosen equations
   
   # test if the life stages are explicitly different
-  if ( all(!is.na(df$life_stage)) & is.na(life.stage) | 
-       !is.na(life.stage) & all(is.na(df$life_stage)) |
-        !is.na(life.stage) & any(life.stage != df$life_stage[!is.na(df$life_stage)] )  ) {
+  if ( all(!is.na(df$life_stage)) & is.na(life.stage) | # if all are not NA and life.stage is NA
+       !is.na(life.stage) & all(is.na(df$life_stage)) | # if life.stage is not NA and all life.stages are NA
+        !is.na(life.stage) & all(life.stage != df$life_stage[!is.na(df$life_stage)] )  ) { # if life.stage is not NA and not equal to any not NA life stages
     
     message(paste("No suitable", equ_len,  ": Life stages differ") )
     message("Returning an NA")
@@ -248,13 +254,13 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
     
   }
   
-  # check if the life stages match
+  # check if the life stages match and select that equation
   x <- (df$life_stage == life.stage) & !is.na(df$life_stage)
   if ( any( x ) ) {
     
     df.out <- df[x,]
     
-    # if no matching life stages, then choose the highest ranking taxon  
+  # if no direct matching life stages but all are NA, then choose the highest ranking taxon  
   } else if (length(unique(df$rank)) > 1) {
     
     # set the taxonomic hierarchy
@@ -267,23 +273,56 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
     # output the full table and the length
     df.out <- df[df$rank == rank.in, ]
     
-    # otherwise, we keep them all  
+    # if the taxonomic ranks are equal, then we use them all 
   } else {
     
-    return(df)
+    df.out <- df
     
   }
   
+  message("Suitable taxonomic distances and life stages:")
+  print(df.out)
   return(df.out)
   
 }
 
 ## Production function
 
-# target.name = "Toxomerini"
+target.name = "Toxomerini"
 target.name = "Cerastoderma"
-life.stage = NA
+target.name = "Prostigmata"
+life.stage = "pupa"
 target.length <- 6
+length_only <- FALSE
+
+# get the suitable equations
+equ.out <- get_matching_len_equ(target.name = target.name, 
+                                life.stage = life.stage, 
+                                id_info = e_ti, equ_len = "equation",
+                                data.base = "itis", max_tax_dist = 6, d.dist = d.dist,
+                                len_equ_data = equ_id$equation_data, length_only = length_only)
+
+# test the if the length_only argument has been specified
+if (is.na(length_only)) {
+  stop("Specify if length_only = TRUE/FALSE")
+}
+
+# if length_only = FALSE is specified
+if (length_only == FALSE) {
+  
+  # join the suitable equations with the variable input data
+  equ_join <- left_join(equ.out, equ_id$variable_input_data[, -c(7,8)], 
+                        by = c("id", "target_taxon", "life_stage"))
+  
+  # test if all the equations are body_length equations anyway
+  if( all(equ_join$size_measurement == "body_length")) {
+    message("All suitable equations are length_only = TRUE, default lengths can be used or target.lengths can be specified")
+  }
+  
+  # return the equ_join data.frame as an ouput
+  return(equ_join)
+  
+}
 
 # decide whether we want the function to get default length data
 def_length = TRUE
@@ -293,10 +332,10 @@ if (def_length) {
   len.out <- get_matching_len_equ(target.name = target.name, life.stage = life.stage, 
                                   id_info = l_ti, equ_len = "length",
                                   data.base = "itis", max_tax_dist = 6, d.dist = d.dist,
-                                  len_equ_data = len_id)
+                                  len_equ_data = len_id, length_only = FALSE)
   
   # if the len.out output is NA, then we stop the function
-  if(is.na(len.out[1])) {
+  if(is.na( unlist(len.out)[1] ) & (length(len.out) == 1 )) {
     return(NA)
   }
   
@@ -306,21 +345,43 @@ if (def_length) {
               "n" = length(len.out$length_mid_mm))
   
   len.x <- list(len.out, len.in)
-  len.use <- len.in[1]
   
-} else { 
+  # use the mean of these multiple suitable length values
+  message(paste("Using the mean length: ", round(len.in[1], 2), " mm ", 
+                "(sd: ", round(len.in[2], 2), ", n: ", len.in[3], " )", " to calculate mass", sep = "" ))
+  len.use <- unlist(len.in[1])
+  names(len.use) <- NULL
+  
+} else if ( (def_length == FALSE ) & !is.na(target.length) ) { 
   
   len.use <- target.length
   
+} else if( (def_length == FALSE ) & is.na(target.length) ) {
+  
+  stop("def_length = FALSE and target.length is NA: Specify a target.length(s) or set def_length = TRUE")
+  
 }
 
-equ.out <- get_matching_len_equ(target.name = target.name, 
-                                life.stage = life.stage, 
-                                id_info = e_ti, equ_len = "equation",
-                                data.base = "itis", max_tax_dist = 6, d.dist = d.dist,
-                                len_equ_data = equ_id$equation_data, length_only = FALSE)
 
 
+
+
+# match the variable input data to the equation(s)
+var.dat <- equ_id$variable_input_data[equ_id$variable_input_data$id == equ.out$id, ]
+var.dat
+
+# calculate the mass from the length
+
+# assign the length(s) to the variable
+assign(x = var.dat[["variable"]], value = len.use)
+var1 <- rnorm(n = 10, mean = 7.6, sd = 1)
+  
+# implement the equation
+parsed_eq <- parse(text = equ.out[["equation"]] )
+eval(parsed_eq)
+
+# return this as a variable
+c(suitable_equations, mass_out_g = eval(parsed_eq))
 
 
 
