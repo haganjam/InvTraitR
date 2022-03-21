@@ -3,6 +3,12 @@
 
 Pipeline to assign biomass-length allometry equations and other traits to a taxonomic name based on taxonomic hierarchy.
 
+## next steps:
+
+The next step is to input all the equation and length data and create the database. Then, make a test script to robustly test these different functions.
+
+Finally, we will need to integrate the gbif database as well. This should be simply about creating gbif versions of the different databases but it will be more complicated... Probably.
+
 ## scripts: functions
 
 This folder contains functions that are used in multiple parts of the pipeline.

@@ -291,126 +291,160 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
 
 ## Production function
 
-target.name = "Toxomerini"
-target.name = "Cerastoderma"
-target.name = "Chironominae"
-life.stage = NA
-target.length = 6
-length_only = TRUE
-def_length = FALSE
-table_out = FALSE
-
-# test the if the length_only argument has been specified
-if (is.na(length_only)) {
-  stop("Specify if length_only = TRUE/FALSE")
-}
-
-# get the suitable equations
-equ.out <- get_matching_len_equ(target.name = target.name, 
-                                life.stage = life.stage, 
-                                id_info = e_ti, equ_len = "equation",
-                                data.base = "itis", max_tax_dist = 6, d.dist = d.dist,
-                                len_equ_data = equ_id$equation_data, length_only = length_only)
-
-# join the suitable equations with the variable input data
-equ_join <- left_join(equ.out, equ_id$variable_input_data[, -c(7,8)], 
-                      by = c("id", "target_taxon", "life_stage"))
-
-# if length_only = FALSE is specified
-if (length_only == FALSE | table_out == TRUE) {
+# write a function to get mass output from lengthd and a given taxon name
+get_mass_from_length <- function(target.name, 
+                                 target.length,
+                                 life.stage,
+                                 data.base = "itis", 
+                                 max_tax_dist = 6, 
+                                 length_only = TRUE,
+                                 default_length = FALSE,
+                                 output = "algorithmic") {
   
-  # test if all the equations are body_length equations anyway
-  if( all(equ_join$size_measurement == "body_length")) {
-    message("All suitable equations are length_only = TRUE, default lengths can be used or target.lengths can be specified")
+  # set the seed
+  set.seed(54728587)
+  
+  # test the if the length_only argument has been specified
+  if (is.na(length_only)) {
+    stop("Specify if length_only = TRUE/FALSE")
   }
   
-  # return the equ_join data.frame as an ouput
-  return(equ_join)
+  # get the suitable equations
+  equ.out <- get_matching_len_equ(target.name = target.name, 
+                                  life.stage = life.stage, 
+                                  id_info = e_ti, equ_len = "equation",
+                                  data.base = data.base, max_tax_dist = max_tax_dist, 
+                                  d.dist = d.dist,
+                                  len_equ_data = equ_id$equation_data, 
+                                  length_only = length_only)
   
-}
-
-# decide whether we want the function to get default length data
-if (def_length) {
-  
-  len.out <- get_matching_len_equ(target.name = target.name, life.stage = life.stage, 
-                                  id_info = l_ti, equ_len = "length",
-                                  data.base = "itis", max_tax_dist = 6, d.dist = d.dist,
-                                  len_equ_data = len_id, length_only = FALSE)
-  
-  # if the len.out output is NA, then we stop the function
-  if(is.na( unlist(len.out)[1] ) & (length(len.out) == 1 )) {
+  # if there is no suitable equation within the maximum taxonomic distance, then we return an NA
+  if (is.na( unlist(equ.out)[1] ) & (length(equ.out) == 1 )) {
     return(NA)
   }
   
-  # calculate the mean, sd and n of all individual entries left over
-  len.in <- c("mean" = mean(len.out$length_mid_mm),
-              "sd" = sd(len.out$length_mid_mm),
-              "n" = length(len.out$length_mid_mm))
+  # if length_only = FALSE is specified and output is FALSE
+  if (length_only == FALSE) {
+    
+    # join the suitable equations with the variable input data
+    equ_join <- left_join(equ.out, equ_id$variable_input_data[, -c(7,8)], 
+                          by = c("id", "db_taxon", "life_stage"))
+    
+    # test if all the equations are body_length equations anyway
+    if( all(equ_join$size_measurement == "body_length")) {
+      message("All suitable equations are length_only = TRUE, default lengths can be used or target.lengths can be specified")
+    }
+    
+    # return the equ_join data.frame as an ouput
+    return(equ_join)
+    
+  }
   
-  len.x <- list(len.out, len.in)
+  # decide whether we want the function to get default length data
+  if (default_length) {
+    
+    len.out <- get_matching_len_equ(target.name = target.name, life.stage = life.stage, 
+                                    id_info = l_ti, equ_len = "length",
+                                    data.base = data.base, max_tax_dist = 4, 
+                                    d.dist = d.dist,
+                                    len_equ_data = len_id)
+    
+    # if the len.out output is NA, then we stop the function
+    if(is.na( unlist(len.out)[1] ) & (length(len.out) == 1 )) {
+      return(NA)
+    }
+    
+    # calculate the mean, sd and n of all individual entries left over
+    len.in <- c("mean" = mean(len.out$length_mid_mm),
+                "sd" = sd(len.out$length_mid_mm),
+                "n" = length(len.out$length_mid_mm))
+    
+    len.x <- list(len.out, len.in)
+    
+    # use the mean of these multiple suitable length values
+    message(paste("Using the mean length: ", round(len.in[1], 2), " mm ", 
+                  "(sd: ", round(len.in[2], 2), ", n: ", len.in[3], " )", " to calculate mass", sep = "" ))
+    len.use <- len.in[1]
+    names(len.use) <- NULL
+    
+  } else if ( (default_length == FALSE ) & all(!is.na(target.length)) ) { 
+    
+    len.use <- target.length
+    
+  } else if( (default_length == FALSE ) & any(is.na(target.length)) ) {
+    
+    stop("default_length = FALSE and target.length is NA: Specify a target.length(s) or set default_length = TRUE")
+    
+  }
   
-  # use the mean of these multiple suitable length values
-  message(paste("Using the mean length: ", round(len.in[1], 2), " mm ", 
-                "(sd: ", round(len.in[2], 2), ", n: ", len.in[3], " )", " to calculate mass", sep = "" ))
-  len.use <- unlist(len.in[1])
-  names(len.use) <- NULL
+  # get the mass from the length data for each equation in the database
+  mass_list <- 
+    lapply(equ.out$id, function(x) {
+      
+      # get the suitable equation data
+      equ.dat <- equ.out[equ.out$id == x,]  
+      
+      # match the variable input data to the equation(s)
+      var.dat <- equ_id$variable_input_data[equ_id$variable_input_data$id == x, ]
+      
+      # calculate the mass from the length
+      
+      # assign the length(s) to the variable
+      assign(x = var.dat[["variable"]], value = len.use)
+      
+      # implement the equation
+      parsed_eq <- parse(text = equ.out[equ.out$id == x,][["equation"]] )
+      
+      # combine mass data with useful other data
+      mass_df <- tibble(target_name = target.name,
+                        target_life_stage = life.stage,
+                        id = x,
+                        size = len.use,
+                        size_measurement = var.dat$size_measurement,
+                        mass = eval(parsed_eq) )
+      
+      # generate a clean output data.frame
+      full_join(equ.dat,
+                mass_df, 
+                by = "id" ) %>%
+        select(target_name, target_life_stage, id, db_taxon, rank, life_stage, dist_to_target,
+               size, size_measurement, mass, dw_ww, unit)
+      
+    } )
   
-} else if ( (def_length == FALSE ) & !is.na(target.length) ) { 
+  # make sure that only one output is specified
+  if ( !(output %in% c("algorithmic", "full")) )  {
+    stop("Choose appropriate output i.e. algorithmic or full")
+  }
   
-  len.use <- target.length
+  # if we choose the length algorithmically
+  if (output == "algorithmic") {
+    mass_out <- mass_list[sample(1:length(mass_list), 1)][[1]]
+  }
   
-} else if( (def_length == FALSE ) & is.na(target.length) ) {
+  # if we choose the full output, then output this
+  if (output == "full") {
+    mass_out <- bind_rows(mass_list)
+  }
   
-  stop("def_length = FALSE and target.length is NA: Specify a target.length(s) or set def_length = TRUE")
+  # if we used the default length algorithm then we add this to the output
+  if (default_length) {
+    mass_out <- list("mass_data" = mass_out,
+                     "default_length_data" = len.x[[1]])
+  }
+  
+  return(mass_out)
   
 }
 
-
-equ.out <- equ_id$equation_data[equ_id$equation_data$id %in% c(21, 22), ]
-
-len.use <- rnorm(n = 10, mean = 10, sd = 1)
-len.use <- 7
-
-ids <- equ.out$id
-
-x <- 
-  sapply(ids, function(x) {
-  
-  # match the variable input data to the equation(s)
-  var.dat <- equ_id$variable_input_data[equ_id$variable_input_data$id == x, ]
-  
-  # calculate the mass from the length
-  
-  # assign the length(s) to the variable
-  assign(x = var.dat[["variable"]], value = len.use)
-  
-  # implement the equation
-  parsed_eq <- parse(text = equ.out[equ.out$id == x,][["equation"]] )
-  eval(parsed_eq)
-  
-} )
-
-
-# algorithmic choice or just output the raw data?
-
-
-# if there are multiple lengths and multiple equations then, calculate mean across equations for each length
-if ( (length(len.use) > 1) & (length(ids) > 1) ) {
-  
-  x <- apply(x, 1, mean)
-
-# if there are only multiple equations, then calculate the mean across equations    
-} else if ((length(ids) > 1)) {
-  
-  x <- mean(x)
-  
-}
-
-
-
-x
-
-
+# test the function
+get_mass_from_length(target.name = "Toxomerini", 
+                     target.length = c(4, 5, 6, 7),
+                     life.stage = "larva",
+                     data.base = "itis",
+                     max_tax_dist = 6, 
+                     length_only = TRUE,
+                     default_length = FALSE,
+                     output = "algorithmic")
 
 ### END
-

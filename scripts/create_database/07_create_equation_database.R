@@ -36,7 +36,7 @@ library(dplyr)
 # add a target taxon column
 dl.dat <- 
   dl.dat %>%
-  mutate(target_taxon = if_else(is.na(Species), Genus, Species) )
+  mutate(db_taxon = if_else(is.na(Species), Genus, Species) )
 
 # add a length id column
 dl.dat$length_id <- 1:nrow(dl.dat)

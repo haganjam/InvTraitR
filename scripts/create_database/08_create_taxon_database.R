@@ -24,8 +24,8 @@ order.equ <- vector("list", length = nrow(equ.test))
 for (i in 1:nrow(equ.test)) {
   
   order.equ[[i]] <- 
-    get_taxon_order(name.input = equ.test$equation_target_taxon[i], 
-                    id = equ.test$equation_id[i], 
+    get_taxon_order(name.input = equ.test$db_taxon[i], 
+                    id = equ.test$id[i], 
                     data.base = db) 
   
 }
@@ -48,7 +48,7 @@ order.len <- vector("list", length = nrow(len.test))
 for (i in 1:nrow(len.test)) {
   
   order.len[[i]] <- 
-    get_taxon_order(name.input = len.test$target_taxon[i], 
+    get_taxon_order(name.input = len.test$db_taxon[i], 
                     id = len.test$length_id[i], 
                     data.base = db) 
   
