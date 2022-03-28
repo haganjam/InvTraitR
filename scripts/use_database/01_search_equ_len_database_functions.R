@@ -425,6 +425,8 @@ get_mass_from_length <- function(target.name,
   # if we choose the full output, then output this
   if (output == "full") {
     mass_out <- bind_rows(mass_list)
+    mass_out <- list("equation_data" = equ.out,
+                     "mass_data" = mass_out)
   }
   
   # if we used the default length algorithm then we add this to the output
@@ -438,13 +440,13 @@ get_mass_from_length <- function(target.name,
 }
 
 # test the function
-get_mass_from_length(target.name = "Toxomerini", 
-                     target.length = c(4, 5, 6, 7),
-                     life.stage = "larva",
+x <- get_mass_from_length(target.name = "Gammarus roeseli", 
+                     target.length = rnorm(n = 5, mean = 10, sd = 1),
+                     life.stage = NA,
                      data.base = "itis",
-                     max_tax_dist = 6, 
+                     max_tax_dist = 10, 
                      length_only = TRUE,
                      default_length = FALSE,
-                     output = "algorithmic")
+                     output = "full")
 
 ### END
