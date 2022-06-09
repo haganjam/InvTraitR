@@ -440,7 +440,7 @@ get_mass_from_length <- function(target.name,
 }
 
 # test the function
-x <- get_mass_from_length(target.name = "Gammarus roeseli", 
+x <- get_mass_from_length(target.name = "Gammarus", 
                      target.length = rnorm(n = 5, mean = 10, sd = 1),
                      life.stage = NA,
                      data.base = "itis",
@@ -448,5 +448,6 @@ x <- get_mass_from_length(target.name = "Gammarus roeseli",
                      length_only = TRUE,
                      default_length = FALSE,
                      output = "full")
+View(x$equation_data)
 
 ### END

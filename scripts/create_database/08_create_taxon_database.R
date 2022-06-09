@@ -18,6 +18,7 @@ equ_dat <- equ_id$equation_data
 # run the function for a few taxa on the list
 equ.test <- equ_dat[sample(1:nrow(equ_dat), 15), ]
 print(equ.test)
+print(equ.test$db_taxon)
 
 # get the order for each equation in the database
 order.equ <- vector("list", length = nrow(equ.test))
@@ -49,7 +50,7 @@ for (i in 1:nrow(len.test)) {
   
   order.len[[i]] <- 
     get_taxon_order(name.input = len.test$db_taxon[i], 
-                    id = len.test$length_id[i], 
+                    id = len.test$id[i], 
                     data.base = db) 
   
 }
