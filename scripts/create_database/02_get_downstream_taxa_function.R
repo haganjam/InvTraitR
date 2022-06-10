@@ -1,12 +1,19 @@
 
-# Function to get downstream taxa with error handling
-
-# args
-
-# sci_id: taxon id for the database being used
-# db: database to draw from ("itis", "bold", "gbif)
-# downto: taxonomic rank to get downstream taxa until
-# intermediate: whether to also get intermediate taxa or not
+#' @title get_downstream_taxa()
+#' 
+#' @description Function to get downstream taxa using the taxize package
+#' 
+#' @details This is a modified version of the downstream() function from the 
+#' taxize package that includes error handling when a name is not found immediately.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param sci_id - taxon id for the database being used. Taxon ids are obtained from
+#' the set of get_() functions in taxize. Or from the modified version written for this
+#' analysis: get_taxon_id()
+#' @param db - database to draw from ("itis", "bold", "gbif")
+#' @param downto - taxonomic rank to get downstream taxa until
+#' @param intermediate - whether to also get intermediate taxa or not
 
 get_downstream_taxa <- function(sci_id, db,
                                 downto, intermediate = FALSE, tries = 5) {

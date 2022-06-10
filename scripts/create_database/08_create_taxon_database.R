@@ -105,5 +105,4 @@ saveRDS(order.len, file = here("database/itis_taxon_identifiers_length.rds") )
 # save an equation database with the taxonomic information for each order
 saveRDS(dmat.order, file = here("database/itis_order_taxon_information.rds") )
 
-
 ### END

@@ -268,7 +268,7 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
     
     # set the taxonomic hierarchy
     tax.hier <- c("order", "suborder", "infraorder", "section", "subsection", "superfamily",
-                  "family", "subfamily", "tribe", "subtribe", "genus")
+                  "family", "subfamily", "tribe", "subtribe", "genus", "species")
     
     # get the highest ranking equation
     rank.in <- tax.hier[ min( which(tax.hier %in% df$rank ) ) ]
@@ -320,7 +320,8 @@ get_mass_from_length <- function(target.name,
   
   # if there is no suitable equation within the maximum taxonomic distance, then we return an NA
   if (is.na( unlist(equ.out)[1] ) & (length(equ.out) == 1 )) {
-    return(NA)
+    return(list("mass_data" = NA,
+                "equation_data" = NA))
   }
   
   # if length_only = FALSE is specified and output is FALSE
@@ -440,7 +441,7 @@ get_mass_from_length <- function(target.name,
 }
 
 # test the function
-x <- get_mass_from_length(target.name = "Gammarus", 
+x <- get_mass_from_length(target.name = "Dugesia aenigma", 
                      target.length = rnorm(n = 5, mean = 10, sd = 1),
                      life.stage = NA,
                      data.base = "itis",
@@ -448,6 +449,8 @@ x <- get_mass_from_length(target.name = "Gammarus",
                      length_only = TRUE,
                      default_length = FALSE,
                      output = "full")
+x
 View(x$equation_data)
+View(x$mass_data)
 
 ### END

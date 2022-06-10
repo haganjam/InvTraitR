@@ -1,5 +1,16 @@
 
-# Test for packages and provide warnings for the versions
+#' @title warnings messages()
+#' 
+#' @description Make sure correct packages are installed and print R-version
+#' 
+#' @details This script tests whether all the correct packages are installed
+#' and tests whether the versions of the packages that were used when the code
+#' was written are installed. Various warning messages are thrown when these conditions
+#' are violated to make the user aware. This script is called at the start of many
+#' function scripts to provide the relevant warnings for users.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
 
 warning_messages <- function(x) {
   
@@ -58,6 +69,7 @@ warning_messages <- function(x) {
   
  }
 
+# run the function to output the relevant warnings
 warning_messages()
 
 ### END
