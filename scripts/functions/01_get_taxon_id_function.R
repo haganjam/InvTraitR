@@ -205,6 +205,7 @@ get_taxon_id <- function(database_function = "itis", taxon_name, ask_or_not = FA
   while( class(x) == "try-error" ) {
     
     if (i > tries){
+      x <- NA
       break
     }
     
