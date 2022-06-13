@@ -1,6 +1,4 @@
 
-# Generate taxonomic information
-
 # load relevant libraries
 library(here)
 
@@ -13,13 +11,28 @@ source(here("scripts/create_database/03_gbif_downstream_function.R"))
 source(here("scripts/create_database/04_itis_downstream_function.R"))
 
 
-# define a function to get the order for each taxon in the equation database
-
-# args
-# equ.name.input - taxonomic name from the equation database
-# equ.id - equation id from the equation database
-# data.base - taxonomic database ( "itis" or "gbif" are supported)
-# life.stage - life stage of the equation
+#' @title get_taxon_order()
+#' 
+#' @description Function to take any taxon name and output the order name
+#' 
+#' @details For a given entry in the equation or length database, the function
+#' will take the taxon name in the database and find the order. It then wraps this
+#' order information with other relevant information like the equation or length ID
+#' and the life.stage. Currently, only "itis" is supported but there are plans to expand
+#' this to the gbif database as well.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param equ.name.input - name in the equation or length database
+#' @param equ.id - equation or length id in the databases
+#' @param data.base - "itis" is supported
+#' @param life.stage - taxon life stage in the equation or length database
+#' 
+#' @return list with two elements:
+#' 1. taxlist - list with the taxon name, whether it is a suitable equation, the database
+#' the rank.name, the order name and the life-stage
+#' 2. synonymns - list with a vector of synonymns for that taxon name
+#' 
 
 get_taxon_order <- function(name.input, id, data.base, life.stage = NA) {
   
@@ -97,11 +110,21 @@ get_taxon_order <- function(name.input, id, data.base, life.stage = NA) {
   
 }
 
-# define a function to get a taxonomic distance matrix from an order name
-
-# args
-# ord.name - name of the order
-# data.base - taxonomic database ( "itis" or "gbif" are supported)
+#'
+#' @title get_taxon_distance()
+#' 
+#' @description Get a taxonomic distance matrix of all taxa from a given order
+#' 
+#' @details This function will take an order name and get all the taxa that are downstream
+#' from that order and process it into a taxon matrix.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param ord.name - name of the order
+#' @param data.base - name of the taxonomic database (only "itis" is currently supported)
+#' 
+#' @return igraph object with the taxonomic distance matrix
+#' 
 
 get_taxon_distance <- function(ord.name, data.base = "itis") {
   

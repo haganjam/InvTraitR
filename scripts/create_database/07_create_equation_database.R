@@ -1,6 +1,10 @@
 
 # Create a merged data.list from the equation data and variable input databases
 
+# load relevant libraries
+library(dplyr)
+library(here)
+
 # read in the equation data
 equ.dat <- readxl::read_xlsx("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/equation_data.xlsx")
 equ.dat <- equ.dat[!is.na(equ.dat$id),]

@@ -1,7 +1,19 @@
-
-# Get taxon ID function
-
-# custom gbifid function to automatically choose the best order
+#'
+#' @title get_gbifid2()
+#' 
+#' @description Automatically choose the best order
+#' 
+#' @details The original taxize function called get_gbifid() does not automatically select
+#' a taxon id from a name unless there is only one that is available. Rather, the user has
+#' to look through a list of possibilities. When using this function, we want to simply
+#' get the correct order because that's what we use to get the downstream taxa. Therefore, 
+#' we modified this function to get an order if it's an accepted name and it is an exact
+#' match to the taxon name we inputted.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param - See the taxize() function get_gbifid for a description of the arguments
+#' 
 
 get_gbifid2 <- function (sci, ask = TRUE, messages = TRUE, rows = NA, phylum = NULL, 
                          class = NULL, order = NULL, family = NULL, rank = NULL, method = "backbone", 
@@ -143,13 +155,28 @@ get_gbifid2 <- function (sci, ask = TRUE, messages = TRUE, rows = NA, phylum = N
 
 environment(get_gbifid2) <- asNamespace('taxize')
 
-
-# args:
-
-# database_function: name of the function - "itis" (get_tsn), "bold" - (get_boldid), "gbif" - (get_gbifid)
-# taxon_name: name that you want to query
-# ask_or_not: accept imperfect matches (default is FALSE)
-# tries: how many times to try the function if it keeps getting an error (default = 5)
+#'
+#' @title get_taxon_id()
+#' 
+#' @description Get the taxon id (i.e. identifier for the database) for a given taxon name
+#' 
+#' @details The taxize package works with a set of identifiers for a given taxon name in the database.
+#' Given some taxon name, there is an id associated with it and that is required to work with
+#' other aspects of the taxize package like getting downstream taxa etc. This function takes a 
+#' taxon name and outputs the relevant taxon id for either the "itis", "bold" or "gbif" databases.
+#' In addition, it will automatically only pick perfect matches (ask_or_not = TRUE). Moreover, it
+#' will try to get the id multiple times as sometimes the connection to the server gets interrupted. 
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param database_function - original function from the taxize package used to get the taxon
+#' id: "itis" (get_tsn), "bold" - (get_boldid), "gbif" - (get_gbifid)
+#' @param taxon_name - taxon name that you want to query
+#' @param ask_or_not - if FALSE, then the function will ask you to choose from imperfect matches
+#' @param tries - if the connection with the server fails, it will try again "tries" number of times (default = 5) 
+#' 
+#' @return taxon id
+#' 
 
 get_taxon_id <- function(database_function = "itis", taxon_name, ask_or_not = FALSE, tries = 5) {
   
@@ -197,11 +224,23 @@ get_taxon_id <- function(database_function = "itis", taxon_name, ask_or_not = FA
   
 }
 
-
-# define a function to extract the genus from a binomial
-
-# args
-# binomial - binomial character string separated by a space (e.g. "Loxodonta loxodonta")
+#'
+#' @title extract_genus()
+#' 
+#' @description If a binomial taxa is supplied, extract the genus name only
+#' 
+#' @details This method works almost exclusively with genera and not species. This is because
+#' once the genus is known, the relationship among the species within that genus is known. It
+#' makes the method much more computationally efficient. This function is used to then extract
+#' the genus from a species name. The genus name is used to place the species in the correct
+#' taxonomic framework 
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param binomial - binomial character string separated by a space (e.g. "Loxodonta loxodonta")
+#' 
+#' @return string with the genus name
+#' 
 
 extract_genus <- function(binomial) {
   z <- unlist( strsplit(x = binomial, split = " ", fixed = TRUE) )

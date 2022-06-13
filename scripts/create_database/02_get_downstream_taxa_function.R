@@ -1,4 +1,4 @@
-
+#'
 #' @title get_downstream_taxa()
 #' 
 #' @description Function to get downstream taxa using the taxize package

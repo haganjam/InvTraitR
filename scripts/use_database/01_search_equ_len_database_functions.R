@@ -1,13 +1,11 @@
 
-### Functions to search the equation and length databases
-
 # load relevant libraries
 library(here)
 library(dplyr)
 
-## Load the different databases
+# Load the different databases
 
-## Equation data
+# Equation data
 
 # load the equation database
 if (!exists("equ_id")) {
@@ -19,7 +17,7 @@ if (!exists("e_ti")) {
   e_ti <- readRDS(file = here("database/itis_taxon_identifiers_equation.rds"))
 }
 
-## Default length data
+# Default length data
 if (!exists("len_id")) {
   len_id <- readRDS(file = here("database/default_length_database.rds"))
 }
@@ -29,19 +27,28 @@ if (!exists("l_ti")) {
   l_ti <- readRDS(file = here("database/itis_taxon_identifiers_length.rds"))
 }
 
-## Taxonomic distance data 
+# Taxonomic distance data 
 
 # read in the taxonomic distance database
 if (!exists("d.dist")) {
   d.dist <- readRDS(file = here("database/itis_order_taxon_information.rds"))
 }
 
-
-# Function to replace target.name with accepted name
-
-# args
-# target.name - name to test for synonyms
-# data.base - taxonomic database to use (itis, gbif)
+#'
+#' @title syn_correct()
+#' 
+#' @description Replace taxon name with accepted name if it is a synonymn
+#' 
+#' @details Sometimes, the taxon name that you input to get an equation or length for
+#' is not an accepted name but rather a synonymn of some accepted name. This function
+#' will determine whether the inputted name is a synonymn and then change it to the accepted
+#' name in the "itis" database. Only the "itis" database is supported at the moment.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param target.name - name to test for synonymns
+#' @data.base - taxonomic database to use (only "itis" is currently supported)
+#' 
 
 syn_correct <- function(target.name, data.base = "itis") {
   
@@ -84,16 +91,25 @@ syn_correct <- function(target.name, data.base = "itis") {
   
 }
 
-# Function to get best id from either the length or the equation data
-
-# args
-# target.name - name of the taxon to get the equation and length for
-# id_info - e_ti/l_ti
-# equ_len - equation or length data
-# length_only - TRUE
-# data.base - taxonomic database to use (itis, gbif)
-# max_tax_dist - 6
-# d.dist - taxonomic distance matrices of the orders
+#'
+#' @title get_tax_distance()
+#' 
+#' @description Function to get equation/length id with the lowest taxonomic distance
+#' 
+#' @details This function takes a taxon name that the user is interested in and searches
+#' either the length or equation database for the equation or length with the lowest taxonomic
+#' distance from the target taxon name.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param target.name - name of the taxon to get the equation and length data for
+#' @param id_info - database to search e_ti/l_ti
+#' @param equ_len - equation or length data
+#' @param length_only - if TRUE, then we only consider equations that are based on body length
+#' @param data.base - taxonomic database (only "itis" is currently supported)
+#' @param max_tax_dist - maximum acceptable taxonomic distance between target.name and equation/length data
+#' @param d.dist - taxonomic distance matrices for the orders
+#' 
 
 get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
                              data.base = "itis", max_tax_dist = 6,
@@ -207,17 +223,30 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
 
   }
 
-
-# Function to select the best equation from the set of suitable equations
-
-# args
-# target.name - name of the target.taxon
-# life.stage - life stage
-# id_info - database of id information (l_ti/e_ti)
-# equ_len - "equation" or "length"
-# data.base - "itis" or "gbif"
-# max_tax_dist - maximum acceptable taxonomic difference
-# d.dist - list of orders with distance matrices
+#'
+#' @title get_matching_len_equ()
+#' 
+#' @description Function to select the best equation from the set of suitable equations
+#' 
+#' @details This function takes a taxon name that the user is interested in and searches
+#' either the length or equation database for the equation or length that best matches the 
+#' target taxon name. This is first based on extracting the database entries with the lowest
+#' taxonomic entries from the target taxon name. Then the method chooses the equation based on whether
+#' the life-stages match. Matching life-stages are directly chosen. If no life-stage information
+#' is provided for the target or in the database and there are multiple database entries with
+#' equal taxonomic distance, then the highest ranking database entry is chosen.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param target.name - name of the taxon to get the equation and length data for
+#' @param life.stage - life stage of the target.name
+#' @param id_info - database to search e_ti/l_ti
+#' @param equ_len - equation or length data
+#' @param length_only - if TRUE, then we only consider equations that are based on body length
+#' @param data.base - taxonomic database (only "itis" is currently supported)
+#' @param max_tax_dist - maximum acceptable taxonomic distance between target.name and equation/length data
+#' @param d.dist - taxonomic distance matrices for the orders
+#' 
 
 get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
                                  data.base = "itis", max_tax_dist, d.dist,
@@ -289,7 +318,32 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
   
 }
 
-## Production function
+#'
+#' @title get_mass_from_length()
+#' 
+#' @description Function to get mass from length for a given taxon name
+#' 
+#' @details This function takes a taxon name that the user is interested in and searches
+#' either the length or equation database for the equation or length that best matches the 
+#' target taxon name. This is first based on extracting the database entries with the lowest
+#' taxonomic entries from the target taxon name. Then the method chooses the equation based on whether
+#' the life-stages match. Matching life-stages are directly chosen. If no life-stage information
+#' is provided for the target or in the database and there are multiple database entries with
+#' equal taxonomic distance, then the highest ranking database entry is chosen.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param target.name - name of the taxon to get the equation and length data for
+#' @param target.length - length (mm) of the target.name
+#' @param life.stage - life stage of the target.name
+#' @param data.base - taxonomic database (only "itis" is currently supported)
+#' @param max_tax_dist - maximum acceptable taxonomic distance between target.name and equation/length data
+#' @param length_only - if TRUE, then we only consider equations that are based on body length
+#' @param default_length - whether to use default length data (if target.length is missing)
+#' @param output - three options:
+#' "algorithmic" - if there are multiple equivalent equations, choose one randomly
+#' "full" - if there are multiple equivalent equations options, all are used and reported
+#' 
 
 # write a function to get mass output from lengthd and a given taxon name
 get_mass_from_length <- function(target.name, 

@@ -15,18 +15,13 @@ db <- "itis"
 equ_id <- readRDS(file = here("database/equation_vars_database.rds"))
 equ_dat <- equ_id$equation_data
 
-# run the function for a few taxa on the list
-equ.test <- equ_dat[sample(1:nrow(equ_dat), 15), ]
-print(equ.test)
-print(equ.test$db_taxon)
-
 # get the order for each equation in the database
-order.equ <- vector("list", length = nrow(equ.test))
-for (i in 1:nrow(equ.test)) {
+order.equ <- vector("list", length = nrow(equ.dat))
+for (i in 1:nrow(equ.dat)) {
   
   order.equ[[i]] <- 
-    get_taxon_order(name.input = equ.test$db_taxon[i], 
-                    id = equ.test$id[i], 
+    get_taxon_order(name.input = equ.dat$db_taxon[i], 
+                    id = equ.dat$id[i], 
                     data.base = db) 
   
 }

@@ -1,9 +1,20 @@
-
-# itis downstream function: downstream_itis
-
-# args:
-# ord.id - taxon ID of the order of the equation name
-# ord.name - name of the order of the equation name
+#'
+#' @title downstream_itis()
+#' 
+#' @description Get downstream taxa from order from the itis database
+#' 
+#' @details This function is used to get all downstream taxa from an order and process it
+#' into a matrix of taxonomic distances and a vector of taxon names
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param ord.id - taxon ID of the order
+#' @param ord.name - name of the order
+#' 
+#' @return list with two elements: 
+#' 1. tax_distance - taxonomic distance matrix (saved as a sparse matrix); 
+#' 2. tax_names - vector of all the names in the taxonomic distance matrix
+#' 
 
 downstream_itis <- function(ord.id, ord.name) { 
   
