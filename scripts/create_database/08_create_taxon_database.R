@@ -36,12 +36,12 @@ order.equ <- order.equ[ sapply(order.equ, function(x) ifelse(x[["suitable"]], TR
 len_dat <- readRDS(file = here("database/default_length_database.rds"))
 
 # get the order for each equation in the database
-order.len <- vector("list", length = nrow(len_test))
-for (i in 1:nrow(len_test)) {
+order.len <- vector("list", length = nrow(len_dat))
+for (i in 1:nrow(len_dat)) {
   
   order.len[[i]] <- 
-    get_taxon_order(name.input = len_test$db_taxon[i], 
-                    id = len_test$id[i], 
+    get_taxon_order(name.input = len_dat$db_taxon[i], 
+                    id = len_dat$id[i], 
                     data.base = db) 
   
 }
