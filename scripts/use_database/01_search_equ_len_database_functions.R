@@ -2,6 +2,10 @@
 # load relevant libraries
 library(here)
 library(dplyr)
+library(igraph)
+
+# check for the relevant libraries
+source(here("scripts/create_database/01_version_package_warnings.R"))
 
 # Load the different databases
 
@@ -380,8 +384,7 @@ get_mass_from_length <- function(target.name,
   
   # if there is no suitable equation within the maximum taxonomic distance, then we return an NA
   if (is.na( unlist(equ.out)[1] ) & (length(equ.out) == 1 )) {
-    return(list("mass_data" = NA,
-                "equation_data" = NA))
+    return(NA)
   }
   
   # if length_only = FALSE is specified and output is FALSE
@@ -462,6 +465,7 @@ get_mass_from_length <- function(target.name,
                         id = x,
                         size = len.use,
                         size_measurement = var.dat$size_measurement,
+                        default_size = default_length,
                         mass = eval(parsed_eq) )
       
       # generate a clean output data.frame
@@ -469,7 +473,7 @@ get_mass_from_length <- function(target.name,
                 mass_df, 
                 by = "id" ) %>%
         select(target_name, target_life_stage, id, db_taxon, rank, life_stage, dist_to_target,
-               size, size_measurement, mass, dw_ww, unit)
+               size, size_measurement, default_size, mass, dw_ww, unit)
       
     } )
   
@@ -492,7 +496,7 @@ get_mass_from_length <- function(target.name,
   
   # if we used the default length algorithm then we add this to the output
   if (default_length) {
-    mass_out <- c(mass_out,
+    mass_out <- c("equation_data" = list(mass_out),
                   "default_length_data" = list(len.x[[1]]) )
   }
   
@@ -601,12 +605,132 @@ get_taxa_info <- function(target.name,
   
 }
 
-# test the function
-x <- get_taxa_info(target.name = c("Agraylea", "Amphibalanus improvisus", "Daphnia magna", "Gammarus", "Idothea"),
-              life.stage = NA,
-              data.base = "itis",
-              max_tax_dist = 5
-              )
-View(x$length_info)
+#'
+#' @title get_taxa_mass()
+#' 
+#' @description Function to get mass from length data algorithmically
+#' 
+#' @details This function takes a data.frame with data on the taxa name, taxa life-stage
+#' and length data and outputs relevant mass data based on algorithmically choosing the best
+#' equation present in the database by matching taxonomic distance and life-stage. If length
+#' data is not provided, we use default values that also match the target taxa by taxonomic
+#' distance and life-stage. 
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param data.base - taxonomic database (only "itis" is currently supported)
+#' @param max_tax_dist - maximum acceptable taxonomic distance between target.name and equation/length data
+#' @param data - data.frame with taxa names, life-stages and lengthd ata
+#' @param target.name.col - name of the column in 'data' containing the taxa names
+#' @param life.stage.col - name of the column in 'data' containing the life-stages
+#' @param length.col - name of the column in 'data' containing the length data
+#' 
+#' @return data.frame with mass data for each length and additional meta.data relating
+#' to the equation used to determine the length and, if necessary, the length data
+#' 
+ 
+get_taxa_mass <- function(data.base = "itis",
+                          max_tax_dist = 5,
+                          data,
+                          target.name.col,
+                          life.stage.col,
+                          length.col) {
+  
+  # copy the data.frame into a df object
+  df <- data
+  
+  # extract a vector of names
+  target.name <- df[[target.name.col]]
+  
+  # check that the target.name vector is a character vector
+  if(!is.character(target.name)) {
+    stop("target.name argument must be a character vector")
+  }
+  
+  # check the target.names don't contain weird characters
+  if(any(grepl(pattern = "/.|,|_", x = target.name))) {
+    stop("target.name argument contains characters other than spaces and letters")
+  }
+  
+  # check that the length of the string is two words
+  z <- sapply(target.name, function(x) length(unlist( strsplit(x = x, split = " ", fixed = TRUE) )) )
+  if(any(z > 2)) {
+    stop("target.name argument contains characters with more than two words")
+  }
+  
+  # check that the length data are numeric
+  if(!is.numeric(df[[length.col]])) {
+    stop("length.col is not a numeric variable")
+  }
+  
+  # split the unique taxa and lifestage combinations
+  dfx <- split(df, paste(df[[target.name.col]], df[[life.stage.col]], sep = "_"))
+  m.df <- vector("list", length = length(dfx))
+  for(i in seq_along(dfx)) {
+    
+    # if any of the length measurements are NA, we use default values
+    if( any(is.na(dfx[[i]][[length.col]]) ) ) {
+      tl <- NA
+      dl <- TRUE
+    } else {
+      tl <- dfx[[i]][[length.col]]
+      dl <- FALSE
+    }
+    
+    x <- get_mass_from_length(target.name = dfx[[i]][[target.name.col]][1], 
+                              target.length = tl,
+                              life.stage = dfx[[i]][[life.stage.col]][1],
+                              data.base = data.base,
+                              max_tax_dist = max_tax_dist, 
+                              length_only = TRUE,
+                              default_length = dl,
+                              output = "algorithmic"
+    )
+    
+    if (identical(x, NA)) {
+      m.df[[i]] <- tibble(target_name = dfx[[i]][[target.name.col]][1],
+                          target_life_stage = dfx[[i]][[life.stage.col]][1],
+                          size = tl)
+    } else {
+      
+      if (dl) {
+        y <- x$equation_data
+        y$size_id <- x$default_length_data$id
+      } else {
+        y <- x
+        y$size_id <- NA
+      }
+      
+      # reorganise the columns
+      y <- 
+        y %>%
+        select(target_name, target_life_stage, id, db_taxon, rank, life_stage, dist_to_target,
+               size_id, size_measurement, default_size, size, mass, dw_ww, unit)
+      
+      m.df[[i]] <- y
+      
+    }
+    
+  }
+  
+  return(bind_rows(m.df))
+  
+}
+
+# test this function
+# df.test <- 
+  # tibble(Taxa = c("Agraylea", "Agraylea", 
+                  # "Amphibalanus improvisus", "Amphibalanus improvisus",
+                  # "Daphnia magna", "Gammarus"),
+         # Life_stage = c(NA, NA, NA, "Adult", NA, NA),
+         # Length_mm = c(4,3, 2, 2.5, 3, NA) )
+
+# x <- get_taxa_mass(data.base = "itis",
+                   # max_tax_dist = 5,
+                   # data = df.test,
+                   # target.name.col = "Taxa",
+                   # life.stage.col = "Life_stage",
+                   # length.col = "Length_mm")
+            
 
 ### END
