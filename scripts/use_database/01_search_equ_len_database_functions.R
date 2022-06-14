@@ -501,16 +501,16 @@ get_mass_from_length <- function(target.name,
 }
 
 # test the function
-x <- get_mass_from_length(target.name = "Ceriodaphnia reticulata", 
-                     target.length = rnorm(n = 5, mean = 10, sd = 1),
-                     life.stage = NA,
-                     data.base = "itis",
-                     max_tax_dist = 10, 
-                     length_only = TRUE,
-                     default_length = TRUE,
-                     output = "full")
-x
-View(x$equation_data)
-View(x$mass_data)
+# x <- get_mass_from_length(target.name = "Agraylea", 
+                     # target.length = rnorm(n = 5, mean = 10, sd = 1),
+                     # life.stage = NA,
+                     # data.base = "itis",
+                     # max_tax_dist = 10, 
+                     # length_only = TRUE,
+                     # default_length = TRUE,
+                     # output = "full")
+# x
+# View(x$equation_data)
+# View(x$mass_data)
 
 ### END
