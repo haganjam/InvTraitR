@@ -717,20 +717,4 @@ get_taxa_mass <- function(data.base = "itis",
   
 }
 
-# test this function
-# df.test <- 
-  # tibble(Taxa = c("Agraylea", "Agraylea", 
-                  # "Amphibalanus improvisus", "Amphibalanus improvisus",
-                  # "Daphnia magna", "Gammarus"),
-         # Life_stage = c(NA, NA, NA, "Adult", NA, NA),
-         # Length_mm = c(4,3, 2, 2.5, 3, NA) )
-
-# x <- get_taxa_mass(data.base = "itis",
-                   # max_tax_dist = 5,
-                   # data = df.test,
-                   # target.name.col = "Taxa",
-                   # life.stage.col = "Life_stage",
-                   # length.col = "Length_mm")
-            
-
 ### END
