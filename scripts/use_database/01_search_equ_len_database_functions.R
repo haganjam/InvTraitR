@@ -513,4 +513,82 @@ get_mass_from_length <- function(target.name,
 # View(x$equation_data)
 # View(x$mass_data)
 
+# warnings (> 1 result : no direct match found)
+# from taxize's get_ function when no name directly matches the input
+
+get_taxa_info <- function(target.name,
+                          life.stage = NA,
+                          data.base = "itis",
+                          max_tax_dist = 5) {
+  
+  # perform some checks on the 
+  if (length(life.stage) != length(target.name)) {
+    life.stage <- rep(NA, length(target.name))
+    message("Life stages not provided for each target.name, using NA for all")
+  }
+  
+  # check that the target.name vector is a character vector
+  if(!is.character(target.name)) {
+    stop("target.name argument must be a character vector")
+  }
+  
+  # check the target.names don't contain weird characters
+  if(any(grepl(pattern = "/.|,|_", x = target.name))) {
+    stop("target.name argument contains characters other than spaces and letters")
+  }
+  
+  # check that the length of the string is two words
+  z <- sapply(target.name, function(x) length(unlist( strsplit(x = x, split = " ", fixed = TRUE) )) )
+  if(any(z > 2)) {
+    stop("target.name argument contains characters with more than two words")
+  }
+  
+  equ.df <- vector("list", length = length(target.name))
+  len.df <- vector("list", length = length(target.name))
+  
+  for(i in seq_along(target.name)) {
+    
+    x <- get_mass_from_length(target.name = target.name[i], 
+                              target.length = NA,
+                              life.stage = life.stage[i],
+                              data.base = data.base,
+                              max_tax_dist = max_tax_dist, 
+                              length_only = TRUE,
+                              default_length = TRUE,
+                              output = "full"
+    )
+    
+    # if data were reported, then output into the list
+    if(is.na(x$equation_data[1])) {
+      equ.df[[i]] <- tibble("target.name" = target.name[i])
+    } else {
+      equ.df[[i]] <- as_tibble(bind_cols(data.frame("target.name" = target.name[i] ),
+                                         x$equation_data))
+    }
+    
+    # if data were reported, then output into the list
+    if( !("default_length_data" %in% names(x)) ) {
+      len.df[[i]] <- tibble("target.name" = target.name[i])
+    } else {
+      len.df[[i]] <- as_tibble(bind_cols(data.frame("target.name" = target.name[i] ),
+                                         x$default_length_data))
+    }
+    
+  }
+  
+  list.out <- list("equation_info" = bind_rows(equ.df),
+                   "length_info" = bind_rows(len.df) )
+  
+  return(list.out)
+  
+}
+
+# test the function
+# get_taxa_info(target.name = c("Agraylea", "Amphibalanus improvisus", "Daphnia magna", "Gammarus", "Idothea"),
+              # life.stage = NA,
+              # data.base = "itis",
+              # max_tax_dist = 5
+              # )
+
+
 ### END
