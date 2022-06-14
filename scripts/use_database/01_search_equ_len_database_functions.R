@@ -32,6 +32,9 @@ if (!exists("l_ti")) {
 # read in the taxonomic distance database
 if (!exists("d.dist")) {
   d.dist <- readRDS(file = here("database/itis_order_taxon_information.rds"))
+  
+  # remove any missing values
+  d.dist <- d.dist[sapply(d.dist, function(x) !is.null(x$order) )]
 }
 
 #'
@@ -104,7 +107,7 @@ syn_correct <- function(target.name, data.base = "itis") {
 #' 
 #' @param target.name - name of the taxon to get the equation and length data for
 #' @param id_info - database to search e_ti/l_ti
-#' @param equ_len - equation or length data
+#' @param equ_len - "equation" or "length" data
 #' @param length_only - if TRUE, then we only consider equations that are based on body length
 #' @param data.base - taxonomic database (only "itis" is currently supported)
 #' @param max_tax_dist - maximum acceptable taxonomic distance between target.name and equation/length data
@@ -168,6 +171,11 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
     
     sapply(id_info1, function(x) { 
       
+      # check if relevant information are present
+      if (any( is.na(c(x$name, x$rank)) ) | identical(x$rank, character(0) ) ) {
+        return(NA)
+      }
+      
       if (x$name == target.name) {
         
         d3 <- 0
@@ -201,11 +209,11 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
   rm(dist.m)
   
   # get the id's of the lowest taxonomic distances
-  id.min <- which( near(min(tax.dist), tax.dist) )
+  id.min <- which( near(min(tax.dist, na.rm = TRUE), tax.dist) )
   print(paste("taxonomic distances: ", paste(tax.dist[id.min], collapse = " ") ) )
   
   # check if the minimum taxonomic is within the chosen threshold: max_tax_dist
-  if ( any(id.min > max_tax_dist ) ) {
+  if ( any(tax.dist[id.min] > max_tax_dist ) ) {
     
     message(paste( paste("No suitable ", equ_len, " in the data for the target taxon name"), 
                    "as the maximum taxonomic distance is greater than ", max_tax_dist, dep = "") )
@@ -268,7 +276,6 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
   # join these id's to the length data
   df <- left_join(as_tibble(df), len_equ_data, by = "id")
   message("Suitable taxonomic distances:")
-  print(df)
   
   # determine if the life-stages match the chosen equations
   
@@ -313,7 +320,6 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
   }
   
   message("Suitable taxonomic distances and life stages:")
-  print(df.out)
   return(df.out)
   
 }
@@ -486,8 +492,8 @@ get_mass_from_length <- function(target.name,
   
   # if we used the default length algorithm then we add this to the output
   if (default_length) {
-    mass_out <- list("mass_data" = mass_out,
-                     "default_length_data" = len.x[[1]])
+    mass_out <- c(mass_out,
+                  "default_length_data" = list(len.x[[1]]) )
   }
   
   return(mass_out)
@@ -495,13 +501,13 @@ get_mass_from_length <- function(target.name,
 }
 
 # test the function
-x <- get_mass_from_length(target.name = "Dugesia aenigma", 
+x <- get_mass_from_length(target.name = "Ceriodaphnia reticulata", 
                      target.length = rnorm(n = 5, mean = 10, sd = 1),
                      life.stage = NA,
                      data.base = "itis",
                      max_tax_dist = 10, 
                      length_only = TRUE,
-                     default_length = FALSE,
+                     default_length = TRUE,
                      output = "full")
 x
 View(x$equation_data)
