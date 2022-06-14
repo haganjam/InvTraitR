@@ -50,7 +50,7 @@ if (!exists("d.dist")) {
 #' @author James G. Hagan (james_hagan(at)outlook.com)
 #' 
 #' @param target.name - name to test for synonymns
-#' @data.base - taxonomic database to use (only "itis" is currently supported)
+#' @param data.base - taxonomic database to use (only "itis" is currently supported)
 #' 
 
 syn_correct <- function(target.name, data.base = "itis") {
@@ -147,7 +147,7 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
   
   # select the correct taxonomic distance matrix
   dist.m <- dist[[1]]$tax_distance
-  print(paste("dimension: ", paste(dim(dist.m), collapse = " x ") ))
+  # print(paste("dimension: ", paste(dim(dist.m), collapse = " x ") ))
   
   # get the list of taxonomic names
   tax.names <- dist[[1]]$tax_names$taxonname
@@ -210,7 +210,7 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
   
   # get the id's of the lowest taxonomic distances
   id.min <- which( near(min(tax.dist, na.rm = TRUE), tax.dist) )
-  print(paste("taxonomic distances: ", paste(tax.dist[id.min], collapse = " ") ) )
+  # print(paste("taxonomic distances: ", paste(tax.dist[id.min], collapse = " ") ) )
   
   # check if the minimum taxonomic is within the chosen threshold: max_tax_dist
   if ( any(tax.dist[id.min] > max_tax_dist ) ) {
@@ -275,7 +275,7 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
   
   # join these id's to the length data
   df <- left_join(as_tibble(df), len_equ_data, by = "id")
-  message("Suitable taxonomic distances:")
+  # message("Suitable taxonomic distances:")
   
   # determine if the life-stages match the chosen equations
   
@@ -319,7 +319,7 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
     
   }
   
-  message("Suitable taxonomic distances and life stages:")
+  # message("Suitable taxonomic distances and life stages:")
   return(df.out)
   
 }
@@ -392,9 +392,9 @@ get_mass_from_length <- function(target.name,
                           by = c("id", "db_taxon", "life_stage"))
     
     # test if all the equations are body_length equations anyway
-    if( all(equ_join$size_measurement == "body_length")) {
-      message("All suitable equations are length_only = TRUE, default lengths can be used or target.lengths can be specified")
-    }
+    # if( all(equ_join$size_measurement == "body_length")) {
+      # message("All suitable equations are length_only = TRUE, default lengths can be used or target.lengths can be specified")
+    # }
     
     # return the equ_join data.frame as an ouput
     return(equ_join)
@@ -423,8 +423,8 @@ get_mass_from_length <- function(target.name,
     len.x <- list(len.out, len.in)
     
     # use the mean of these multiple suitable length values
-    message(paste("Using the mean length: ", round(len.in[1], 2), " mm ", 
-                  "(sd: ", round(len.in[2], 2), ", n: ", len.in[3], " )", " to calculate mass", sep = "" ))
+    # message(paste("Using the mean length: ", round(len.in[1], 2), " mm ", 
+                  # "(sd: ", round(len.in[2], 2), ", n: ", len.in[3], " )", " to calculate mass", sep = "" ))
     len.use <- len.in[1]
     names(len.use) <- NULL
     
@@ -500,21 +500,29 @@ get_mass_from_length <- function(target.name,
   
 }
 
-# test the function
-# x <- get_mass_from_length(target.name = "Agraylea", 
-                     # target.length = rnorm(n = 5, mean = 10, sd = 1),
-                     # life.stage = NA,
-                     # data.base = "itis",
-                     # max_tax_dist = 10, 
-                     # length_only = TRUE,
-                     # default_length = TRUE,
-                     # output = "full")
-# x
-# View(x$equation_data)
-# View(x$mass_data)
-
-# warnings (> 1 result : no direct match found)
-# from taxize's get_ function when no name directly matches the input
+#'
+#' @title get_taxa_info()
+#' 
+#' @description Function to get all relevant information from the database for a vector of names
+#' 
+#' @details This function takes a vector of taxa names and associated life-stages and returns
+#' all information in the database that is within an appropriate taxonomic distance and if the
+#' life-stage matches. Information in both the equation
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param target.name - name of the taxon to get the equation and length data for
+#' @param life.stage - life stage of the target.name
+#' @param data.base - taxonomic database (only "itis" is currently supported)
+#' @param max_tax_dist - maximum acceptable taxonomic distance between target.name and equation/length data
+#' 
+#' @return list with two elements:
+#' 1. equation_info: all available equation information for the target.name
+#' 2. length_info: all available length information for the target.name
+#' 
+#' @warnings warnings (> 1 result : no direct match found)
+#' from taxize's get_ function when no name directly matches the input
+#' 
 
 get_taxa_info <- function(target.name,
                           life.stage = NA,
@@ -553,25 +561,35 @@ get_taxa_info <- function(target.name,
                               life.stage = life.stage[i],
                               data.base = data.base,
                               max_tax_dist = max_tax_dist, 
+                              length_only = FALSE,
+                              default_length = FALSE,
+                              output = "full"
+                              )
+    
+    y <- get_mass_from_length(target.name = target.name[i], 
+                              target.length = NA,
+                              life.stage = life.stage[i],
+                              data.base = data.base,
+                              max_tax_dist = max_tax_dist, 
                               length_only = TRUE,
                               default_length = TRUE,
                               output = "full"
-    )
+                              )
     
     # if data were reported, then output into the list
-    if(is.na(x$equation_data[1])) {
+    if(is.na(x[1])) {
       equ.df[[i]] <- tibble("target.name" = target.name[i])
     } else {
       equ.df[[i]] <- as_tibble(bind_cols(data.frame("target.name" = target.name[i] ),
-                                         x$equation_data))
+                                         x))
     }
     
     # if data were reported, then output into the list
-    if( !("default_length_data" %in% names(x)) ) {
+    if( !("default_length_data" %in% names(y)) ) {
       len.df[[i]] <- tibble("target.name" = target.name[i])
     } else {
       len.df[[i]] <- as_tibble(bind_cols(data.frame("target.name" = target.name[i] ),
-                                         x$default_length_data))
+                                         y$default_length_data))
     }
     
   }
@@ -584,11 +602,11 @@ get_taxa_info <- function(target.name,
 }
 
 # test the function
-# get_taxa_info(target.name = c("Agraylea", "Amphibalanus improvisus", "Daphnia magna", "Gammarus", "Idothea"),
-              # life.stage = NA,
-              # data.base = "itis",
-              # max_tax_dist = 5
-              # )
-
+x <- get_taxa_info(target.name = c("Agraylea", "Amphibalanus improvisus", "Daphnia magna", "Gammarus", "Idothea"),
+              life.stage = NA,
+              data.base = "itis",
+              max_tax_dist = 5
+              )
+View(x$length_info)
 
 ### END
