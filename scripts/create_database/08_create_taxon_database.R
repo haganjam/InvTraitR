@@ -55,23 +55,61 @@ uni.order <- unique(c(sapply(order.len, function(x) x[["order"]]),
                       sapply(order.equ, function(x) x[["order"]])
                       ))
 
-# for each unique order, get the taxonomic distance matrix
-dmat.order <- vector("list", length = length(uni.order))
-for (j in 1:length(uni.order)) {
+# renew entire database?
+renew <- FALSE
+if (renew) {
   
-  u <- get_taxon_distance(ord.name = uni.order[j], data.base = db)
-  
-  dmat.order[[j]] <- u
+  # for each unique order, get the taxonomic distance matrix
+  dmat.order <- vector("list", length = length(uni.order))
+  for (j in 1:length(uni.order)) {
+    
+    u <- get_taxon_distance(ord.name = uni.order[j], data.base = db)
+    
+    dmat.order[[j]] <- u
+    
+  }
   
 }
+
+# supplement the existing taxonomic distance matrix
+
+# check which orders are already present in the taxonomic distance database
+dmat.order <- readRDS(file = here("database/itis_order_taxon_information.rds"))
+  
+# remove any missing values
+dmat.order <- d.dist[sapply(dmat.order, function(x) !is.null(x$order) )]
+
+# any of the unique orders are not in the d.dist matrix
+if ( any( !(uni.order %in% sapply(dmat.order, function(x) x$order)) ) ) {
+  
+  mis.order <- uni.order[ which( !(uni.order %in% sapply(dmat.order, function(x) x$order)) ) ]
+  
+  # for each unique order, get the taxonomic distance matrix
+  dmat.order.mis <- vector("list", length = length(mis.order))
+  for (j in 1:length(mis.order)) {
+    
+    u <- get_taxon_distance(ord.name = mis.order[j], data.base = db)
+    
+    dmat.order.mis[[j]] <- u
+    
+  }
+  
+}
+
+# join these databases
+dmat.order <- c(dmat.order, dmat.order.mis)
 
 # subset out the orders where taxonomic information is available for the order
 x <- lapply(dmat.order, function(x) x$tax_available)
 dmat.order <- dmat.order[unlist(x)]
 
-# get the orders from the unique order list where taxonomic information is available
-uni.order.in <- uni.order[unlist(x)]
+# subset any orders where tax-distance information is missing
+x <- lapply(dmat.order, function(x) identical(x$tax_distance, NA) )
+dmat.order <- dmat.order[!unlist(x)]
 
+# get the orders from the unique order list where taxonomic information is available
+uni.order.in <- uni.order[uni.order %in% sapply(dmat.order, function(x) x$order)]
+any( !(uni.order.in %in% sapply(dmat.order, function(x) x$order)) )
 
 ## Equation data
 

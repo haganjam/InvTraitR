@@ -2,6 +2,8 @@
 # Test the method for calculating species biomasses
 
 library(here)
+library(dplyr)
+library(ggplot2)
 source(here("scripts/use_database/01_search_equ_len_database_functions.R"))
 
 # load the test data
@@ -15,11 +17,10 @@ summary(t.dat)
 # try the function
 x <- get_taxa_mass(data.base = "itis",
                    max_tax_dist = 6,
-                   data = t.dat,
+                   data = t.dat %>% filter(Reference != "Eklof_2016"),
                    target.name.col = "Taxa",
                    life.stage.col = "Life_stage",
                    length.col = "Length_mm")
-
 View(x)              
 
 # join this data.frame to the actual mass data
@@ -52,9 +53,9 @@ cor(y$mass, y$Dry_weight_mg)
 cor(log(y$mass), log(y$Dry_weight_mg))              
 
 y %>%
-  filter(mass < 10, mass < 30, Dry_weight_mg > 10)
+  filter(mass > 1, Dry_weight_mg < 0.5)
 
-View(x %>% filter(target_name == "Gammarus"))
+View(x %>% filter(target_name == "Polyphemus pediculus"))
 
 
               

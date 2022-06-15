@@ -27,6 +27,13 @@ downstream_itis <- function(ord.id, ord.name) {
   
   # get downstream taxa and process into a usable data.frame
   downtax.top <- get_downstream_taxa(sci_id = ord.id, downto = "genus", db = "itis", intermediate = TRUE)
+  
+  # if the function cannot access downstream taxa then return NAs
+  if (identical(downtax.top, NULL)) {
+    return(list(tax_distance = NA, tax_names = NA))
+  }
+  
+  # bind the downstream taxa into a data.frame
   downtax.top <- bind_rows(downtax.top[[1]]$intermediate)
   
   # get taxonomic distance matrix

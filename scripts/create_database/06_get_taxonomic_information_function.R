@@ -134,13 +134,14 @@ get_taxon_distance <- function(ord.name, data.base = "itis") {
                          ask_or_not = FALSE, tries = 5)
   ord.id <- ord.id[[1]]
   
+  # create an error dmat output
+  dmat <- c(list(order = ord.name),
+            list(tax_available = FALSE),
+            list(tax_distance = NA,
+                 tax_names = NA))
+  
   # if the taxon_id is not found in the database, then stop the function
   if (is.na(ord.id)) {
-    
-    dmat <- c(list(order = ord.name),
-              list(tax_available = FALSE),
-              list(tax_distance = NA,
-                   tax_names = NA)) 
     
     return(dmat)
     stop("Could not find this order name in the database")
@@ -159,6 +160,13 @@ get_taxon_distance <- function(ord.name, data.base = "itis") {
   } else {
     
     stop("Specify an appropriate database: itis or gbif")
+    
+  }
+  
+  if (identical(dmat, NULL)) {
+    
+    return(dmat)
+    stop("Could not find this order name in the database")
     
   }
   
