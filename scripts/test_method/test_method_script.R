@@ -35,27 +35,33 @@ y <-
          mass, Dry_weight_mg) %>%
   filter(!is.na(mass))
 
-library(ggplot2)
+y$general_dw_Hebert <- exp(-4.814 + log(y$size) )
+
+exp(-4.814 + log(27) )
+
+y <- 
+  y %>%
+  tidyr::pivot_longer(cols = c("general_dw_Hebert", "mass"),
+               names_to = "method",
+               values_to = "DW")
 
 ggplot(data = y,
-       mapping = aes(x = log(mass), log(Dry_weight_mg) )) +
+       mapping = aes(x = log(Dry_weight_mg), y =log(DW), colour = method )) +
   geom_point() +
   geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
   theme_classic()
  
-ggplot(data = y %>% filter(mass < 2),
-       mapping = aes(x = (mass), (Dry_weight_mg) )) +
-  geom_point() +
+ggplot() +
+  geom_point(data = y,
+             mapping = aes(x = Dry_weight_mg, y =DW, colour = method )) +
   geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
   theme_classic()
 
-cor(y$mass, y$Dry_weight_mg)              
-cor(log(y$mass), log(y$Dry_weight_mg))              
-
-y %>%
-  filter(mass > 1, Dry_weight_mg < 0.5)
-
-View(x %>% filter(target_name == "Polyphemus pediculus"))
+ggplot() +
+  geom_point(data = y %>% filter(method == "general_dw_Hebert"),
+             mapping = aes(x = log(Dry_weight_mg), y = log(DW), colour = method )) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  theme_classic()
 
 
               
