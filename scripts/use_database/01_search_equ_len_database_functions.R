@@ -3,6 +3,7 @@
 library(here)
 library(dplyr)
 library(igraph)
+library(Matrix)
 
 # check for the relevant libraries
 source(here("scripts/create_database/01_version_package_warnings.R"))

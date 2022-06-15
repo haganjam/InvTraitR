@@ -77,7 +77,7 @@ if (renew) {
 dmat.order <- readRDS(file = here("database/itis_order_taxon_information.rds"))
   
 # remove any missing values
-dmat.order <- d.dist[sapply(dmat.order, function(x) !is.null(x$order) )]
+dmat.order <- dmat.order[sapply(dmat.order, function(x) !is.null(x$order) )]
 
 # any of the unique orders are not in the d.dist matrix
 if ( any( !(uni.order %in% sapply(dmat.order, function(x) x$order)) ) ) {
@@ -110,6 +110,7 @@ dmat.order <- dmat.order[!unlist(x)]
 # get the orders from the unique order list where taxonomic information is available
 uni.order.in <- uni.order[uni.order %in% sapply(dmat.order, function(x) x$order)]
 any( !(uni.order.in %in% sapply(dmat.order, function(x) x$order)) )
+
 
 ## Equation data
 
