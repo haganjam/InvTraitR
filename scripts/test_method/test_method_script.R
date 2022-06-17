@@ -3,6 +3,7 @@
 
 library(here)
 library(dplyr)
+library(readr)
 library(ggplot2)
 source(here("scripts/use_database/01_search_equ_len_database_functions.R"))
 
@@ -64,5 +65,26 @@ ggplot() +
   theme_classic()
 
 
-              
+# test the data by getting biomass conversion data for the Inselberg and Korranneberg data
+
+ins <- read_csv(file = "C:/Users/james/Documents/github/predicting_trait_responses/data/biomass_conversions/aus_insel_bio.csv")
+kor <- read_csv(file = "C:/Users/james/Documents/github/predicting_trait_responses/data/biomass_conversions/korr_bio.csv")
+
+# use the method to get biomass data using default length data
+ins.x <- 
+  get_taxa_mass(data.base = "itis",
+                max_tax_dist = 6,
+                data = ins,
+                target.name.col = "taxon",
+                life.stage.col = "life_stage",
+                length.col = NA
+                )
+View(ins.x)
+
+ins.x <- 
+  get_taxa_info(target.name = ins$taxon, life.stage = ins$life_stage,
+               data.base = "itis",
+               max_tax_dist = 6)
+
+View(ins.x[[2]])
               

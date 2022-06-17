@@ -660,8 +660,10 @@ get_taxa_mass <- function(data.base = "itis",
   }
   
   # check that the length data are numeric
-  if(!is.numeric(df[[length.col]])) {
-    stop("length.col is not a numeric variable")
+  if (!is.na(length.col)) {
+    if(!is.numeric(df[[length.col]])) {
+      stop("length.col is not a numeric variable")
+    }
   }
   
   # split the unique taxa and lifestage combinations
@@ -670,7 +672,11 @@ get_taxa_mass <- function(data.base = "itis",
   for(i in seq_along(dfx)) {
     
     # if any of the length measurements are NA, we use default values
-    if( any(is.na(dfx[[i]][[length.col]]) ) ) {
+    if (is.na(length.col)) {
+      tl <- NA
+      dl <- TRUE
+    }
+    else if( any(is.na(dfx[[i]][[length.col]]) ) ) {
       tl <- NA
       dl <- TRUE
     } else {
@@ -696,7 +702,7 @@ get_taxa_mass <- function(data.base = "itis",
       
       if (dl) {
         y <- x$equation_data
-        y$size_id <- x$default_length_data$id
+        y$size_id <- sample(x$default_length_data$id, 1)
       } else {
         y <- x
         y$size_id <- NA
