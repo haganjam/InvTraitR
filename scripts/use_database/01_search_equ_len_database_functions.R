@@ -388,7 +388,7 @@ get_mass_from_length <- function(target.name,
     stop("Specify if length_only = TRUE/FALSE")
   }
   
-  if (is.na(target.length)) {
+  if (any(is.na(target.length))) {
     default_length <- TRUE
   } else {
     default_length <- FALSE
@@ -485,9 +485,6 @@ get_mass_from_length <- function(target.name,
       
     } )
   
-  # convert to a data.frame
-  mass_out <- bind_rows(mass_list)
-  
   # make sure that only one output is specified
   if ( !(output %in% c("algorithmic", "full")) )  {
     stop("Choose appropriate output i.e. algorithmic or full")
@@ -495,11 +492,12 @@ get_mass_from_length <- function(target.name,
   
   # if we choose the length algorithmically
   if (output == "algorithmic") {
-    mass_out <- mass_out[sample(1:nrow(mass_out), 1), ]
+    mass_out <- mass_list[sample(1:length(mass_list), 1)][[1]]
   }
   
   # if we choose the full output, then output this
   if (output == "full") {
+    mass_out <- bind_rows(mass_list)
     mass_out <- list("equation_data" = equ.out,
                      "mass_data" = mass_out)
   }
@@ -668,20 +666,26 @@ get_taxa_mass <- function(data.base = "itis",
     stop("target.name argument contains characters with more than two words")
   }
   
-  # check that the length data are numeric
-  if (!is.na(length.col)) {
-    if(!is.numeric(df[[length.col]])) {
-      stop("length.col is not a numeric variable")
-    }
-  }
+  # split the unique taxa and lifestage combinations and if length data are present or not
+  length_na <- sapply(df[[length.col]], function(x) ifelse(is.na(x), 1, 0) )
+  dfx <- split(df, paste(df[[target.name.col]], df[[life.stage.col]], length_na, sep = "_"))
   
-  # split the unique taxa and lifestage combinations
-  dfx <- split(df, paste(df[[target.name.col]], df[[life.stage.col]], sep = "_"))
+  # if a taxa has length NA then make it a single group
+  dfx <- 
+    lapply(dfx, function(x) { 
+      z <- is.na(x[[length.col]] )
+      if(sum(z) > 1) {
+        x[1,] 
+      } else {
+        x
+      } }
+    )
+  
   m.df <- vector("list", length = length(dfx))
   for(i in seq_along(dfx)) {
     
     x <- get_mass_from_length(target.name = dfx[[i]][[target.name.col]][1], 
-                              target.length = dfx[[i]][[length.col]][1],
+                              target.length = dfx[[i]][[length.col]],
                               life.stage = dfx[[i]][[life.stage.col]][1],
                               data.base = data.base,
                               max_tax_dist = max_tax_dist, 
@@ -690,24 +694,26 @@ get_taxa_mass <- function(data.base = "itis",
     )
     
     if (identical(x, NA)) {
+      
       m.df[[i]] <- tibble(target_name = dfx[[i]][[target.name.col]][1],
                           target_life_stage = dfx[[i]][[life.stage.col]][1],
-                          size = tl)
+                          size = dfx[[i]][[length.col]][1])
+      
     } else {
       
-      if (dl) {
+      if ( c("equation_data") %in% names(x) ) {
         y <- x$equation_data
-        y$size_id <- sample(x$default_length_data$id, 1)
+        y$length_id <- paste(x$default_length_data$id, collapse = "_")
       } else {
         y <- x
-        y$size_id <- NA
+        y$length_id <- NA
       }
       
       # reorganise the columns
       y <- 
         y %>%
         select(target_name, target_life_stage, id, db_taxon, rank, life_stage, dist_to_target,
-               size_id, size_measurement, default_size, size, mass, dw_ww, unit)
+               length_id, length_measurement, default_length, length, mass, dw_ww, unit)
       
       m.df[[i]] <- y
       
