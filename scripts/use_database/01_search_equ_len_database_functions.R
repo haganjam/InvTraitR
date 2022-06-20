@@ -123,21 +123,26 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
                              data.base = "itis", max_tax_dist = 6,
                              d.dist) {
   
+  # create an output data.frame
+  dist.df <- data.frame(id = NA,
+                        rank = NA,
+                        dist_to_target = NA)
+  
   # use the synonymn function here to output an object called "search.name"
   search.name <- syn_correct(target.name = target.name, data.base = data.base)
   
   # if length.only = TRUE then subset equations with only length data
   if (length_only & (equ_len == "equation") ) {
     
-    id_info1 <- id_info[ sapply(id_info, function(x) x$id %in% equ_id$id_only_equ_ID) ]
+    id_info <- id_info[ sapply(id_info, function(x) x$id %in% equ_id$id_only_equ_ID) ]
     
-  } else { id_info1 <- id_info }
+  }
   
   # extract the orders present in the equation database
-  orders <- sapply( id_info1, function(x) x$order)
+  orders <- sapply( id_info, function(x) x$order)
   
   # subset the distance matrices for the equations
-  dist <- d.dist[ sapply(d.dist, function(x) x$order %in% orders) ]
+  dist <- d.dist[ sapply(d.dist, function(x) x$order %in% unique(orders) ) ]
   
   # select the taxonomic distance matrix consistent with the taxonname
   u <- sapply(dist, function(x) search.name %in% x$tax_names$taxonname)
@@ -147,12 +152,11 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
   if (all(u == FALSE)) {
     message(paste("No suitable ", equ_len, " in the data for the target taxon name"))
     message("Returning an NA")
-    return(NA)
+    return(dist.df)
   }
   
-  # select the correct taxonomic distance matrix
+  # select the correct taxonomic distance matrix: there can only be one correct one
   dist.m <- dist[[1]]$tax_distance
-  # print(paste("dimension: ", paste(dim(dist.m), collapse = " x ") ))
   
   # get the list of taxonomic names
   tax.names <- dist[[1]]$tax_names$taxonname
@@ -161,24 +165,24 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
   id.order <- dist[[1]]$order
   
   # get the equations with the correct order
-  y <- sapply(id_info1, function(y) y$order == id.order)
+  y <- sapply(id_info, function(y) y$order == id.order)
   if (sum(y) == 0) {
     
     message(paste("No suitable ", equ_len, " in the data for the target taxon name"))
     message("Returning an NA")
-    return(NA)
+    return(dist.df)
     
   }
-  id_info1 <- id_info1[y]
+  id_info <- id_info[y]
   
   # get the distance from the suitable equations or lengths
   tax.dist <- 
     
-    sapply(id_info1, function(x) { 
+    sapply(id_info, function(x) { 
       
-      # check if relevant information are present
-      if (any( is.na(c(x$name, x$rank)) ) | identical(x$rank, character(0) ) ) {
-        return(NA)
+      # check if the same and rank are present in the database
+      if (any( is.na(c(x$name, x$rank)) ) | identical(x$rank, character(0)) ) {
+        return(dist.df)
       }
       
       if (x$name == target.name) {
@@ -188,6 +192,7 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
       } else if ( (search.name %in% tax.names) ) {
         
         z <- extract_genus( x$name )
+        z
         d1 <- dist.m[which(row.names(dist.m) == z), which(colnames(dist.m) == search.name) ]
         d2 <- dist.m[which(row.names(dist.m) == search.name), which(colnames(dist.m) == z ) ]
         d3 <- max(c(d1, d2))
@@ -199,11 +204,11 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
       } 
       
       else {
-      
-      message(paste("No suitable", equ_len) )
-      message("Returning an NA")
-      return(NA)
-      
+        
+        message(paste("No suitable", equ_len) )
+        message("Returning an NA")
+        return(dist.df)
+        
       }
       
       return(d3)
@@ -215,21 +220,21 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
   
   # get the id's of the lowest taxonomic distances
   id.min <- which( near(min(tax.dist, na.rm = TRUE), tax.dist) )
-  # print(paste("taxonomic distances: ", paste(tax.dist[id.min], collapse = " ") ) )
   
   # check if the minimum taxonomic is within the chosen threshold: max_tax_dist
   if ( any(tax.dist[id.min] > max_tax_dist ) ) {
     
     message(paste( paste("No suitable ", equ_len, " in the data for the target taxon name"), 
-                   "as the maximum taxonomic distance is greater than ", max_tax_dist, dep = "") )
+                   "as the maximum taxonomic distance is greater than ", max_tax_dist, sep = "") )
     message("Returning an NA")
-    return(NA)
+    return(dist.df)
     
   }
   
+  # update the output data.frame
   # create an output data.frame
-  dist.df <- data.frame(id = sapply(id_info1[id.min], function(x) x$id),
-                        rank = sapply(id_info1[id.min], function(x) { x$rank } ),
+  dist.df <- data.frame(id = sapply(id_info[id.min], function(x) x$id),
+                        rank = sapply(id_info[id.min], function(x) { x$rank } ),
                         dist_to_target = tax.dist[id.min])
   
   return(dist.df)
@@ -259,11 +264,14 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
 #' @param data.base - taxonomic database (only "itis" is currently supported)
 #' @param max_tax_dist - maximum acceptable taxonomic distance between target.name and equation/length data
 #' @param d.dist - taxonomic distance matrices for the orders
+#' @param len_equ_data - either equ_id$equation_data for equations or len_id for length data
+#' @param life_stage_ignore - if TRUE, then all equations with suitable taxonomic distance are outputted
 #' 
 
 get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
                                  data.base = "itis", max_tax_dist, d.dist,
-                                 len_equ_data, length_only = FALSE) {
+                                 len_equ_data, length_only = FALSE,
+                                 life_stage_ignore = FALSE) {
   
   # get a set of equations within the suitable maximum taxonomic distance
   df <- get_tax_distance(target.name = target.name, 
@@ -273,21 +281,26 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
                          data.base = data.base, max_tax_dist = max_tax_dist,
                          d.dist = d.dist)
   
+  
   # if there is no suitable equation within the maximum taxonomic distance, then we return an NA
-  if (is.na( unlist(df)[1] ) & (length(df) == 1 )) {
+  if (any(is.na(unlist(df)))) {
     return(NA)
   }
   
   # join these id's to the length data
   df <- left_join(as_tibble(df), len_equ_data, by = "id")
-  # message("Suitable taxonomic distances:")
+  
+  # do we care about life-stages?
+  if (life_stage_ignore) {
+    return(df)
+  }
   
   # determine if the life-stages match the chosen equations
   
   # test if the life stages are explicitly different
   if ( all(!is.na(df$life_stage)) & is.na(life.stage) | # if all are not NA and life.stage is NA
        !is.na(life.stage) & all(is.na(df$life_stage)) | # if life.stage is not NA and all life.stages are NA
-        !is.na(life.stage) & all(life.stage != df$life_stage[!is.na(df$life_stage)] )  ) { # if life.stage is not NA and not equal to any not NA life stages
+       !is.na(life.stage) & all(life.stage != df$life_stage[!is.na(df$life_stage)] )  ) { # if life.stage is not NA and not equal to any not NA life stages
     
     message(paste("No suitable", equ_len,  ": Life stages differ") )
     message("Returning an NA")
@@ -301,7 +314,7 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
     
     df.out <- df[x,]
     
-  # if no direct matching life stages but all are NA, then choose the highest ranking taxon  
+    # if no direct matching life stages but all are NA, then choose the highest ranking taxon  
   } else if (any(is.na(df$life_stage)) & is.na(life.stage)) {
     
     # get the entries where the life.stage is NA
@@ -324,7 +337,8 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
     
   }
   
-  # message("Suitable taxonomic distances and life stages:")
+  # add search for the ecoregion
+  
   return(df.out)
   
 }
@@ -347,31 +361,37 @@ get_matching_len_equ <- function(target.name, life.stage, id_info, equ_len,
 #' @param target.name - name of the taxon to get the equation and length data for
 #' @param target.length - length (mm) of the target.name
 #' @param life.stage - life stage of the target.name
+#' @param life_stage_ignore - if TRUE, then all equations with suitable taxonomic distance are outputted
 #' @param data.base - taxonomic database (only "itis" is currently supported)
 #' @param max_tax_dist - maximum acceptable taxonomic distance between target.name and equation/length data
 #' @param length_only - if TRUE, then we only consider equations that are based on body length
-#' @param default_length - whether to use default length data (if target.length is missing)
 #' @param output - three options:
 #' "algorithmic" - if there are multiple equivalent equations, choose one randomly
 #' "full" - if there are multiple equivalent equations options, all are used and reported
 #' 
 
-# write a function to get mass output from lengthd and a given taxon name
+# write a function to get mass output from length and a given taxon name
 get_mass_from_length <- function(target.name, 
                                  target.length,
                                  life.stage,
+                                 life_stage_ignore = FALSE,
                                  data.base = "itis", 
                                  max_tax_dist = 6, 
                                  length_only = TRUE,
-                                 default_length = FALSE,
                                  output = "algorithmic") {
   
   # set the seed
-  set.seed(54728587)
+  set.seed(54587)
   
   # test the if the length_only argument has been specified
   if (is.na(length_only)) {
     stop("Specify if length_only = TRUE/FALSE")
+  }
+  
+  if (is.na(target.length)) {
+    default_length <- TRUE
+  } else {
+    default_length <- FALSE
   }
   
   # get the suitable equations
@@ -381,10 +401,11 @@ get_mass_from_length <- function(target.name,
                                   data.base = data.base, max_tax_dist = max_tax_dist, 
                                   d.dist = d.dist,
                                   len_equ_data = equ_id$equation_data, 
-                                  length_only = length_only)
+                                  length_only = length_only,
+                                  life_stage_ignore = FALSE)
   
   # if there is no suitable equation within the maximum taxonomic distance, then we return an NA
-  if (is.na( unlist(equ.out)[1] ) & (length(equ.out) == 1 )) {
+  if (identical(equ.out, NA)) {
     return(NA)
   }
   
@@ -394,11 +415,6 @@ get_mass_from_length <- function(target.name,
     # join the suitable equations with the variable input data
     equ_join <- left_join(equ.out, equ_id$variable_input_data[, -c(7,8)], 
                           by = c("id", "db_taxon", "life_stage"))
-    
-    # test if all the equations are body_length equations anyway
-    # if( all(equ_join$size_measurement == "body_length")) {
-      # message("All suitable equations are length_only = TRUE, default lengths can be used or target.lengths can be specified")
-    # }
     
     # return the equ_join data.frame as an ouput
     return(equ_join)
@@ -410,26 +426,17 @@ get_mass_from_length <- function(target.name,
     
     len.out <- get_matching_len_equ(target.name = target.name, life.stage = life.stage, 
                                     id_info = l_ti, equ_len = "length",
-                                    data.base = data.base, max_tax_dist = 4, 
+                                    data.base = data.base, max_tax_dist = max_tax_dist, 
                                     d.dist = d.dist,
                                     len_equ_data = len_id)
     
     # if the len.out output is NA, then we stop the function
-    if(is.na( unlist(len.out)[1] ) & (length(len.out) == 1 )) {
+    if( identical(len.out, NA) ) {
       return(NA)
     }
     
-    # calculate the mean, sd and n of all individual entries left over
-    len.in <- c("mean" = mean(len.out$length_mid_mm),
-                "sd" = sd(len.out$length_mid_mm),
-                "n" = length(len.out$length_mid_mm))
-    
-    len.x <- list(len.out, len.in)
-    
-    # use the mean of these multiple suitable length values
-    # message(paste("Using the mean length: ", round(len.in[1], 2), " mm ", 
-                  # "(sd: ", round(len.in[2], 2), ", n: ", len.in[3], " )", " to calculate mass", sep = "" ))
-    len.use <- len.in[1]
+    # take the mean if there are multiple measurements to be used to calculate length
+    len.use <- mean(len.out$length_mid_mm, na.rm = TRUE)
     names(len.use) <- NULL
     
   } else if ( (default_length == FALSE ) & all(!is.na(target.length)) ) { 
@@ -464,9 +471,9 @@ get_mass_from_length <- function(target.name,
       mass_df <- tibble(target_name = target.name,
                         target_life_stage = life.stage,
                         id = x,
-                        size = len.use,
-                        size_measurement = var.dat$size_measurement,
-                        default_size = default_length,
+                        length = len.use,
+                        length_measurement = var.dat$size_measurement,
+                        default_length = default_length,
                         mass = eval(parsed_eq) )
       
       # generate a clean output data.frame
@@ -474,9 +481,12 @@ get_mass_from_length <- function(target.name,
                 mass_df, 
                 by = "id" ) %>%
         select(target_name, target_life_stage, id, db_taxon, rank, life_stage, dist_to_target,
-               size, size_measurement, default_size, mass, dw_ww, unit)
+               length, length_measurement, default_length, mass, dw_ww, unit)
       
     } )
+  
+  # convert to a data.frame
+  mass_out <- bind_rows(mass_list)
   
   # make sure that only one output is specified
   if ( !(output %in% c("algorithmic", "full")) )  {
@@ -485,12 +495,11 @@ get_mass_from_length <- function(target.name,
   
   # if we choose the length algorithmically
   if (output == "algorithmic") {
-    mass_out <- mass_list[sample(1:length(mass_list), 1)][[1]]
+    mass_out <- mass_out[sample(1:nrow(mass_out), 1), ]
   }
   
   # if we choose the full output, then output this
   if (output == "full") {
-    mass_out <- bind_rows(mass_list)
     mass_out <- list("equation_data" = equ.out,
                      "mass_data" = mass_out)
   }
@@ -498,7 +507,7 @@ get_mass_from_length <- function(target.name,
   # if we used the default length algorithm then we add this to the output
   if (default_length) {
     mass_out <- c("equation_data" = list(mass_out),
-                  "default_length_data" = list(len.x[[1]]) )
+                  "default_length_data" = list(len.out) )
   }
   
   return(mass_out)
@@ -561,28 +570,28 @@ get_taxa_info <- function(target.name,
   
   for(i in seq_along(target.name)) {
     
+    # get all the equation data when not considering only body length data
     x <- get_mass_from_length(target.name = target.name[i], 
                               target.length = NA,
                               life.stage = life.stage[i],
                               data.base = data.base,
                               max_tax_dist = max_tax_dist, 
                               length_only = FALSE,
-                              default_length = FALSE,
                               output = "full"
-                              )
+    )
     
+    # get all default length data
     y <- get_mass_from_length(target.name = target.name[i], 
                               target.length = NA,
                               life.stage = life.stage[i],
                               data.base = data.base,
                               max_tax_dist = max_tax_dist, 
                               length_only = TRUE,
-                              default_length = TRUE,
                               output = "full"
-                              )
+    )
     
     # if data were reported, then output into the list
-    if(is.na(x[1])) {
+    if(identical(x, NA)) {
       equ.df[[i]] <- tibble("target.name" = target.name[i])
     } else {
       equ.df[[i]] <- as_tibble(bind_cols(data.frame("target.name" = target.name[i] ),
@@ -671,26 +680,12 @@ get_taxa_mass <- function(data.base = "itis",
   m.df <- vector("list", length = length(dfx))
   for(i in seq_along(dfx)) {
     
-    # if any of the length measurements are NA, we use default values
-    if (is.na(length.col)) {
-      tl <- NA
-      dl <- TRUE
-    }
-    else if( any(is.na(dfx[[i]][[length.col]]) ) ) {
-      tl <- NA
-      dl <- TRUE
-    } else {
-      tl <- dfx[[i]][[length.col]]
-      dl <- FALSE
-    }
-    
     x <- get_mass_from_length(target.name = dfx[[i]][[target.name.col]][1], 
-                              target.length = tl,
+                              target.length = dfx[[i]][[length.col]][1],
                               life.stage = dfx[[i]][[life.stage.col]][1],
                               data.base = data.base,
                               max_tax_dist = max_tax_dist, 
                               length_only = TRUE,
-                              default_length = dl,
                               output = "algorithmic"
     )
     
