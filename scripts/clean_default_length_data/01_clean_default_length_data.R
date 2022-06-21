@@ -116,91 +116,32 @@ axell.lw <-
          TL_middle, TL_min, TL_max, DW_reference = `DW (reference)`,
          DW_middle, DW_min, DW_max)
 
+# add life stage information
+axell.lw[6, 1:5]
+data.frame(Species = c("Erpobdella octoculata",
+                       "Glossiphonia complanata",
+                       "Helobdella stagnalis",
+                       "Aulodrilus pigueti",
+                       "Limnodrilus",
+                       "Streptocephalus sealii"),
+           life.stage = c(NA,
+                          NA,
+                          NA,
+                          NA,
+                          NA,
+                          "adult"))
 
-## Tachet
-
-# load the Tachet database
-tach <- readxl::read_xlsx("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/freshwater_trait_databases/Tachet_2010_database/Tachet_invertebrate_database.xlsx",
-                          skip = 3)
-head(tach)
-
-# subset the relevant columns
-tach <- tach[, 3:14]
-
-# subset more relevant columns
-tach <- 
-  tach %>%
-  select(-...4, -Modalities, -`> 8 cm`)
-
-# rename the columns
-names(tach) <- c("Species", "Genus", "Taxon", "less_0.25_cm", "bet_0.25_0.5_cm",
-                 "bet_0.5_1_cm", "bet_1_2_cm", "bet_2_4_cm", "bet_4_8_cm")
-
-# add a Database column
-tach$Database <- "Tachet_2010"
-
-# add a LifeStage column
-tach$LifeStage <- NA
-
-# reorder the columns
-tach <- tach[, c(10, 3, 2, 1, 11, 4:9)]
-
-# remove rows with missing data
-any(is.na(tach$Taxon))
-tach <- 
-  tach %>%
-  filter(!is.na(Taxon))
-
-# remove the crayfish species
-tach <- 
-  tach %>%
-  filter(Genus != "Pacifastacus")
-
-# calculate a midpoint of total length
-r.seq <- list(c(0, 0.25), 
-              c(0.25, 0.5),
-              c(0.5, 1), 
-              c(1, 2), 
-              c(2, 4),
-              c(4, 8) )
-
-# get a sequence of length increments within each size class
-r.seq <- lapply(r.seq, function(x) seq(x[1], x[2], 0.01))
-
-# calculate the density of those increments assuming a uniform distribution within the size class
-r.prob <- lapply(r.seq, function(x) dunif(x = x, min = min(x), max = max(x)) )
-
-# assume that the density of each increments determines the frequency in the distribution
-tach$TL_middle <- 
-  
-  apply(tach[, -c(1:5)], 1, function(z) { 
-  
-  a <- mapply(function(x, y) x*y, r.prob, z) 
-  b <- rep(unlist(r.seq), round(unlist(a), 0)) 
-  mean ( b[b>0] ) * 10 # convert to mm
-  
-  } )
-
-
-## Default length data
-
-# subset the tachet database
-tach <- tach[, c(1, 3, 4, 5, 12)]
-str(tach)
 
 # subset the axell 2021 database
 axell.def <- axell.lw[, c(1, 2, 3, 4, 6, 7, 8)]
 str(axell.def)
 
 # add TL_middle from the midpoint of the min_max values
-axell.def <- 
+def.length <- 
   axell.def %>%
   mutate(TL_middle = if_else( is.na(TL_middle), (TL_min + TL_max)/2, TL_middle ) ) %>%
   select(Database, Genus, Species, LifeStage, TL_middle)
-head(axell.def)
-
-# bind these databases into a single default length data
-def.length <- bind_rows(tach, axell.def)
+head(def.length)
 
 # rename the TL_middle variable
 def.length <- 

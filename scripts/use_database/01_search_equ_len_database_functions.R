@@ -192,7 +192,6 @@ get_tax_distance <- function(target.name, id_info, equ_len, length_only = TRUE,
       } else if ( (search.name %in% tax.names) ) {
         
         z <- extract_genus( x$name )
-        z
         d1 <- dist.m[which(row.names(dist.m) == z), which(colnames(dist.m) == search.name) ]
         d2 <- dist.m[which(row.names(dist.m) == search.name), which(colnames(dist.m) == z ) ]
         d3 <- max(c(d1, d2))
