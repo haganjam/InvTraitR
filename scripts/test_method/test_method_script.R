@@ -68,25 +68,31 @@ ggplot() +
 # test the data by getting biomass conversion data for the Inselberg and Korranneberg data
 
 ins <- read_csv(file = "C:/Users/james/Documents/github/predicting_trait_responses/data/biomass_conversions/aus_ins_bio.csv")
-kor <- read_csv(file = "C:/Users/james/Documents/github/predicting_trait_responses/data/biomass_conversions/korr_bio.csv")
 
 # use the method to get biomass data using default length data
 ins$length_dat <- NA
 
 ins.x <- 
   get_taxa_mass(data.base = "itis",
-                max_tax_dist = 6,
-                data = ins[1:10,],
+                max_tax_dist = 4,
+                data = ins,
                 target.name.col = "taxon",
                 life.stage.col = "life_stage",
                 length.col = "length_dat"
                 )
+
 View(ins.x)
 
-ins.x <- 
-  get_taxa_info(target.name = ins$taxon, life.stage = ins$life_stage,
-               data.base = "itis",
-               max_tax_dist = 6)
+ins.y <- 
+  get_taxa_info(data.base = "itis",
+                max_tax_dist = 4,
+                target.name = ins$taxon,
+                life.stage = ins$life_stage)
 
-View(ins.x[[2]])
-              
+View(ins.y$equation_info)
+View(ins.y$length_info)
+
+
+
+
+
