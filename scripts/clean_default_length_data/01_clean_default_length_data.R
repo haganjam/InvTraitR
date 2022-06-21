@@ -295,6 +295,33 @@ def.length <-
   def.length %>%
   rename(length_mid_mm = TL_middle)
 
+# make a taxon variable instead of a genus-species classification
+def.length <- 
+  def.length %>%
+  mutate(Taxon = ifelse(is.na(Species), Genus, Species)) %>%
+  select(Database, Taxon, LifeStage, length_mid_mm)
+
+
+## Joren 2022 data
+
+# read in the data
+jdat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/freshwater_trait_databases/Joren_2022_length_data/Joren_2020_length_database.xlsx")
+head(jdat)
+
+# make a database column
+jdat$Database <- "Joren_2022"
+
+# subset the columns to match with the axell data
+jdat <- 
+  jdat %>%
+  select(Database, Taxon, Life_stage, Length_mm)
+
+# match the names
+names(jdat) <- names(def.length)
+
+# bind these databases by row
+def.length <- rbind(def.length, jdat)
+
 # write this into a database
 write_csv(x = def.length, 
           file = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/default_length_data.csv")

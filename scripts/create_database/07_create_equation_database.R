@@ -40,13 +40,15 @@ library(dplyr)
 # add a target taxon column
 dl.dat <- 
   dl.dat %>%
-  mutate(db_taxon = if_else(is.na(Species), Genus, Species) )
+  rename(db_taxon = Taxon)
 
 # add a length id column
 dl.dat$length_id <- 1:nrow(dl.dat)
 
 # reorder the columns
-dl.dat <- dl.dat[, c(7,6, 1:5)]
+dl.dat <- 
+  dl.dat %>%
+  select(length_id, db_taxon, Database, LifeStage, length_mid_mm)
 
 # rename the columns
 dl.dat <- 
