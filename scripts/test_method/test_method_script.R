@@ -74,7 +74,7 @@ ins$length_dat <- NA
 
 ins.x <- 
   get_taxa_mass(data.base = "itis",
-                max_tax_dist = 4,
+                max_tax_dist = 8,
                 data = ins,
                 target.name.col = "taxon",
                 life.stage.col = "life_stage",
@@ -85,12 +85,13 @@ View(ins.x)
 
 ins.y <- 
   get_taxa_info(data.base = "itis",
-                max_tax_dist = 4,
+                max_tax_dist = 6,
                 target.name = ins$taxon,
                 life.stage = ins$life_stage)
 
 View(ins.y$equation_info)
 View(ins.y$length_info)
+
 
 
 
