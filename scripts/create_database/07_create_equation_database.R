@@ -34,30 +34,6 @@ saveRDS(equ_vars, file = here("database/equation_vars_database.rds") )
 dl.dat <- readr::read_csv("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/default_length_data.csv")
 head(dl.dat)
 
-# load dplyr
-library(dplyr)
-
-# add a target taxon column
-dl.dat <- 
-  dl.dat %>%
-  rename(db_taxon = Taxon)
-
-# add a length id column
-dl.dat$length_id <- 1:nrow(dl.dat)
-
-# reorder the columns
-dl.dat <- 
-  dl.dat %>%
-  select(length_id, db_taxon, Database, LifeStage, length_mid_mm)
-
-# rename the columns
-dl.dat <- 
-  dl.dat %>%
-  rename(id = length_id, life_stage = LifeStage)
-
-# replace NA characters with true NAs
-dl.dat[dl.dat == "NA"] <- NA
-
 # save as a .RDS file
 saveRDS(dl.dat, file = here("database/default_length_database.rds") )
 

@@ -299,7 +299,8 @@ def.length <-
 def.length <- 
   def.length %>%
   mutate(Taxon = ifelse(is.na(Species), Genus, Species)) %>%
-  select(Database, Taxon, LifeStage, length_mid_mm)
+  select(Database, Taxon, LifeStage, length_mid_mm) %>%
+  rename(db_taxon = Taxon, life_stage = LifeStage)
 
 
 ## Joren 2022 data
@@ -316,14 +317,49 @@ jdat <-
   jdat %>%
   select(Database, Taxon, Life_stage, Length_mm)
 
+# replace fake NAs with real NAs
+jdat[jdat == "NA"] <- NA
+
 # match the names
 names(jdat) <- names(def.length)
+View(jdat)
+
+# which taxa to remove and generate separate length database
+jdat_supp <- 
+  jdat %>%
+  filter(db_taxon %in% all_of(c("Nematoda", "Oligochaeta", "Turbellaria")) | life_stage == "tadpole" )
+
+# remove these rows from the jdat data
+jdat <- 
+  jdat %>%
+  filter(!(db_taxon %in% all_of(c("Nematoda", "Oligochaeta", "Turbellaria")) | life_stage == "tadpole"))
+
 
 # bind these databases by row
 def.length <- rbind(def.length, jdat)
 
+# add a length id column
+def.length$length_id <- 1:nrow(def.length)
+
+# reorder the columns
+def.length <- 
+  def.length %>%
+  select(length_id, db_taxon, Database, life_stage, length_mid_mm)
+
 # write this into a database
 write_csv(x = def.length, 
           file = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/default_length_data.csv")
+
+# write the supplementary length data into a database
+# add a length id column
+jdat_supp$length_id <- 1:nrow(jdat_supp)
+
+# reorder the columns
+jdat_supp<- 
+  jdat_supp %>%
+  select(length_id, db_taxon, Database, life_stage, length_mid_mm)
+
+write_csv(x = jdat_supp, 
+          file = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/default_length_data_supp.csv")
 
 ### END

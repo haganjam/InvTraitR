@@ -74,7 +74,7 @@ ins$length_dat <- NA
 
 ins.x <- 
   get_taxa_mass(data.base = "itis",
-                max_tax_dist = 8,
+                max_tax_dist = 10,
                 data = ins,
                 target.name.col = "taxon",
                 life.stage.col = "life_stage",
