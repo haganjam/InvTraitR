@@ -42,6 +42,19 @@ if (!exists("d.dist")) {
   d.dist <- d.dist[sapply(d.dist, function(x) !is.null(x$order) )]
 }
 
+# Supplementary databases
+
+# load the supplementary equation database for difficult to identify taxa
+if (!exists("equ_id2")) {
+  equ_id2 <- readRDS(file = here("database/equation_vars_supp_database.rds"))
+}
+
+# load the supplementary default length database for difficult to identify taxa
+if (!exists("len_id2")) {
+  len_id2 <- readRDS(file = here("database/default_length_supp_database.rds"))
+}
+
+
 #'
 #' @title syn_correct()
 #' 
@@ -522,8 +535,8 @@ get_mass_from_length <- function(target.name,
 #' 
 #' @author James G. Hagan (james_hagan(at)outlook.com)
 #' 
-#' @param target.name - name of the taxon to get the equation and length data for
-#' @param life.stage - life stage of the target.name
+#' @param target.name - a vector of taxon names to get the equation and length data for
+#' @param life.stage - vector of life stages of the target.name
 #' @param data.base - taxonomic database (only "itis" is currently supported)
 #' @param max_tax_dist - maximum acceptable taxonomic distance between target.name and equation/length data
 #' 
@@ -561,6 +574,20 @@ get_taxa_info <- function(target.name,
   if(any(z > 2)) {
     stop("target.name argument contains characters with more than two words")
   }
+  
+  # make a separate data.frame for these taxa
+  df2 <- target.name[which(target.name %in% equ_id2$db_taxon), ]
+  if (nrow(df2) > 0) {
+    message(paste(df2$taxon, collapse = ", "))
+    message("The rank of these taxa is too high, see supplementary database for suggestions")
+    message("The supplementary database is exported as a list element in the output: $supp_dat")
+    
+    df2 <- c(equ_id2, list(len_id2))
+    
+  }
+  
+  # remove these broad taxa from the data.frame
+  target.name <- target.name[-which(target.name %in% equ_id2$db_taxon)]
   
   equ.df <- vector("list", length = length(target.name))
   len.df <- vector("list", length = length(target.name))
@@ -606,7 +633,8 @@ get_taxa_info <- function(target.name,
   }
   
   list.out <- list("equation_info" = bind_rows(equ.df),
-                   "length_info" = bind_rows(len.df) )
+                   "length_info" = bind_rows(len.df),
+                   "supp_info" = df2)
   
   return(list.out)
   
@@ -665,6 +693,20 @@ get_taxa_mass <- function(data.base = "itis",
     stop("target.name argument contains characters with more than two words")
   }
   
+  # make a separate data.frame for these taxa
+  df2 <- df[which(target.name %in% equ_id2$db_taxon), ]
+  if (nrow(df2) > 0) {
+    message(paste(df2$taxon, collapse = ", "))
+    message("The rank of these taxa is too high, see supplementary database for suggestions")
+    message("The supplementary database is exported as a list element in the output: $supp_dat")
+    
+    df2 <- c(equ_id2, list(len_id2))
+    
+  }
+  
+  # remove these broad taxa from the data.frame
+  df <- df[-which(target.name %in% equ_id2$db_taxon), ]
+  
   # split the unique taxa and lifestage combinations and if length data are present or not
   length_na <- sapply(df[[length.col]], function(x) ifelse(is.na(x), 1, 0) )
   dfx <- split(df, paste(df[[target.name.col]], df[[life.stage.col]], length_na, sep = "_"))
@@ -720,7 +762,8 @@ get_taxa_mass <- function(data.base = "itis",
     
   }
   
-  return(bind_rows(m.df))
+  return(list( mass_data = bind_rows(m.df),
+               supp_dat = df2) )
   
 }
 

@@ -37,4 +37,28 @@ head(dl.dat)
 # save as a .RDS file
 saveRDS(dl.dat, file = here("database/default_length_database.rds") )
 
+
+# Supplementary equation and default length data
+
+# read the equation data
+equ_supp <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/equation_data_supp.xlsx")
+
+# read the variable input data
+equ_var_supp <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/variable_input_data_supp.xlsx")
+
+# join these data into a list and save this as a .rds file
+equ_vars_supp <- 
+  list(equation_data = as_tibble(equ_supp),
+       variable_input_data = as_tibble(equ_var_supp))
+
+# merge into a list
+saveRDS(equ_vars_supp, file = here("database/equation_vars_supp_database.rds") )
+
+
+# read the default length data supplementary
+len_supp <- readr::read_csv("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/default_length_data_supp.csv")
+
+# save as a .RDS file
+saveRDS(len_supp, file = here("database/default_length_supp_database.rds") )
+
 ### END

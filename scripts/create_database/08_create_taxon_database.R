@@ -22,6 +22,7 @@ for (i in 1:nrow(equ_dat)) {
   order.equ[[i]] <- 
     get_taxon_order(name.input = equ_dat$db_taxon[i], 
                     id = equ_dat$id[i], 
+                    life.stage = equ_dat$life_stage[i],
                     data.base = db) 
   
 }
@@ -34,6 +35,7 @@ order.equ <- order.equ[ sapply(order.equ, function(x) ifelse(x[["suitable"]], TR
 
 # implement the function for all taxa in the default length database
 len_dat <- readRDS(file = here("database/default_length_database.rds"))
+names(len_dat) <- c("id", "db_taxon", "Database", "life_stage", "length_mid_mm")
 
 # get the order for each equation in the database
 order.len <- vector("list", length = nrow(len_dat))
@@ -42,6 +44,7 @@ for (i in 1:nrow(len_dat)) {
   order.len[[i]] <- 
     get_taxon_order(name.input = len_dat$db_taxon[i], 
                     id = len_dat$id[i], 
+                    life.stage = len_dat$life_stage[i],
                     data.base = db) 
   
 }
