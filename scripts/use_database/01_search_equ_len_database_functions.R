@@ -575,19 +575,8 @@ get_taxa_info <- function(target.name,
     stop("target.name argument contains characters with more than two words")
   }
   
-  # make a separate data.frame for these taxa
-  df2 <- target.name[which(target.name %in% equ_id2$db_taxon), ]
-  if (nrow(df2) > 0) {
-    message(paste(df2$taxon, collapse = ", "))
-    message("The rank of these taxa is too high, see supplementary database for suggestions")
-    message("The supplementary database is exported as a list element in the output: $supp_dat")
-    
-    df2 <- c(equ_id2, list(len_id2))
-    
-  }
-  
   # remove these broad taxa from the data.frame
-  target.name <- target.name[-which(target.name %in% equ_id2$db_taxon)]
+  target.name <- target.name[!(target.name %in% equ_id2$equation_data$db_taxon)]
   
   equ.df <- vector("list", length = length(target.name))
   len.df <- vector("list", length = length(target.name))
@@ -634,7 +623,7 @@ get_taxa_info <- function(target.name,
   
   list.out <- list("equation_info" = bind_rows(equ.df),
                    "length_info" = bind_rows(len.df),
-                   "supp_info" = df2)
+                   "supp_info" = c(equ_id2, list(len_id2)))
   
   return(list.out)
   
@@ -694,18 +683,10 @@ get_taxa_mass <- function(data.base = "itis",
   }
   
   # make a separate data.frame for these taxa
-  df2 <- df[which(target.name %in% equ_id2$db_taxon), ]
-  if (nrow(df2) > 0) {
-    message(paste(df2$taxon, collapse = ", "))
-    message("The rank of these taxa is too high, see supplementary database for suggestions")
-    message("The supplementary database is exported as a list element in the output: $supp_dat")
-    
-    df2 <- c(equ_id2, list(len_id2))
-    
-  }
+  df2 <- df[(target.name %in% equ_id2$equation_data$db_taxon), ]
   
   # remove these broad taxa from the data.frame
-  df <- df[-which(target.name %in% equ_id2$db_taxon), ]
+  df <- df[!(target.name %in% equ_id2$equation_data$db_taxon), ]
   
   # split the unique taxa and lifestage combinations and if length data are present or not
   length_na <- sapply(df[[length.col]], function(x) ifelse(is.na(x), 1, 0) )
@@ -762,8 +743,17 @@ get_taxa_mass <- function(data.base = "itis",
     
   }
   
-  return(list( mass_data = bind_rows(m.df),
-               supp_dat = df2) )
+  if (nrow(df2) > 0) {
+    message(paste(df2$taxon, collapse = ", "))
+    message("The rank of these taxa is too high, see supplementary database for suggestions")
+    message("The supplementary database is exported as a list element in the output: $supp_dat")
+    
+    return(list( mass_data = bind_rows(m.df),
+                 supp_dat = c(equ_id2, list(len_id2))) )
+    
+  }
+  
+  return(bind_rows(m.df))
   
 }
 

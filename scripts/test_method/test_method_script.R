@@ -7,93 +7,52 @@ library(readr)
 library(ggplot2)
 source(here("scripts/use_database/01_search_equ_len_database_functions.R"))
 
-# load the test data
-t.dat <- readxl::read_xlsx("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/test_data.xlsx")
-head(t.dat)
-
-# make the life-stage column completely NA's
-t.dat$Life_stage <- (rep(NA, nrow(t.dat)))
-summary(t.dat)
-
-# try the function
-x <- get_taxa_mass(data.base = "itis",
-                   max_tax_dist = 6,
-                   data = t.dat %>% filter(Reference != "Eklof_2016"),
-                   target.name.col = "Taxa",
-                   life.stage.col = "Life_stage",
-                   length.col = "Length_mm")
-View(x)              
-
-# join this data.frame to the actual mass data
-y <- 
-  full_join(x,
-          t.dat %>%
-            rename(target_name = Taxa,
-                   target_life_stage = Life_stage,
-                   size = Length_mm),
-          by = c("target_name", "target_life_stage", "size")) %>%
-  select(target_name, target_life_stage, size, dist_to_target,
-         mass, Dry_weight_mg) %>%
-  filter(!is.na(mass))
-
-y$general_dw_Hebert <- exp(-4.814 + log(y$size) )
-
-exp(-4.814 + log(27) )
-
-y <- 
-  y %>%
-  tidyr::pivot_longer(cols = c("general_dw_Hebert", "mass"),
-               names_to = "method",
-               values_to = "DW")
-
-ggplot(data = y,
-       mapping = aes(x = log(Dry_weight_mg), y =log(DW), colour = method )) +
-  geom_point() +
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
-  theme_classic()
- 
-ggplot() +
-  geom_point(data = y,
-             mapping = aes(x = Dry_weight_mg, y =DW, colour = method )) +
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
-  theme_classic()
-
-ggplot() +
-  geom_point(data = y %>% filter(method == "general_dw_Hebert"),
-             mapping = aes(x = log(Dry_weight_mg), y = log(DW), colour = method )) +
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
-  theme_classic()
-
-
 # test the data by getting biomass conversion data for the Inselberg and Korranneberg data
+dat.loc <- "C:/Users/james/Documents/github/predicting_trait_responses/data/biomass_conversions/"
 
-ins <- read_csv(file = "C:/Users/james/Documents/github/predicting_trait_responses/data/biomass_conversions/aus_ins_bio.csv")
+# Korranneberg data
+kor <- read_csv(file = paste(dat.loc, "kor_bio.csv", sep = "") )
+
+# use the method to get biomass data using default length data
+kor$length_dat <- NA
+sort(unique(kor$taxon))
+
+View(kor)
+
+# add life-stage data
+c("")
+
+kor.x <- 
+  get_taxa_mass(data.base = "itis",
+                max_tax_dist = 6,
+                data = kor,
+                target.name.col = "taxon",
+                life.stage.col = "life_stage",
+                length.col = "length_dat" )
+
+View(kor.x)
+
+# write this into a .csv file that can be supplemented
+write_csv(x = kor.x, file = paste(dat.loc, "kor_bio_input.csv", sep = ""))
+
+# Inselberg data
+ins <- read_csv(file = paste(dat.loc, "aus_ins_bio.csv", sep = "") )
 
 # use the method to get biomass data using default length data
 ins$length_dat <- NA
+sort(unique(ins$taxon))
 
 ins.x <- 
   get_taxa_mass(data.base = "itis",
-                max_tax_dist = 6,
-                data = ins[1:5, ],
+                max_tax_dist = 8,
+                data = ins,
                 target.name.col = "taxon",
                 life.stage.col = "life_stage",
-                length.col = "length_dat"
-                )
+                length.col = "length_dat" )
 
-View(ins.x)
+View(ins.x$mass_data)
 
-ins.y <- 
-  get_taxa_info(data.base = "itis",
-                max_tax_dist = 6,
-                target.name = ins$taxon,
-                life.stage = ins$life_stage)
+# write this into a .csv file that can be supplemented
+write_csv(x = ins.x$mass_data, file = paste(dat.loc, "ins_aus_input.csv", sep = ""))
 
-View(ins.y$equation_info)
-View(ins.y$length_info)
-
-
-
-
-
-
+### END
