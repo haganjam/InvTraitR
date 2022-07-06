@@ -91,5 +91,6 @@ hab <-
   select(database, id, accuracy, lat_dd, lon_dd, habitat_id, area_km2, 
          realm, major_habitat_type, ecoregion) %>%
   arrange(database, id)
+head(hab)
 
 ### END
