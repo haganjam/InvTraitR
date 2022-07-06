@@ -98,26 +98,28 @@ get_gbifid2 <- function (sci, ask = TRUE, messages = TRUE, rows = NA, phylum = N
           }
         }
         if (length(id) > 1) {
-          if (ask) {
+          if (TRUE) {
             df <- df[, switch(method, backbone = gbif_cols_show_backbone, 
                               lookup = gbif_cols_show_lookup)]
-            message("\n\n")
-            message("\nMore than one GBIF ID found for taxon '", 
-                    sci[i], "'!\n\n            Enter rownumber of taxon (other inputs will return 'NA'):\n")
+            # message("\n\n")
+            # message("\nMore than one GBIF ID found for taxon '", 
+                    # sci[i], "'!\n\n            Enter rownumber of taxon (other inputs will return 'NA'):\n")
             rownames(df) <- 1:nrow(df)
             # print(df)
             # take <- scan(n = 1, quiet = TRUE, what = "raw")
-            take <- (df$rank == "order" & df$status == "ACCEPTED" & df$matchtype == "EXACT")
+            
+            take <- (df$status == "ACCEPTED" & df$matchtype == "EXACT")
             
             if (length(take) == 0) {
+              id <- NA_character_
               take <- "notake"
               att <- "nothing chosen"
             }
-            if (take %in% seq_len(nrow(df))) {
+            if (length(take) > 0 ) {
               take <- as.numeric(take)
               message("Input accepted, took gbifid '", 
-                      as.character(df$gbifid[take]), "'.\n")
-              id <- as.character(df$gbifid[take])
+                      as.character( df$gbifid[take[1]] ), "'.\n")
+              id <- as.character( df$gbifid[take[1]] )
               att <- "found"
             }
             else {

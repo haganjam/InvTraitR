@@ -25,7 +25,7 @@ source(here("scripts/create_database/04_itis_downstream_function.R"))
 #' 
 #' @param equ.name.input - name in the equation or length database
 #' @param equ.id - equation or length id in the databases
-#' @param data.base - "itis" is supported
+#' @param data.base - "itis" and "gbif" are supported
 #' @param life.stage - taxon life stage in the equation or length database
 #' 
 #' @return list with two elements:
@@ -34,7 +34,16 @@ source(here("scripts/create_database/04_itis_downstream_function.R"))
 #' 2. synonymns - list with a vector of synonymns for that taxon name
 #' 
 
-get_taxon_order <- function(name.input, id, data.base, life.stage = NA) {
+get_taxon_order <- function(name.input, data.base) {
+  
+  # create an output list
+  taxlist <- list(name = name.input,
+                  accepted_name = NA,
+                  name_rank = NA,
+                  suitable = FALSE,
+                  database = data.base,
+                  higher_rank = NA,
+                  higher_name = NA)
   
   # if the input name is a species then extract the genus
   name.in <- extract_genus(binomial = name.input)
@@ -43,15 +52,16 @@ get_taxon_order <- function(name.input, id, data.base, life.stage = NA) {
   taxon_id <- get_taxon_id(database_function = data.base, taxon_name = name.in, ask_or_not = FALSE, tries = 5)
   
   # if the taxon_id is not found in the database, then stop the function
-  if (is.na(taxon_id)) {
+  
+  # check if is of length == 0
+  if(length(taxon_id) == 0) {
     
-    taxlist <- list(id = id, 
-                 name = name.input,
-                 suitable = FALSE,
-                 database = data.base,
-                 rank = NA,
-                 order = NA,
-                 life_stage = NA)
+    taxon_id <- NA
+    
+  }
+  
+  # then, check if it is NA (both are possible)
+  if (is.na(taxon_id)) {
     
     return(taxlist)
     stop("Could not find this taxon name in the database")
@@ -62,49 +72,66 @@ get_taxon_order <- function(name.input, id, data.base, life.stage = NA) {
   y.c <- classification(taxon_id)[[1]]
   y.c$ranknum <- 1:nrow(y.c)
   
-  # get the taxonomic rank for the taxon_id
-  rank <- y.c[y.c$name == name.in,][["ranknum"]]
+  # check that the rank is Animalia otherwise return an error
+  if (y.c[y.c$rank == "kingdom",]$name != "Animalia" ) {
+    
+    return(taxlist)
+    stop("Classification is incorrect as all taxa are in the Animalia kingdom")
+    
+  }
+  
+  # add the accepted name to the taxlist database
+  taxlist$accepted_name <- y.c[nrow(y.c),][["name"]] 
   
   # get the taxonomic rank name for the taxon_id
   if (length(unlist( strsplit(x = name.input, split = " ", fixed = TRUE) )) > 1) {
-    rank.name <- "species"
-  } else { rank.name <- y.c[y.c$name == name.in,][["rank"]] }
+    
+    taxlist$name_rank <- "species"
+    
+  } else { 
+    
+    taxlist$name_rank <- y.c[nrow(y.c),][["rank"]] 
+    
+  }
   
-  # get the order name and rank number for the taxon_id
-  ord.rank <- y.c[y.c$rank == "order", ][["ranknum"]]
-  ord.name <- y.c[y.c$rank == "order", ][["name"]]
+  # check if the classification has an order
+  above_order <- c("kingdom", "subkingdom", "infrakingdom", 
+                   "superphylum", "phylum", "subphylum", "infraphylum", 
+                   "superclass", "class", "subclass", "infraclass", "superorder"
+  )
   
   # if the taxon_id is above the rank of order, then the equation is unsuitable
-  if( !("order" %in% y.c$rank) ) {
+  if( taxlist$name_rank %in% above_order ) {
     
-    message("equation above the rank of order")
-    suitable <- FALSE
+    taxlist$suitable <- FALSE
     
-  } else { suitable <- TRUE }
+  } else {
+    
+    taxlist$suitable <- TRUE
+    
+  }
   
-  # put this information into an output list
-  taxlist <- list(id = id, 
-                  name = name.input,
-                  suitable = suitable,
-                  database = data.base,
-                  rank = rank.name,
-                  order = ord.name,
-                  life_stage = life.stage
-                  )
-  
-  # add relevant synonymns
-  if(data.base == "itis") {
-    syn <- taxize::synonyms(taxon_id, db = data.base)
-    syn <- syn[[1]]$syn_name
+  # if order is in the higher classification then we add that
+  if( "order" %in% y.c$rank) {
     
-    if (is.null(syn)) {
-      syn <- NA
-    }
+    # specify order as the higher rank and add the name
+    taxlist$higher_rank <- "order"
     
-  } else { syn <- NA }
-  
-  # combine into dmat.taxlist
-  taxlist <- c(taxlist, list(synonymns = syn) )
+    # get the order name and rank number for the taxon_id
+    taxlist$higher_name <- y.c[y.c$rank == "order", ][["name"]]
+    
+  } else {
+    
+    # get the highest rank leftover that isn't above order
+    max_rank <- y.c$rank[!(y.c$rank %in% above_order)][1]
+    
+    # add that as higher rank
+    taxlist$higher_rank <- max_rank
+    
+    # add the higher rank name
+    taxlist$higher_name <- y.c[y.c$rank == max_rank, ][["name"]]
+    
+  }
   
   return(taxlist)
   

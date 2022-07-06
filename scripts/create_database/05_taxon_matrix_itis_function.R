@@ -31,7 +31,7 @@ tax.mat <- data.frame(from = c("order", "suborder", "infraorder", "section", "su
 tax.g <- graph_from_data_frame(d = tax.mat, directed=FALSE)
 
 # calculate taxononomic distance between each taxonomic level
-tax.d <- distances(
+tax.itis <- distances(
   tax.g,
   v = V(tax.g),
   to = V(tax.g),

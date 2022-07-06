@@ -52,7 +52,7 @@ downstream_itis <- function(ord.id, ord.name) {
     filter(rankname != "species")
   
   # apply taxonomic weights
-  weights <- mapply(function(x, y) tax.d[which(row.names(tax.d) == x), which(colnames(tax.d) == y) ],
+  weights <- mapply(function(x, y) tax.itis[which(row.names(tax.itis) == x), which(colnames(tax.itis) == y) ],
                     x = downtax.top$rankname,
                     downtax.top$parentrank)
   downtax.top$weights <- unlist(weights, use.names = FALSE)

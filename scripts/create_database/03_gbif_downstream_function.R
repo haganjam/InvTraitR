@@ -49,10 +49,19 @@ downstream_gbif <- function(ord.id, ord.name) {
   # bind the intermediate taxa into a single data.frame
   downtax.top <- bind_rows(bind_rows(downtax.top), (downtax.int))
   
+  # load the taxonomic distance matrix
+  source(here("scripts/create_database/05_taxon_matrix_gbif_function.R"))
+  
+  # apply taxonomic weights
+  weights <- mapply(function(x, y) tax.gbif[which(row.names(tax.gbif) == x), which(colnames(tax.gbif) == y) ],
+                    x = downtax.top$rank,
+                    downtax.top$parentrank)
+  downtax.top$weights <- unlist(weights, use.names = FALSE)
+  
   # create the distance matrix
   d.mat <- 
     downtax.top %>%
-    select(from = parentname, to = taxonname)
+    select(from = parentname, to = name, weights)
   
   # use igraph to create a graph from the matrix
   d.g <- graph_from_data_frame(d = d.mat, directed=FALSE)
@@ -75,9 +84,9 @@ downstream_gbif <- function(ord.id, ord.name) {
   
   # get a data.frame of unique taxonomic names and their 
   par.dat <- downtax.top[, c("parentname", "parentrank")]
-  names(par.dat) <- c("taxonname", "rank")
-  tax.dat <- downtax.top[, c("taxonname", "rankname")]
-  names(tax.dat) <- c("taxonname", "rank")
+  names(par.dat) <- c("name", "rank")
+  tax.dat <- downtax.top[, c("name", "rank")]
+  names(tax.dat) <- c("name", "rank")
   
   tax.names <- unique( rbind(par.dat, tax.dat) )
   
