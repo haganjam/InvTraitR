@@ -10,13 +10,14 @@
 #' 
 #' @param ord.id - taxon ID of the order
 #' @param ord.name - name of the order
+#' @param higher.tax.rank - rank of the ord.name (could be family or order)
 #' 
 #' @return list with two elements: 
 #' 1. tax_distance - taxonomic distance matrix (saved as a sparse matrix); 
 #' 2. tax_names - vector of all the names in the taxonomic distance matrix
 #' 
 
-downstream_gbif <- function(ord.id, ord.name) {
+downstream_gbif <- function(ord.id, ord.name, higher.tax.rank) {
   
   # load relevant packages
   library(dplyr)
@@ -25,29 +26,41 @@ downstream_gbif <- function(ord.id, ord.name) {
   # get downstream with error handling and multiple tries
   source(here("scripts/create_database/02_get_downstream_taxa_function.R"))
   
-  # get downstream taxa and process into a usable data.frame
-  downtax.top <- get_downstream_taxa(sci_id = ord.id, downto = "family", db = "gbif", intermediate = FALSE)
-  downtax.top <- downtax.top[[1]]
-  downtax.top$parentname <- ord.name
-  downtax.top$parentrank <- "order"
-  
-  # loop over all families and get their downstream taxa
-  downtax.int <- vector("list", length = nrow(downtax.top))
-  for (i in 1:nrow(downtax.top)) {
+  # if the higher taxonomic rank is order then
+  if (higher.tax.rank == "order") {
     
-    x <- get_downstream_taxa(sci_id = downtax.top$key[i], downto = "genus", db = "gbif", intermediate = FALSE)
-    if (length(x[[1]]) == 0 ) {
-      x <- NULL
-    } else {
-      x <- x[[1]]
-      x$parentname <- downtax.top$name[i]
-      x$parentrank <- "family"
-      downtax.int[[i]] <- x
+    # get downstream taxa and process into a usable data.frame
+    downtax.top <- get_downstream_taxa(sci_id = ord.id, downto = "family", db = "gbif", intermediate = FALSE)
+    downtax.top <- downtax.top[[1]]
+    downtax.top$parentname <- ord.name
+    downtax.top$parentrank <- higher.tax.rank
+    
+    # loop over all families and get their downstream taxa
+    downtax.int <- vector("list", length = nrow(downtax.top))
+    for (i in 1:nrow(downtax.top)) {
+      
+      x <- get_downstream_taxa(sci_id = downtax.top$key[i], downto = "genus", db = "gbif", intermediate = FALSE)
+      if (length(x[[1]]) == 0 ) {
+        x <- NULL
+      } else {
+        x <- x[[1]]
+        x$parentname <- downtax.top$name[i]
+        x$parentrank <- "family"
+        downtax.int[[i]] <- x
+      }
     }
+    
+    # bind the intermediate taxa into a single data.frame
+    downtax.top <- bind_rows(bind_rows(downtax.top), (downtax.int))
+    
+  } else if (higher.tax.rank == "family") {
+    
+    downtax.top <- get_downstream_taxa(sci_id = ord.id, downto = "genus", db = "gbif", intermediate = FALSE)
+    downtax.top <- downtax.top[[1]]
+    downtax.top$parentname <- higher.tax.name
+    downtax.top$parentrank <- higher.tax.rank
+    
   }
-  
-  # bind the intermediate taxa into a single data.frame
-  downtax.top <- bind_rows(bind_rows(downtax.top), (downtax.int))
   
   # load the taxonomic distance matrix
   source(here("scripts/create_database/05_taxon_matrix_gbif_function.R"))

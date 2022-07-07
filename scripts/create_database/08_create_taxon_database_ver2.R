@@ -32,13 +32,13 @@ tax.dat <-
   tax.dat %>%
   filter(db_taxon_gt_order != "yes")
 
-# test the get.order function
-a <- 
+# get highest taxonomic level equal to or below order
+gbif_order <- 
   lapply(tax.dat$db_taxon, function(x) {
   
   y <- 
     get_taxon_order(name.input = x, 
-                    data.base = "itis")
+                    data.base = "gbif")
   y <- bind_cols(y)
   y <- y[, c(1, 2, 4, 5, 6, 7)]
   names(y) <- c("db_taxon", "db_taxon_accepted", "suitable", "db_order_source", "db_taxon_higher_rank", "db_taxon_higher")
@@ -47,32 +47,46 @@ a <-
   
 } )
 
-View(bind_rows(a))
+# bind into a data.frame
+gbif_order <- bind_rows(gbif_order)
+View(gbif_order)
 
-taxon_id <- get_taxon_id(database_function = "gbif", 
-             taxon_name = "Chilina", ask_or_not = FALSE, tries = 5)
+# remove the non-suitable equations
+gbif_order <- 
+  gbif_order %>%
+  filter(suitable == TRUE)
 
-# get the upwards classification for the taxon_id
-y.c <- classification(taxon_id)[[1]]
-y.c$ranknum <- 1:nrow(y.c)
-y.c
+# remove the equations where the higher tax.rank is not family or order
+gbif_order <- 
+  gbif_order %>%
+  filter(db_taxon_higher_rank %in% c("family", "order"))
 
-z <- get_taxon_order(name.input = "Chilina patagonica", 
-                data.base = "gbif")
 
-z
+# get the taxon distance matrices
 
-tax.order <- 
-  full_join(tax.dat, 
-            bind_rows(x),
-            by = "db_taxon")
-View(tax.order)  
+# create a database with the unique ranks and names
+db <- distinct(gbif_order[, c("db_taxon_higher_rank", "db_taxon_higher")])
 
-y <- get_taxon_distance(ord.name = x$order, data.base = "gbif")
-y$order
-y$tax_available
-y$tax_distance
-unique(y$tax_names$rank)
+gbif_dm <- 
+  mapply(function(x, y) {
+  
+  z <- get_taxon_distance(higher.tax.name = x,
+                          higher.tax.rank = y,
+                          data.base = "gbif")
+  
+  return(z) }, 
+  
+  db$db_taxon_higher, 
+  db$db_taxon_higher_rank, SIMPLIFY = FALSE )
+
+gbif_dm[[1]]
+
+
+
+
+
+
+
 
 
 

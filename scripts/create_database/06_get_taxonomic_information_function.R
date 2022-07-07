@@ -147,22 +147,23 @@ get_taxon_order <- function(name.input, data.base) {
 #' 
 #' @author James G. Hagan (james_hagan(at)outlook.com)
 #' 
-#' @param ord.name - name of the order
+#' @param higher.tax.name - name of the higher taxa to get downstream taxa from
+#' @param higher.tax.rank - rank of the higher.tax.name
 #' @param data.base - name of the taxonomic database (only "itis" is currently supported)
 #' 
 #' @return igraph object with the taxonomic distance matrix
 #' 
 
-get_taxon_distance <- function(ord.name, data.base = "itis") {
+get_taxon_distance <- function(higher.tax.name, higher.tax.rank = NA, data.base = "itis") {
   
   # get taxon id: database specific function i.e. get the taxon ID of the order of the taxa from the database
   ord.id <- get_taxon_id(database_function = data.base, 
-                         taxon_name =  ord.name, 
+                         taxon_name =  higher.tax.name, 
                          ask_or_not = FALSE, tries = 5)
   ord.id <- ord.id[[1]]
   
   # create an error dmat output
-  dmat <- c(list(order = ord.name),
+  dmat <- c(list(higher.tax = higher.tax.name),
             list(tax_available = FALSE),
             list(tax_distance = NA,
                  tax_names = NA))
@@ -178,11 +179,13 @@ get_taxon_distance <- function(ord.name, data.base = "itis") {
   # get a distance matrix and list of taxa downstream of the order
   if (data.base == "gbif") {
     
-    dmat <- downstream_gbif(ord.id = ord.id, ord.name = ord.name)
+    dmat <- downstream_gbif(ord.id = ord.id, 
+                            ord.name = higher.tax.name,
+                            higher.tax.rank = higher.tax.rank)
     
   } else if (data.base == "itis") {
     
-    dmat <- downstream_itis(ord.id = ord.id, ord.name = ord.name)
+    dmat <- downstream_itis(ord.id = ord.id, ord.name = higher.tax.name)
     
   } else {
     
@@ -197,7 +200,7 @@ get_taxon_distance <- function(ord.name, data.base = "itis") {
     
   }
   
-  dmat <- c(list(order = ord.name),
+  dmat <- c(list(higher.tax = higher.tax.name),
             list(tax_available = TRUE),
             dmat)
   
