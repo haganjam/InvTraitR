@@ -30,7 +30,7 @@ tax.mat <- data.frame(from = c("order", "family"),
 tax.g <- graph_from_data_frame(d = tax.mat, directed=FALSE)
 
 # calculate taxononomic distance between each taxonomic level
-tax.gbif <- distances(
+tax.d <- distances(
   tax.g,
   v = V(tax.g),
   to = V(tax.g),

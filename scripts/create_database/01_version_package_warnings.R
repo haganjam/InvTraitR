@@ -20,7 +20,7 @@ warning_messages <- function(x) {
   row.names(in.packs) <- NULL
   
   # set the packages used
-  packs.used <- c("taxize", "dplyr", "igraph", "here", "Matrix")
+  packs.used <- c("taxadb","bdc", "dplyr", "igraph", "here", "Matrix")
   
   # generate warnings about the packages that need to be installed
   eval( if (any( !(packs.used %in% in.packs$Package) )) {
@@ -33,7 +33,7 @@ warning_messages <- function(x) {
   } else {
     
     # warning if packages are installed
-    warn.packs <- c("dplyr: 1.0.7", "igraph: 1.2.11", "taxize: 0.9.99", "here: 1.0.1", "Matrix: 1.4-0")
+    warn.packs <- c("dplyr: 1.0.7", "igraph: 1.2.11", "taxadb: 0.1.5", "bdc: 1.1.1", "here: 1.0.1", "Matrix: 1.4-0")
     
     warn.text <- paste("These functions were written using the version of the following packages:", 
                        paste(warn.packs, collapse = ", "), sep = " " )
