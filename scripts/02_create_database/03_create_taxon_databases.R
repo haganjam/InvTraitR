@@ -27,7 +27,7 @@ source(here("scripts/02_create_database/01_version_package_warnings.R"))
 source(here("scripts/02_create_database/02_taxon_matrix_function.R"))
 
 # choose the taxonomic database: "gbif", "itis", "col"
-database <- "gbif"
+database <- "col"
 
 # create the local database
 td_create(
@@ -111,7 +111,7 @@ d.ht <-
   distinct()
 
 d.dist <- vector("list", length = nrow(d.ht))
-for (i in 6) {
+for (i in 1:nrow(d.ht)) {
 
   # get classification data for the higher taxon
   raw_class <- 
@@ -197,7 +197,6 @@ for (i in 6) {
 # add the names of the higher taxa to the matrix
 names(d.dist) <- d.ht$db_taxon_higher
 
-
 # write these databases into the database folder
 
 # write the taxon database
@@ -206,6 +205,6 @@ saveRDS(tax.clean, file = paste(here("database"), "/", name1, sep = ""))
 
 # write the higher taxon matrices
 name2 <- paste(paste(database, "higher", "taxon", "matrices", sep = "_"), ".rds", sep = "")
-saveRDS(tax.clean, file = paste(here("database"), "/", name2, sep = ""))
+saveRDS(d.dist, file = paste(here("database"), "/", name2, sep = ""))
 
 ### END

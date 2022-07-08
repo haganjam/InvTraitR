@@ -15,6 +15,7 @@ library(sp)
 library(sf)
 library(raster)
 library(dplyr)
+library(here)
 
 # load the set of metadata associated with each FEOW_ID
 fw.md <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/freshwater_ecoregion_habitat_list.xlsx")
@@ -47,7 +48,6 @@ df <- data.frame(longitude = as.numeric(hab$lon_dd),
 head(df)
 str(df)
 summary(df)
-View(df)
 
 # add a row id column
 df$row_id <- 1:nrow(df)
@@ -104,5 +104,8 @@ head(hab)
 
 # write this into an rds file
 saveRDS(hab, file = paste(here("database"), "/", "freshwater_ecoregion_data.rds", sep = ""))
+
+# save the habitat map as .rds file as well
+saveRDS(fw, file = paste(here("database"), "/", "freshwater_ecoregion_map.rds", sep = ""))
 
 ### END
