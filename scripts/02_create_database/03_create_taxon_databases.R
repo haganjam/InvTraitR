@@ -1,12 +1,12 @@
 
-#' @title itis databases
+#' @title itis, gbif and col databases
 #' 
-#' @description create itis taxon database and higher-level taxon matrices
+#' @description create itis, gbif and col taxon database and higher-level taxon matrices
 #' 
 #' @details This script uses the taxadb and bdc packages to clean the taxonomic
 #' names in the taxon database, get the higher classification for each taxon in the
 #' taxon database and generate higher-level taxon matrices for each taxon in the taxon
-#' database.
+#' database. It supports three different taxonomic frameworks: itis, gbif and col.
 #' 
 #' @author James G. Hagan (james_hagan(at)outlook.com)
 #' 
@@ -26,9 +26,12 @@ source(here("scripts/create_database/01_version_package_warnings.R"))
 # load the taxonomic distance matrix
 source(here("scripts/create_database/02_taxon_matrix_function.R"))
 
+# choose the taxonomic database: "gbif", "itis", "col"
+database <- "col"
+
 # create the local database
 td_create(
-  provider = c("itis"),
+  provider = database,
   overwrite = FALSE)
 
 # load the taxon data
@@ -49,10 +52,10 @@ tax.dat <-
 # clean the names for typos etc.
 x <- bdc_clean_names(sci_names = tax.dat$db_taxon, save_outputs = FALSE)
 
-# write some code to remove the output file
-
 # check if any names were changed
-any(x$scientificName != x$names_clean)
+if ( !any(x$scientificName != x$names_clean) ) {
+  message("No names were changed")
+}
 
 # replace the names in tax.dat with these cleaned names
 tax.dat$db_taxon <- x$names_clean
@@ -60,10 +63,13 @@ tax.dat$db_taxon <- x$names_clean
 # harmonise the names to the gbif database
 harm.tax <- 
   bdc_query_names_taxadb(sci_name = tax.dat$db_taxon,
-                         db = "itis",
+                         db = database,
                          rank_name = "Animalia",
                          rank = "kingdom"
   )
+
+# write some code to remove the output file
+unlink("Output", recursive=TRUE)
 
 # process the harmonised name taxa
 harm.tax <- 
@@ -72,7 +78,7 @@ harm.tax <-
                                        ifelse(is.na(order) & !is.na(family), "family", "order") ) ) %>%
   mutate(db_taxon_higher = ifelse(is.na(order) & is.na(family), NA, 
                                   ifelse(is.na(order), family, order) ) ) %>%
-  mutate(db_higher_rank_source = "itis") %>%
+  mutate(db_higher_rank_source = database) %>%
   mutate(row_id = 1:n()) %>%
   select(row_id, original_search, scientificName, acceptedNameUsageID, db_higher_rank_source, db_taxon_higher_rank, db_taxon_higher)
 
@@ -86,7 +92,9 @@ harm.tax <-
 tax.clean <- right_join(tax.dat, harm.tax, by = c("row_id", "db_taxon") )
 
 # check that the join worked correctly
-nrow(harm.tax) == nrow(tax.clean)
+if ( nrow(harm.tax) == nrow(tax.clean) ) {
+  message("Join worked correctly")
+}
 
 # remove the row_id column
 tax.clean <- 
@@ -103,15 +111,13 @@ d.ht <-
   distinct()
 
 d.dist <- vector("list", length = nrow(d.ht))
-# for (i in 1) {
-  
-i <- 1
+for (i in 1:2) {
 
   # get classification data for the higher taxon
   raw_class <- 
     filter_rank(name = d.ht[i, ]$db_taxon_higher, 
                 rank =  d.ht[i, ]$db_taxon_higher_rank, 
-                provider = "itis"
+                provider = database
     ) %>%
     filter(!is.na(scientificName)) %>%
     filter(taxonomicStatus == "accepted") %>%
@@ -165,7 +171,7 @@ i <- 1
   # apply taxonomic weights
   weights <- mapply(function(x, y) { 
     
-    tax.gbif[which(row.names(tax.gbif) == x), which(colnames(tax.gbif) == y) ] 
+    tax.d[which(row.names(tax.d) == x), which(colnames(tax.d) == y) ] 
     
   } ,
   x = proc_class$rank,
@@ -207,8 +213,13 @@ names(d.dist) <- d.ht$db_taxon_higher
 
 
 # write these databases into the database folder
-saveRDS(tax.clean, file = here("database/itis_taxon_database.rds") )
-saveRDS(d.dist, file = here("database/itis_higher_taxon_matrices.rds"))
 
+# write the taxon database
+name1 <- paste(paste(database, "taxon", "database", sep = "_"), ".rds", sep = "")
+saveRDS(tax.clean, file = paste(here("database"), "/", name1, sep = ""))
+
+# write the higher taxon matrices
+name2 <- paste(paste(database, "higher", "taxon", "matrices", sep = "_"), ".rds", sep = "")
+saveRDS(tax.clean, file = paste(here("database"), "/", name2, sep = ""))
 
 ### END
