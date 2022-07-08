@@ -14,7 +14,7 @@ head(fw.md)
 # remove the page column
 fw.md <- 
   fw.md %>%
-  select(-page)
+  dplyr::select(-page)
 
 # set-up the CRS
 crdref <- CRS('+proj=longlat +datum=WGS84')
@@ -65,7 +65,7 @@ my_over_output <-
 # remove the row_id column
 my_over_output <- 
   my_over_output %>%
-  select(-row_id)
+  dplyr::select(-row_id)
   
 # join these data to the metadata
 my_over_output <- left_join(my_over_output, fw.md, by = "habitat_id")
@@ -88,9 +88,10 @@ hab$area_km2 <- my_over_output$area_km2
 # reorganise the and arrange the columns
 hab <- 
   hab %>%
-  select(database, id, accuracy, lat_dd, lon_dd, habitat_id, area_km2, 
+  dplyr::select(database, id, accuracy, lat_dd, lon_dd, habitat_id, area_km2, 
          realm, major_habitat_type, ecoregion) %>%
   arrange(database, id)
 head(hab)
+View(hab)
 
 ### END
