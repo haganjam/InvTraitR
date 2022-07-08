@@ -25,13 +25,9 @@ library(taxadb)
 
 # - taxa by taxa
 
+# - think about where the taxa come from... what if we implement different traits?
+
 # 4. merge all this information to make a decision
-
-
-
-
-
-
 
 #'
 #' @title extract_genus()
