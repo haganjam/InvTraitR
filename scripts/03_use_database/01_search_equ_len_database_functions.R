@@ -1,4 +1,18 @@
 
+
+# save the igraphs and search them directly
+v.x <- V(d.g) 
+v.x[which(attr(v.x, "names") == "Silvanidae")]
+
+distances(d.g, 
+          v.x[which(attr(v.x, "names") == "Silvanidae")],
+          v.x[which(attr(v.x, "names") == "Anexantha")],
+          mode = c("all"),
+          algorithm = c("bellman-ford"))
+
+
+
+
 # load relevant libraries
 library(here)
 library(dplyr)

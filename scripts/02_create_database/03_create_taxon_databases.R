@@ -21,13 +21,13 @@ library(Matrix)
 library(here)
 
 # check for the correct packages
-source(here("scripts/create_database/01_version_package_warnings.R"))
+source(here("scripts/02_create_database/01_version_package_warnings.R"))
 
 # load the taxonomic distance matrix
-source(here("scripts/create_database/02_taxon_matrix_function.R"))
+source(here("scripts/02_create_database/02_taxon_matrix_function.R"))
 
 # choose the taxonomic database: "gbif", "itis", "col"
-database <- "col"
+database <- "gbif"
 
 # create the local database
 td_create(
@@ -111,13 +111,14 @@ d.ht <-
   distinct()
 
 d.dist <- vector("list", length = nrow(d.ht))
-for (i in 1:2) {
+for (i in 6) {
 
   # get classification data for the higher taxon
   raw_class <- 
     filter_rank(name = d.ht[i, ]$db_taxon_higher, 
                 rank =  d.ht[i, ]$db_taxon_higher_rank, 
-                provider = database
+                provider = database, 
+                collect = FALSE
     ) %>%
     filter(!is.na(scientificName)) %>%
     filter(taxonomicStatus == "accepted") %>%
@@ -188,23 +189,8 @@ for (i in 1:2) {
   # use igraph to create a graph from the matrix
   d.g <- graph_from_data_frame(d = d.mat, directed=FALSE)
   
-  # produce a distance matrix using the taxonomic weights
-  d.g.dist <- distances(
-    d.g,
-    v = V(d.g),
-    to = V(d.g),
-    mode = c("all"),
-    algorithm = c("bellman-ford")
-  )
-  
-  # convert symmetrical values in upper matrix to zeros
-  d.g.dist [upper.tri(d.g.dist , diag = FALSE)] <- 0
-  
-  # convert the distance matrix into a sparse matrix
-  d.g.dist  <- Matrix(d.g.dist, sparse = TRUE)
-  
   # write these sparse matrices into a list
-  d.dist[[i]] <- d.g.dist
+  d.dist[[i]] <- d.g
   
 }
 

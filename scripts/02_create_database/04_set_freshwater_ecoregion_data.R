@@ -1,5 +1,14 @@
 
-# incorporate the Freshwater ecoregions map
+#' @title freshwater ecoregion database
+#' 
+#' @description create a data.frame of realms, habitat types and ecoregions
+#' 
+#' @details This script uses the freshwater ecoregion map (Abell et al. 2008)
+#' to get realm, major habitat type and eco-region data for each equation, length
+#' etc. in the database.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
 
 # load relevant spatial libraries
 library(sp)
@@ -92,6 +101,8 @@ hab <-
          realm, major_habitat_type, ecoregion) %>%
   arrange(database, id)
 head(hab)
-View(hab)
+
+# write this into an rds file
+saveRDS(hab, file = paste(here("database"), "/", "freshwater_ecoregion_data.rds", sep = ""))
 
 ### END
