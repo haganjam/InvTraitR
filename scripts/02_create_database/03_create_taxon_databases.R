@@ -27,7 +27,7 @@ source(here("scripts/02_create_database/01_version_package_warnings.R"))
 source(here("scripts/02_create_database/02_taxon_matrix_function.R"))
 
 # choose the taxonomic database: "gbif", "itis", "col"
-database <- "col"
+database <- "itis"
 
 # create the local database
 td_create(
