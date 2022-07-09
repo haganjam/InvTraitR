@@ -47,18 +47,76 @@ library(taxadb)
 #' @return string with the genus name
 #' 
 
-extract_genus <- function(binomial) {
-  z <- unlist( strsplit(x = binomial, split = " ", fixed = TRUE) )
-  z.l <- length(z)
-  if (z.l > 1) {
-    search.name <- z[1]
-  } else {
-    search.name <- binomial
+Extract_Genus <- function(binomial) {
+  
+  # test if the input is a string
+  test_1 <- function(x) {
+    
+    assertthat::is.string(x)
+    
   }
+  
+  assertthat::on_failure(test_1) <- function(call, env){
+    
+    paste0(deparse(call$x), " is not a character string")
+    
+  }
+  
+  assertthat::assert_that(test_1(x = binomial))
+  
+  # test if the input is of length 1
+  test_2 <- function(x) {
+    
+    assertthat::are_equal(length(x), 1)
+    
+  }
+  
+  assertthat::on_failure(test_2) <- function(call, env){
+    
+    paste0(deparse(call$x), " is not of length = 1")
+    
+  }
+  
+  assertthat::assert_that(test_2(x = binomial))
+  
+  # check if input has any special characters
+  test_3 <- function(x) {
+    
+    !grepl(pattern = '[[:punct:]]', x = x)
+    
+  }
+  
+  assertthat::on_failure(test_3) <- function(call, env){
+    
+    paste0(deparse(call$x), " contains special characters")
+    
+  }
+  
+  assertthat::assert_that(test_3(x = binomial))
+  
+  # split the binomial into separate parts
+  binomial.1st <- unlist( strsplit(x = binomial, split = " ", fixed = TRUE) )
+  
+  # calculate the length of the split object
+  binomial.l <- length(binomial.1st)
+  
+  # if the resulting object has a length of greater than 1, then extract first element
+  if (binomial.l > 1) {
+    
+    binomial <- binomial.1st[1]
+    
+  } 
+  
   # add a word count attribute
-  attr(search.name, "n") <- z.l
-  return(search.name)
+  attr( binomial, "n") <- binomial.l
+  
+  # return the modified name
+  return(binomial)
+  
 }
+
+Extract_Genus(binomial = "Loxodonta africanus")
+
 
 #'
 #' @title Get_tax_dist()
