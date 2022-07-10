@@ -21,6 +21,8 @@ library(taxadb)
 
 # - data.frame scale
 
+# - add a test for the max and min of the decimal degrees
+
 # 3. calculate taxonomic distance habitat for each target taxa
 
 # - taxa by taxa
@@ -28,6 +30,23 @@ library(taxadb)
 # - think about where the taxa come from... what if we implement different traits?
 
 # 4. merge all this information to make a decision
+
+# create a test dataset
+
+data.test <- data.frame(name = c("Aedes",
+                                 "Daphnia pulex", NA, "Daphnia"),
+                        life_stage = c("larva", "adult", NA, "adult"),
+                        lat = c(57.5, 57.5, 60, NA),
+                        lon = c(119.3, 112.8, -60, NA),
+                        length = c(4, 8, 10, 20))
+
+
+data.test2 <- data.frame(name = c("fhgn", "fogu", "Daphnia"),
+                         life_stage = c("larva", "adult", "adult"),
+                         lat = c(57.5, 57.5, 57.5),
+                         lon = c(119.3, 112.8, 112.8),
+                         length = c(4, 8, 10))
+head(data.test2)
 
 #'
 #' @title extract_genus()
@@ -115,28 +134,323 @@ Extract_Genus <- function(binomial) {
   
 }
 
+# test the function
 Extract_Genus(binomial = "Loxodonta africanus")
 
 
 #'
-#' @title Get_tax_dist()
+#' @title Get_Taxon_Names()
 #' 
 #' @description Get taxonomic distances of target names relative to the taxa databases
 #' 
-#' @details This function takes a data.frame with target_taxa and searches a set of taxonomic
-#' graphs from gbif, itis and col to find taxa that are closely related. The names are first
-#' cleaned and harmonised using the bdc package. Then, prep-prepared graphs that
-#' contain taxonomic information are searched and distances between taxa in our database
-#' and the target taxon are identified.
+#' @details This function takes a data.frame with target_taxa and uses the bdc package
+#' to clean and harmonise the names.
 #' 
 #' @author James G. Hagan (james_hagan(at)outlook.com)
 #' 
 #' @param data - data.frame with a column containing target taxon names
-#' @param database - taxonomic database to use: gbif, itis, col
 #' @param target_taxon - character string with the column name containing the taxon names
+#' @param database - taxonomic database to use: gbif, itis, col
 #' 
-#' @return data.frame with target taxon names, database names and relevant taxonomic distances
+#' @return data.frame with target taxon names and cleaned names for the chosen taxonomic backbone
 #' 
+
+Clean_Taxon_Names <- function(data, target_taxon, database = "gbif") {
+  
+  # test if the database input is a supported taxonomic backbone
+  test_1 <- function(x) {
+    
+    assertthat::are_equal(x, "gbif") | 
+      assertthat::are_equal(x, "itis") | 
+      assertthat::are_equal(x, "col")
+    
+  }
+  
+  assertthat::on_failure(test_1) <- function(call, env){
+    
+    paste0(deparse(call$x), " is not a valid taxonomic backbone, pick: gbif, itis or col")
+    
+  }
+  
+  assertthat::assert_that(test_1(database))
+  
+  # test if the data input is a data.frame or a tibble
+  test_2 <- function(x) {
+    
+    ( is.data.frame(x) | dplyr::is.tbl(x) )
+    
+  }
+  
+  assertthat::on_failure(test_2) <- function(call, env){
+    
+    paste0(deparse(call$x), " is not a data.frame or tibble object")
+    
+  }
+  
+  assertthat::assert_that(test_2(data))
+  
+  # test if the target_taxon in the data object
+  test_3 <- function(x, y) {
+    
+    assertthat::is.string(y) & ( y %in% names(x) )
+    
+  }
+  
+  assertthat::on_failure(test_3) <- function(call, env){
+    
+    paste0(deparse(call$y), " column is not a column in the supplied data object")
+    
+  }
+  
+  assertthat::assert_that(test_3(x = data, y = target_taxon))
+  
+  # test if the name column has a length of more than zero and that it is a character variable
+  test_4 <- function(x) {
+    
+    is.character(x) & (length(x) > 0 )
+    
+  }
+  
+  assertthat::on_failure(test_4) <- function(call, env){
+    
+    paste0(deparse(call$x), " is not a character variable with length greater than zero")
+    
+  }
+  
+  assertthat::assert_that(test_4(data[[target_taxon]]))
+  
+  # subset a name column from the data object
+  name.dat <- data[target_taxon]
+  
+  # clean the names for typos etc. using the bdc_clean_names function
+  clean.names <- bdc::bdc_clean_names(sci_names = name.dat[[target_taxon]], save_outputs = FALSE)
+  
+  # write some code to remove the output file
+  unlink("Output", recursive=TRUE)
+  
+  # add the clean names to the data.frame
+  clean.col <- paste("clean_", target_taxon, sep = "")
+  name.dat[[clean.col]] <- clean.names$names_clean
+  
+  # check that all the non-missing names were cleaned
+  test_5 <- function(x, y) {
+    
+    length(x[!is.na(x)]) == length(y[!is.na(y)])
+    
+  }
+  
+  assertthat::on_failure(test_5) <- function(call, env){
+    
+    "Length of clean names do not match length of original names is not a character variable with length greater than zero"
+    
+  }
+  
+  assertthat::assert_that(test_5(x = name.dat[[target_taxon]], y = name.dat[[clean.col]]))
+  
+  # give each row an id
+  name.dat$row_id <- 1:nrow(name.dat)
+  
+  # create the local database
+  # td_create(
+    # provider = database,
+    # overwrite = FALSE)
+  
+  # harmonise the names to the gbif database
+  harm.tax <- 
+    bdc_query_names_taxadb(sci_name = name.dat[[target_taxon]],
+                           db = database,
+                           rank_name = "Animalia",
+                           rank = "kingdom"
+    )
+  
+  # write some code to remove the output file
+  unlink("Output", recursive=TRUE)
+  
+  # add columns for higher taxa, higher taxon ranks, db source and row_id
+  
+  # higher taxon rank
+  harm.tax <- dplyr::mutate(harm.tax,
+                            db_taxon_higher_rank = ifelse(is.na(order) & is.na(family), NA, 
+                                                          ifelse(is.na(order) & !is.na(family), "family", "order") ) )
+  # higher taxon name
+  harm.tax <- dplyr::mutate(harm.tax,
+                            db_taxon_higher = ifelse(is.na(order) & is.na(family), NA, 
+                                                     ifelse(is.na(order), family, order) ) )                          
+  
+  # row_id
+  harm.tax$row_id <- 1:nrow(harm.tax)
+  
+  # select the relevant columns
+  harm.tax <- harm.tax[,c("row_id", "scientificName", "acceptedNameUsageID", "db_taxon_higher_rank", "db_taxon_higher")]
+  
+  # remove the names that we were not able to resolve
+  harm.tax <- dplyr::filter(harm.tax, !(is.na(scientificName) |is.na(db_taxon_higher_rank) | is.na(db_taxon_higher) ) )
+  
+  # add the database to the name.dat
+  name.dat$db <- database
+  
+  # join these data to the tax.dat data
+  name.dat <- dplyr::left_join(name.dat, harm.tax, by = c("row_id") )
+  name.dat <- dplyr::select(name.dat, -row_id)
+  
+  # join the rest of the input data
+  name.dat <- dplyr::full_join(name.dat, data, by = target_taxon)
+  
+  # convert to a tibble
+  name.dat <- dplyr::as_tibble(name.dat)
+  
+  return(name.dat)
+  
+}
+
+# test the function
+x <- Clean_Taxon_Names(data = data.test2[-3,], target_taxon = "name", database = "gbif")
+View(x)
+
+
+#'
+#' @title Get_Habitat_Data()
+#' 
+#' @description Get habitat data from Abell et al.'s (2008) freshwater ecoregion map
+#' 
+#' @details This function takes a data.frame with latitude and longitude data and gets
+#' data on biogeographic realm, major habitat type and ecoregion based on Abell et al.'s (2008)
+#' freshwater ecoregion map.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param data - data.frame with a column containing latitude and longitude in decimal degrees
+#' @param latitude_dd - character string with the column name containing the latitude in decimal degrees
+#' @param longitude_dd - character string with the column name containing the longitude in decimal degrees
+#' 
+#' @return data.frame with target taxon names and cleaned names for the chosen taxonomic backbone
+#' 
+
+# function to get habitat data
+Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
+  
+  # load the freshwater habitat map
+  if (!exists("fw_map")) {
+    fw_map <- readRDS(file = here("database/freshwater_ecoregion_map.rds"))
+  }
+  
+  # load the freshwater habitat map
+  if (!exists("fw_meta")) {
+    fw_meta <- readRDS(file = here("database/freshwater_ecoregion_metadata.rds"))
+  }
+  
+  # test if the data input is a data.frame or a tibble
+  test_1 <- function(x) {
+    
+    ( is.data.frame(x) | dplyr::is.tbl(x) )
+    
+  }
+  
+  assertthat::on_failure(test_1) <- function(call, env){
+    
+    paste0(deparse(call$x), " is not a data.frame or tibble object")
+    
+  }
+  
+  assertthat::assert_that(test_1(data))
+  
+  # test if the latitude and longitude columns are present in the data object
+  test_2 <- function(x, y, z) {
+    
+    (assertthat::is.string(y) & assertthat::is.string(z)) & all(c(y, z) %in% names(x))
+    
+  }
+  
+  assertthat::on_failure(test_2) <- function(call, env){
+    
+    paste0(deparse(call$y), " or ", deparse(call$x),  " are not strings and/or are not present in the data object")
+    
+  }
+  
+  assertthat::assert_that(test_2(x = data, y = latitude_dd, z = longitude_dd))
+  
+  # test if the data object has more than 0 rows
+  test_3 <- function(x) {
+    
+    (nrow(x) > 0)
+    
+  }
+  
+  assertthat::on_failure(test_3) <- function(call, env){
+    
+    paste0(deparse(call$x),  " object has zero rows and therefore no data")
+    
+  }
+  
+  assertthat::assert_that(test_3(x = data))
+  
+  # test if the data object has more than 0 rows
+  test_4 <- function(x, y) {
+    
+    ( is.numeric(x) & is.numeric(y) )
+    
+  }
+  
+  assertthat::on_failure(test_4) <- function(call, env){
+    
+    paste0(deparse(call$x), " or ",deparse(call$x), " are not numeric variables")
+    
+  }
+  
+  assertthat::assert_that(test_4(x = data[[latitude_dd]], data[[longitude_dd]]))
+  
+  # create a data.frame with latitude and longitude columns
+  lat.lon <- data.frame(longitude_dd = as.numeric(data[[longitude_dd]]),
+                        latitude_dd = as.numeric(data[[latitude_dd]])) 
+  head(lat.lon)
+  
+  # add a row id column
+  lat.lon$row_id <- 1:nrow(lat.lon)
+  
+  # remove the NA values
+  lat.lon2 <- lat.lon[!(is.na(lat.lon$longitude_dd) | is.na(lat.lon$latitude_dd )), ]
+  
+  # convert this to a spatial points object
+  sp.pts <- SpatialPoints(lat.lon2[, c("longitude_dd", "latitude_dd")], proj4string = crs(fw_map) )
+  
+  # check where pts overlap with freshwater ecoregion
+  hab.dat <- over(sp.pts, fw_map)
+  
+  # add row id to these data
+  hab.dat$row_id <- lat.lon2$row_id
+  names(hab.dat) <- c("habitat_id", "area_km2", "row_id")
+  
+  # join to the original df to refill in the NAs
+  hab.dat <- dplyr::full_join(lat.lon, hab.dat, by = "row_id")
+  
+  # arrange by row_id
+  hab.dat <- dplyr::arrange(hab.dat, row_id)
+  
+  # remove the row_id column 
+  hab.dat <- dplyr::select(hab.dat, -row_id)
+  
+  # join these data to the metadata
+  hab.dat <- dplyr::left_join(hab.dat, fw_meta, by = "habitat_id")
+  
+  # bind the original data to the habitat data
+  hab.dat <- dplyr::bind_cols(dplyr::select(data, -dplyr::all_of(c(latitude_dd, longitude_dd)) ), 
+                              hab.dat)
+  
+  # convert to a tibble
+  hab.dat <- dplyr::as_tibble(hab.dat)
+  
+  return(hab.dat)
+  
+}
+
+# test the function
+x <- Get_Habitat_Data(data = data.test, latitude = "lat", longitude_dd = "lon")
+View(x)
+
+y <- Clean_Taxon_Names(data = x, target_taxon = "name", database = "gbif")
+View(y)
+
+
 
 # write a function to get the taxonomic distances for database entries
 Get_tax_dist <- function(data, database = "gbif", target_taxon) {
