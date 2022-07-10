@@ -250,18 +250,22 @@ Clean_Taxon_Names <- function(data, target_taxon, database = "gbif") {
   # give each row an id
   name.dat$row_id <- 1:nrow(name.dat)
   
-  # create the local database
-  # td_create(
-    # provider = database,
-    # overwrite = FALSE)
+  # update the database if there is a valid internet connection
+  if (curl::has_internet()) {
+    
+    taxadb::td_create(provider = database,
+                      overwrite = FALSE
+                      )
+    
+  }
   
   # harmonise the names to the gbif database
   harm.tax <- 
-    bdc_query_names_taxadb(sci_name = name.dat[[target_taxon]],
-                           db = database,
-                           rank_name = "Animalia",
-                           rank = "kingdom"
-    )
+    bdc::bdc_query_names_taxadb(sci_name = name.dat[[target_taxon]],
+                                db = database,
+                                rank_name = "Animalia",
+                                rank = "kingdom"
+                                )
   
   # write some code to remove the output file
   unlink("Output", recursive=TRUE)
@@ -331,12 +335,12 @@ Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
   
   # load the freshwater habitat map
   if (!exists("fw_map")) {
-    fw_map <- readRDS(file = here("database/freshwater_ecoregion_map.rds"))
+    fw_map <- readRDS(file = here::here("database/freshwater_ecoregion_map.rds"))
   }
   
   # load the freshwater habitat map
   if (!exists("fw_meta")) {
-    fw_meta <- readRDS(file = here("database/freshwater_ecoregion_metadata.rds"))
+    fw_meta <- readRDS(file = here::here("database/freshwater_ecoregion_metadata.rds"))
   }
   
   # test if the data input is a data.frame or a tibble
@@ -399,6 +403,25 @@ Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
   
   assertthat::assert_that(test_4(x = data[[latitude_dd]], data[[longitude_dd]]))
   
+  # make sure the decimal degree variables are within the ranges of the variables
+  test_5 <- function(x, y) {
+    
+    t1 <- (x[!is.na(x)] <= 90 & x[!is.na(x)] >= -90)
+    
+    t2 <- (y[!is.na(y)] <= 180 & y[!is.na(y)] >= -180)
+    
+    all( (t1 == TRUE) & (t2 == TRUE) )
+    
+  }
+  
+  assertthat::on_failure(test_5) <- function(call, env){
+    
+    paste0(deparse(call$x), " or ",deparse(call$x), " are too big/small to be valid decimal degrees")
+    
+  }
+  
+  assertthat::assert_that(test_5(x = data[[latitude_dd]], data[[longitude_dd]]))
+  
   # create a data.frame with latitude and longitude columns
   lat.lon <- data.frame(longitude_dd = as.numeric(data[[longitude_dd]]),
                         latitude_dd = as.numeric(data[[latitude_dd]])) 
@@ -409,12 +432,12 @@ Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
   
   # remove the NA values
   lat.lon2 <- lat.lon[!(is.na(lat.lon$longitude_dd) | is.na(lat.lon$latitude_dd )), ]
-  
+
   # convert this to a spatial points object
-  sp.pts <- SpatialPoints(lat.lon2[, c("longitude_dd", "latitude_dd")], proj4string = crs(fw_map) )
+  sp.pts <- sp::SpatialPoints(lat.lon2[, c("longitude_dd", "latitude_dd")], proj4string = raster::crs(fw_map) )
   
   # check where pts overlap with freshwater ecoregion
-  hab.dat <- over(sp.pts, fw_map)
+  hab.dat <- sp::over(sp.pts, fw_map)
   
   # add row id to these data
   hab.dat$row_id <- lat.lon2$row_id
@@ -447,8 +470,22 @@ Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
 x <- Get_Habitat_Data(data = data.test, latitude = "lat", longitude_dd = "lon")
 View(x)
 
-y <- Clean_Taxon_Names(data = x, target_taxon = "name", database = "gbif")
-View(y)
+# write a function to select traits/equations based on taxonomic distance, habitat and life-stage
+
+# then, we can apply this to each data.frame separately and then pull together
+# a list of suitable equations that we can then decide on
+
+# may need to rethink how names are then linked back to the original equations
+
+# remember the special names (e.g. nematode equations etc.)
+
+y1 <- Clean_Taxon_Names(data = x, target_taxon = "name", database = "gbif")
+View(y1)
+y2 <- Clean_Taxon_Names(data = x, target_taxon = "name", database = "itis")
+View(y2)
+y3 <- Clean_Taxon_Names(data = x, target_taxon = "name", database = "col")
+View(y3)
+
 
 
 
