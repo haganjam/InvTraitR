@@ -3,6 +3,7 @@
 
 # load relevant libraries
 library(bdc)
+library(here)
 
 # load the equation data
 equ.dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/equation_database.xlsx")

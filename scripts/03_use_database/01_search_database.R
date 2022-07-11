@@ -23,6 +23,8 @@ library(taxadb)
 
 # create a test dataset
 
+# remember the special names (e.g. nematode equations etc.)
+
 data.test <- data.frame(name = c("Aedes",
                                  "Daphnia pulex", NA, "Daphnia"),
                         life_stage = c("larva", "adult", NA, "adult"),
@@ -138,14 +140,15 @@ Extract_Genus(binomial = "Loxodonta africanus")
 #' 
 #' @author James G. Hagan (james_hagan(at)outlook.com)
 #' 
-#' @param data - data.frame with a column containing target taxon names
+#' @param data - data.frame with a column containing target taxon names and life-stages
 #' @param target_taxon - character string with the column name containing the taxon names
+#' @param life_stage - character string with the column name containing the life_stages
 #' @param database - taxonomic database to use: gbif, itis, col
 #' 
 #' @return data.frame with target taxon names and cleaned names for the chosen taxonomic backbone
 #' 
 
-Clean_Taxon_Names <- function(data, target_taxon, database = "gbif") {
+Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif") {
   
   # test if the database input is a supported taxonomic backbone
   test_1 <- function(x) {
@@ -209,6 +212,21 @@ Clean_Taxon_Names <- function(data, target_taxon, database = "gbif") {
   
   assertthat::assert_that(test_4(data[[target_taxon]]))
   
+  # test if the life-stage column is a character vector without NAs
+  test_5 <- function(x) {
+    
+    (is.character(x) & all(x %in% c(NA, "none", "larva", "pupa", "nymph", "adult", "nauplius", "copepodite", "tadpole")))
+    
+  }
+  
+  assertthat::on_failure(test_5) <- function(call, env){
+    
+    paste0(deparse(call$x), " one or more entries do not have appropriate life-stage classes: see documentation")
+    
+  }
+  
+  assertthat::assert_that(test_5(data[[life_stage]]))
+  
   # subset a name column from the data object
   name.dat <- data[target_taxon]
   
@@ -223,19 +241,19 @@ Clean_Taxon_Names <- function(data, target_taxon, database = "gbif") {
   name.dat[[clean.col]] <- clean.names$names_clean
   
   # check that all the non-missing names were cleaned
-  test_5 <- function(x, y) {
+  test_6 <- function(x, y) {
     
     length(x[!is.na(x)]) == length(y[!is.na(y)])
     
   }
   
-  assertthat::on_failure(test_5) <- function(call, env){
+  assertthat::on_failure(test_6) <- function(call, env){
     
     "Length of clean names do not match length of original names is not a character variable with length greater than zero"
     
   }
   
-  assertthat::assert_that(test_5(x = name.dat[[target_taxon]], y = name.dat[[clean.col]]))
+  assertthat::assert_that(test_6(x = name.dat[[target_taxon]], y = name.dat[[clean.col]]))
   
   # give each row an id
   name.dat$row_id <- 1:nrow(name.dat)
@@ -286,6 +304,9 @@ Clean_Taxon_Names <- function(data, target_taxon, database = "gbif") {
   # join these data to the tax.dat data
   name.dat <- dplyr::left_join(name.dat, harm.tax, by = c("row_id") )
   name.dat <- dplyr::select(name.dat, -row_id)
+  
+  # rename the life-stage column to life_stage
+  data <- dplyr::rename(data, "life_stage" = dplyr::all_of(life_stage) )
   
   # join the rest of the input data
   name.dat <- dplyr::full_join(name.dat, data, by = target_taxon)
@@ -452,132 +473,254 @@ Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
   
 }
 
-# test the function
-x <- Get_Habitat_Data(data = data.test, latitude = "lat", longitude_dd = "lon")
-View(x)
+#'
+#' @title Select_Traits()
+#' 
+#' @description Get taxonomic distances of target names relative to the taxa databases
+#' 
+#' @details This function searches the relevant trait or equation database for the best
+#' matching trait or equation for a given target name based on three criteria: taxonomic distance
+#' life-stage match and habitat match
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param input - input data.frame exported from Get_Habitat_Data() and Clean_Taxon_Names() function
+#' @param max_tax_dist - maximum taxonomic distance acceptable between the target and the taxa in the database (default = 3)
+#' @param trait - trait to be searched for (default = "equation")
+#' @param gen_sp_dist - taxonomic distance between a genus and a species (default = 0.5)
+#' 
+#' @return data.frame with target taxon names and cleaned names for the chosen taxonomic backbone
+#' 
 
-# write a function to select traits/equations based on taxonomic distance, habitat and life-stage
-
-# then, we can apply this to each data.frame separately and then pull together
-# a list of suitable equations that we can then decide on
-
-# may need to rethink how names are then linked back to the original equations
-
-# remember the special names (e.g. nematode equations etc.)
-
-y1 <- Clean_Taxon_Names(data = x, target_taxon = "name", database = "gbif")
-View(y1)
-
-# arguments:
-
-max.tax.dist <- 3
-trait <- "equation"
-
-# load the taxon matrices
-if (!exists("gbif_htm")) {
-  gbif_htm <- readRDS(file = here::here("database/gbif_higher_taxon_matrices.rds"))
-}
-
-# load the taxon database
-if (!exists("gbif_td")) {
-  gbif_td <- readRDS(file = here::here("database/gbif_taxon_database.rds"))
-}
-
-# load the igraph package so that igraph objects can be manipulated
-library(igraph)
-
-# subset the relevant taxon matrices based on the higher taxon rank
-
-# taxon matrix
-htm <- gbif_htm[(names(gbif_htm) == y1[1,][["db_taxon_higher"]])][[1]]
-
-# extract vertices
-v.x <- V(htm)
-
-# extract the taxon database
-td <- gbif_td[gbif_td$database == trait,]
-td <- td[td$db_taxon_higher == y1[1,][["db_taxon_higher"]], ]
-View(td)
-
-targ.name <- y1[1,][["scientificName"]]
-
-tax.dist.df <- 
-  mapply( function(db.name, id) {
+Select_Traits <- function(input, max_tax_dist = 3, trait = "equation", gen_sp_dist = 0.5) {
   
-  # extract genus for species-level names
-  targ.name2 <- Extract_Genus(targ.name)
-  db.name2 <- Extract_Genus(db.name)
-  
-  tax.dist <- 
-    igraph::distances(htm, 
-                      v.x[which(attr(v.x, "names") == targ.name2)],
-                      v.x[which(attr(v.x, "names") == db.name2)],
-                      mode = c("all"),
-                      algorithm = c("bellman-ford")
-                      )
-  
-  # if length is zero then the distance is zero
-  if(length(tax.dist) == 0) {
-    tax.dist <- 0
-  } else {
-    tax.dist <- tax.dist[[1]]
+  # make sure the decimal degree variables are within the ranges of the variables
+  test_1 <- function(x) {
+    
+    "igraph" %in% installed.packages()[,1]
+    
   }
   
-  # extra distance for species level: 0.5
-  sp.l <- sum( ifelse(c(attr(targ.name2, "n"), attr(db.name2, "n")) > 1, 0.5, 0))
+  assertthat::on_failure(test_1) <- function(call, env){
+    
+    paste0(deparse(call$x), " must be installed for this function to work")
+    
+  }
   
-  dist.df <- 
-    dplyr::tibble(targ.scientificName = targ.name,
-                  db.scientificName = db.name,
-                  id = id,
-                  tax_distance = tax.dist + sp.l
-                  )
+  assertthat::assert_that(test_1())
   
-  return(dist.df)
+  # load the igraph package so that igraph objects can be manipulated
+  library(igraph)
   
-}, td[["scientificName"]], td[["id"]], SIMPLIFY = FALSE)
-
-# bind into a data.frame
-tax.dist.df <- dplyr::bind_rows(tax.dist.df)
-
-# remove the rows where tax_distance is too large
-tax.dist.df <- dplyr::filter(tax.dist.df, tax_distance <= max.tax.dist)
-
-# load the equation database
-if (!exists("equ")) {
-  equ <- readRDS(file = here::here("database/equation_database.rds"))
+  # load the trait database
+  if (!exists("trait_db")) {
+    trait_db <- readRDS(file = paste0(here::here("database"), "/", trait, "_database.rds"))
+  }
+  
+  # load the habitat database
+  if (!exists("fw")) {
+    fw <- readRDS(file = here::here("database/freshwater_ecoregion_data.rds"))
+  }
+  
+  # split the input data.frame into a list
+  input.list <- split(input, 1:nrow(input))
+  
+  # for each entry in the input.list, select appropriate traits
+  output <- 
+    lapply(input.list, function(data) {
+      
+      # load the taxon matrices
+      if (!exists("htm_db")) {
+        htm_db <- readRDS(file = paste0(here::here("database"), "/", data[["db"]], "_higher_taxon_matrices.rds"))
+      }
+      
+      # load the taxon database
+      if (!exists("td_db")) {
+        td_db <- readRDS(file = paste0(here::here("database"), "/", data[["db"]], "_taxon_database.rds"))
+      }  
+      
+      # if the input is NA then we return an NA
+      if (any( is.na(c(data[["scientificName"]], data[["db_taxon_higher"]])) ) ) {
+        
+        return( dplyr::tibble(targ.scientificName = data[["scientificName"]]) )
+        
+      }
+      
+      # taxon matrix
+      htm <- htm_db[(names(htm_db) == data[["db_taxon_higher"]])][[1]]
+      
+      # extract vertices
+      v.x <- V(htm)
+      
+      # extract the taxon database
+      td <- td_db[td_db$database == trait,]
+      td <- td[td$db_taxon_higher == data[["db_taxon_higher"]], ]
+      
+      # extract the target.name
+      targ.name <- data[["scientificName"]]
+      
+      # taxonomic distance
+      
+      tax.dist.df <- 
+        mapply( function(db.name, id) {
+          
+          # extract genus for species-level names
+          targ.name2 <- Extract_Genus(targ.name)
+          db.name2 <- Extract_Genus(db.name)
+          
+          tax.dist <- 
+            igraph::distances(htm, 
+                              v.x[which(attr(v.x, "names") == targ.name2)],
+                              v.x[which(attr(v.x, "names") == db.name2)],
+                              mode = c("all"),
+                              algorithm = c("bellman-ford")
+            )
+          
+          # if length is zero then the distance is zero
+          if(length(tax.dist) == 0) {
+            
+            tax.dist <- 0
+            
+          } else {
+            
+            tax.dist <- tax.dist[[1]]
+            
+          }
+          
+          # extra distance for species level: gen_sp_dist argument
+          sp.l <- sum( ifelse(c(attr(targ.name2, "n"), attr(db.name2, "n")) > 1,  gen_sp_dist, 0))
+          
+          dist.df <- 
+            dplyr::tibble(targ.scientificName = targ.name,
+                          db.scientificName = db.name,
+                          trait_out = trait,
+                          id = id,
+                          tax_distance = tax.dist + sp.l
+            )
+          
+          return(dist.df)
+          
+        }, td[["scientificName"]], td[["id"]], SIMPLIFY = FALSE)
+      
+      # bind into a data.frame
+      tax.dist.df <- dplyr::bind_rows(tax.dist.df)
+      
+      # remove the rows where tax_distance is too large
+      tax.dist.df <- dplyr::filter(tax.dist.df, tax_distance <= max_tax_dist)
+      
+      # life-stage data
+      
+      # subset the equations that have the correct taxonomic distance
+      trait_sel <- trait_db[trait_db[[paste0(trait, "_id")]] %in% tax.dist.df$id, ]
+      
+      # subset the equations with the correct life-stage
+      trait_sel <- dplyr::filter(trait_sel, db_life_stage == data[["life_stage"]])
+      
+      # subset the max_tax_dist
+      tax.dist.df <- dplyr::filter(tax.dist.df, id %in% trait_sel[[paste0(trait, "_id")]])
+      tax.dist.df[["life_stage_match"]] <- TRUE
+      
+      # from the equations within the relevant maximum taxonomic distance and with the correct life-stage
+      # choose the equation with the lowest taxonomic distance
+      tax.dist.df <- tax.dist.df[dplyr::near(tax.dist.df$tax_distance, min(tax.dist.df$tax_distance)), ]
+      
+      # check if the target has habitat data
+      if ( is.na(data[["habitat_id"]]) ) {
+        
+        return( tax.dist.df )
+        
+      }
+      
+      # habitat data
+      
+      # get the relevant trait
+      fw_sel <- dplyr::filter(fw, database == trait)
+      
+      # get the equations with the correct taxonomic distance and life-stage
+      fw_sel <- dplyr::filter(fw_sel, id %in% tax.dist.df[["id"]])
+      
+      # filter progressively based on habitat
+      tax.dist.df[["realm_match"]] <- (fw_sel[["realm"]] == data[["realm"]])
+      tax.dist.df[["maj_hab_match"]] <- (fw_sel[["major_habitat_type"]] == data[["major_habitat_type"]])
+      tax.dist.df[["ecoregion_match"]] <- (fw_sel[["ecoregion"]] == data[["ecoregion"]])
+      
+      # add them up
+      hab.sim <- tax.dist.df[["realm_match"]] + tax.dist.df[["maj_hab_match"]] + tax.dist.df[["ecoregion_match"]]
+      
+      # select the best matching habitat types
+      tax.dist.df <- tax.dist.df[dplyr::near(hab.sim, max(hab.sim)), ]
+      
+      # give a warning if none of the habitats match
+      tax.dist.df[["habitat_flag"]] <- ifelse(hab.sim == 0, "different realm, major habitat type and ecoregion", NA)
+      
+      return(tax.dist.df)
+      
+    } )
+  
+  output <- dplyr::bind_rows(output, .id = "targ_no")
+  
+  return(output)
+  
 }
 
-equ_sel <- dplyr::filter(equ, equ_id %in% tax.dist.df$id)
 
-equ_sel <- dplyr::filter(equ_sel, db_life_stage == y1[1,][["life_stage"]])
+# combine functions
 
-# subset the max_tax_dist
-tax.dist.df <- dplyr::filter(tax.dist.df, id %in% equ_sel[["equ_id"]])
-tax.dist.df[["life_stage_match"]] <- TRUE
+# test functions
+x <- Get_Habitat_Data(data = dplyr::rename(data.test, life.stage = life_stage), latitude = "lat", longitude_dd = "lon")
+View(x)
 
-# load the habitat database
-if (!exists("fw")) {
-  fw <- readRDS(file = here::here("database/freshwater_ecoregion_data.rds"))
-}
+test <- 
+  lapply(c("gbif", "itis", "col"), function(tax_database) {
+  
+  y <- Clean_Taxon_Names(data = x, target_taxon = "name", life_stage = "life.stage", database = tax_database)
+  
+  z <- Select_Traits(input = y, max_tax_dist = 3, trait = "equation", gen_sp_dist = 0.5)
+  
+  return(z)
+  
+} )
 
-# get the relevant trait
-fw_sel <- dplyr::filter(fw, database == trait)
+names(test) <- c("gbif", "itis", "col")
+test <- dplyr::bind_rows(test,  .id = "tax_database")
 
-# get the equations with the correct taxonomic distance and life-stage
-fw_sel <- dplyr::filter(fw_sel, id %in% tax.dist.df[["id"]])
+# how to select traits from the list
+res <- lapply(split(test, test$targ_no), function(x){
+  
+  # if all the taxonomic distances are NA then return an NA
+  if( all(is.na(x$tax_distance)) ) {
+    
+    return(x[sample(1:nrow(x), 1), c("targ_no") ])
+    
+  } else {
+    
+    # remove NAs from tax_distance
+    y <- x[!is.na(x$tax_distance), ]
+    
+    # select the minimum taxonomic distance
+    z <- y[ dplyr::near(y$tax_distance, min(y$tax_distance, na.rm = TRUE)), ]
+    
+    # calculate habitat match score
+    u <- apply(z[,c("realm_match", "maj_hab_match", "ecoregion_match")], 1, sum)
+    
+    # subset the entries with the highest habitat match score
+    if (all(!is.na(u))) {
+      
+      z <- z[u == max(u), ]
+      
+    }
+    
+    # if there are still multiple equations, choose randomly
+    z <- z[sample(1:nrow(z), 1), ] 
+    
+    return(z)
+    
+  }
+  
+  })
 
-# filter progressively based on habitat
-tax.dist.df[["realm_match"]] <- (fw_sel[["realm"]] == y1[1,][["realm"]])
-tax.dist.df[["maj_hab_match"]] <- (fw_sel[["major_habitat_type"]] == y1[1,][["major_habitat_type"]])
-tax.dist.df[["ecoregion_match"]] <- (fw_sel[["ecoregion"]] == y1[1,][["ecoregion"]])
 
-# add them up
-hab.sim <- tax.dist.df[["realm_match"]] + tax.dist.df[["maj_hab_match"]] + tax.dist.df[["ecoregion_match"]]
-
-# select the best matching habitat types
-tax.dist.df <- tax.dist.df[hab.sim == max(hab.sim), ]
-View(tax.dist.df)
+dplyr::bind_rows(res)
 
 
 
