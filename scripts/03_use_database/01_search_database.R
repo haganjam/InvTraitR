@@ -13,16 +13,6 @@ library(taxadb)
 
 # write functions for:
 
-# 1. cleaning the input data target taxa robustly using the bdc package
-
-# - data.frame scale
-
-# 2. get habitat data for the target taxa
-
-# - data.frame scale
-
-# - add a test for the max and min of the decimal degrees
-
 # 3. calculate taxonomic distance habitat for each target taxa
 
 # - taxa by taxa
@@ -307,10 +297,6 @@ Clean_Taxon_Names <- function(data, target_taxon, database = "gbif") {
   
 }
 
-# test the function
-x <- Clean_Taxon_Names(data = data.test2[-3,], target_taxon = "name", database = "gbif")
-View(x)
-
 
 #'
 #' @title Get_Habitat_Data()
@@ -481,10 +467,74 @@ View(x)
 
 y1 <- Clean_Taxon_Names(data = x, target_taxon = "name", database = "gbif")
 View(y1)
-y2 <- Clean_Taxon_Names(data = x, target_taxon = "name", database = "itis")
-View(y2)
-y3 <- Clean_Taxon_Names(data = x, target_taxon = "name", database = "col")
-View(y3)
+
+# load the freshwater habitat map
+if (!exists("gbif_htm")) {
+  gbif_htm <- readRDS(file = here::here("database/gbif_higher_taxon_matrices.rds"))
+}
+
+# load the freshwater habitat map
+if (!exists("gbif_td")) {
+  gbif_td <- readRDS(file = here::here("database/gbif_taxon_database.rds"))
+}
+
+
+
+
+library(igraph)
+
+# subset the relevant taxon matrices based on the higher taxon rank
+
+# taxon matrix
+htm <- gbif_htm[(names(gbif_htm) == y1[1,][["db_taxon_higher"]])][[1]]
+
+# extract vertices
+v.x <- V(htm)
+
+# extract the taxon database
+td <- gbif_td[gbif_td$db_taxon_higher == y1[1,][["db_taxon_higher"]], ]
+
+targ.name <- y1[1,][["scientificName"]]
+
+tax.dist.df <- 
+  lapply( td[["scientificName"]], function(db.name) {
+  
+  # extract genus for species-level names
+  targ.name2 <- Extract_Genus(targ.name)
+  db.name2 <- Extract_Genus(db.name)
+  
+  tax.dist <- 
+    igraph::distances(htm, 
+                      v.x[which(attr(v.x, "names") == targ.name2)],
+                      v.x[which(attr(v.x, "names") == db.name2)],
+                      mode = c("all"),
+                      algorithm = c("bellman-ford")
+                      )
+  
+  # if length is zero then the distance is zero
+  if(length(tax.dist) == 0) {
+    tax.dist <- 0
+  } else {
+    tax.dist <- tax.dist[[1]]
+  }
+  
+  # extra distance for species level: 0.5
+  sp.l <- sum( ifelse(c(attr(targ.name2, "n"), attr(db.name2, "n")) > 1, 0.5, 0))
+  
+  dist.df <- 
+    dplyr::tibble(targ.scientificName = targ.name,
+                  db.scientificName = db.name,
+                  tax_distance = tax.dist + sp.l
+                  )
+  
+  return(dist.df)
+  
+})
+
+tax.dist.df <- dplyr::bind_rows(tax.dist.df)
+
+
+View(gbif_td)
 
 
 

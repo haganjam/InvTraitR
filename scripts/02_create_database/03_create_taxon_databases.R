@@ -27,7 +27,7 @@ source(here("scripts/02_create_database/01_version_package_warnings.R"))
 source(here("scripts/02_create_database/02_taxon_matrix_function.R"))
 
 # choose the taxonomic database: "gbif", "itis", "col"
-database <- "itis"
+database <- "col"
 
 # create the local database
 td_create(
@@ -47,7 +47,7 @@ tax.dat <-
 tax.dat <- 
   tax.dat %>%
   mutate(row_id = 1:n()) %>%
-  select(row_id, group1, group2, db_taxon, db_taxon_gt_order)
+  select(row_id, database, id, group1, group2, db_taxon, db_taxon_gt_order)
 
 # clean the names for typos etc.
 x <- bdc_clean_names(sci_names = tax.dat$db_taxon, save_outputs = FALSE)
@@ -102,7 +102,7 @@ tax.clean <-
   select(-row_id)
 
 
-# create the gbif taxon matrices
+# create the taxon matrices
 
 # get distinct higher taxa
 d.ht <- 
