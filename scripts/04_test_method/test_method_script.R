@@ -5,54 +5,48 @@ library(here)
 library(dplyr)
 library(readr)
 library(ggplot2)
-source(here("scripts/use_database/01_search_equ_len_database_functions.R"))
+source(here("scripts/03_use_database/01_search_database.R"))
+
+data.test <- data.frame(name = c("Aedes",
+                                 "Daphnia pulex", NA, "Daphnia"),
+                        life_stage = c("larva", "adult", NA, "adult"),
+                        lat = c(57.5, 57.5, 60, NA),
+                        lon = c(119.3, 112.8, -60, NA),
+                        length = c(4, 8, 10, 20)
+                        )
 
 # test the data by getting biomass conversion data for the Inselberg and Korranneberg data
 dat.loc <- "C:/Users/james/Documents/github/predicting_trait_responses/data/biomass_conversions/"
 
 # Korranneberg data
 kor <- read_csv(file = paste(dat.loc, "kor_bio.csv", sep = "") )
-
-# use the method to get biomass data using default length data
-kor$length_dat <- NA
-sort(unique(kor$taxon))
-
 View(kor)
 
-# add life-stage data
-c("")
+# remove the missing data
+kor <- 
+  kor %>%
+  filter(!is.na(life_stage))
+View(kor)
 
-kor.x <- 
-  get_taxa_mass(data.base = "itis",
-                max_tax_dist = 6,
-                data = kor,
-                target.name.col = "taxon",
-                life.stage.col = "life_stage",
-                length.col = "length_dat" )
+# add biomass data
+kor$body_mm <- NA
 
-View(kor.x)
+# add latitude longitude data
+kor$lat <- -28.87
+kor$lon <- 27.21
 
-# write this into a .csv file that can be supplemented
-write_csv(x = kor.x, file = paste(dat.loc, "kor_bio_input.csv", sep = ""))
+kor.output <- 
+  Get_Trait_From_Taxon(input_data = kor, 
+                       target_taxon = "taxon", 
+                       life_stage = "life_stage", 
+                       body_size = "body_mm",
+                       latitude_dd = "lat", 
+                       longitude_dd = "lon",
+                       trait = "equation", 
+                       max_tax_dist = 3,
+                       gen_sp_dist = 0.5
+                       )
 
-# Inselberg data
-ins <- read_csv(file = paste(dat.loc, "aus_ins_bio.csv", sep = "") )
-
-# use the method to get biomass data using default length data
-ins$length_dat <- NA
-sort(unique(ins$taxon))
-
-ins.x <- 
-  get_taxa_mass(data.base = "itis",
-                max_tax_dist = 8,
-                data = ins,
-                target.name.col = "taxon",
-                life.stage.col = "life_stage",
-                length.col = "length_dat" )
-
-View(ins.x$mass_data)
-
-# write this into a .csv file that can be supplemented
-write_csv(x = ins.x$mass_data, file = paste(dat.loc, "ins_aus_input.csv", sep = ""))
+plot(kor.output$biomass_mg, kor.output$weight_mg)
 
 ### END
