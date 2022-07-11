@@ -468,19 +468,22 @@ View(x)
 y1 <- Clean_Taxon_Names(data = x, target_taxon = "name", database = "gbif")
 View(y1)
 
-# load the freshwater habitat map
+# arguments:
+
+max.tax.dist <- 3
+trait <- "equation"
+
+# load the taxon matrices
 if (!exists("gbif_htm")) {
   gbif_htm <- readRDS(file = here::here("database/gbif_higher_taxon_matrices.rds"))
 }
 
-# load the freshwater habitat map
+# load the taxon database
 if (!exists("gbif_td")) {
   gbif_td <- readRDS(file = here::here("database/gbif_taxon_database.rds"))
 }
 
-
-
-
+# load the igraph package so that igraph objects can be manipulated
 library(igraph)
 
 # subset the relevant taxon matrices based on the higher taxon rank
@@ -492,12 +495,14 @@ htm <- gbif_htm[(names(gbif_htm) == y1[1,][["db_taxon_higher"]])][[1]]
 v.x <- V(htm)
 
 # extract the taxon database
-td <- gbif_td[gbif_td$db_taxon_higher == y1[1,][["db_taxon_higher"]], ]
+td <- gbif_td[gbif_td$database == trait,]
+td <- td[td$db_taxon_higher == y1[1,][["db_taxon_higher"]], ]
+View(td)
 
 targ.name <- y1[1,][["scientificName"]]
 
 tax.dist.df <- 
-  lapply( td[["scientificName"]], function(db.name) {
+  mapply( function(db.name, id) {
   
   # extract genus for species-level names
   targ.name2 <- Extract_Genus(targ.name)
@@ -524,17 +529,57 @@ tax.dist.df <-
   dist.df <- 
     dplyr::tibble(targ.scientificName = targ.name,
                   db.scientificName = db.name,
+                  id = id,
                   tax_distance = tax.dist + sp.l
                   )
   
   return(dist.df)
   
-})
+}, td[["scientificName"]], td[["id"]], SIMPLIFY = FALSE)
 
+# bind into a data.frame
 tax.dist.df <- dplyr::bind_rows(tax.dist.df)
 
+# remove the rows where tax_distance is too large
+tax.dist.df <- dplyr::filter(tax.dist.df, tax_distance <= max.tax.dist)
 
-View(gbif_td)
+# load the equation database
+if (!exists("equ")) {
+  equ <- readRDS(file = here::here("database/equation_database.rds"))
+}
+
+equ_sel <- dplyr::filter(equ, equ_id %in% tax.dist.df$id)
+
+equ_sel <- dplyr::filter(equ_sel, db_life_stage == y1[1,][["life_stage"]])
+
+# subset the max_tax_dist
+tax.dist.df <- dplyr::filter(tax.dist.df, id %in% equ_sel[["equ_id"]])
+tax.dist.df[["life_stage_match"]] <- TRUE
+
+# load the habitat database
+if (!exists("fw")) {
+  fw <- readRDS(file = here::here("database/freshwater_ecoregion_data.rds"))
+}
+
+# get the relevant trait
+fw_sel <- dplyr::filter(fw, database == trait)
+
+# get the equations with the correct taxonomic distance and life-stage
+fw_sel <- dplyr::filter(fw_sel, id %in% tax.dist.df[["id"]])
+
+# filter progressively based on habitat
+tax.dist.df[["realm_match"]] <- (fw_sel[["realm"]] == y1[1,][["realm"]])
+tax.dist.df[["maj_hab_match"]] <- (fw_sel[["major_habitat_type"]] == y1[1,][["major_habitat_type"]])
+tax.dist.df[["ecoregion_match"]] <- (fw_sel[["ecoregion"]] == y1[1,][["ecoregion"]])
+
+# add them up
+hab.sim <- tax.dist.df[["realm_match"]] + tax.dist.df[["maj_hab_match"]] + tax.dist.df[["ecoregion_match"]]
+
+# select the best matching habitat types
+tax.dist.df <- tax.dist.df[hab.sim == max(hab.sim), ]
+View(tax.dist.df)
+
+
 
 
 
