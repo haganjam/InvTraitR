@@ -1,13 +1,4 @@
 
-
-## Deal with min-max problems where there are only NAs
-
-## Deal with situation where lat and lon data are not provided at all
-
-## Also, what to do when there are multiple lengths associated with one taxa
-
-# - right now, each name is treated separately which is very inefficient
-
 #'
 #' @title Extract_Genus()
 #' 
@@ -125,68 +116,81 @@ Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
     fw_meta <- readRDS(file = here::here("database/freshwater_ecoregion_metadata.rds"))
   }
   
-  # test if the data input is a data.frame or a tibble
+  # make sure the correct packages are installed
   test_1 <- function(x) {
     
-    ( is.data.frame(x) | dplyr::is.tbl(x) )
+    all( c("dplyr", "sp", "raster") %in% installed.packages()[,1])
     
   }
   
   assertthat::on_failure(test_1) <- function(call, env){
     
-    paste0(deparse(call$x), " is not a data.frame or tibble object")
+    paste0(c("dplyr", "sp", "raster"), " must be installed for this function to work")
     
   }
   
-  assertthat::assert_that(test_1(data))
-  
-  # test if the latitude and longitude columns are present in the data object
-  test_2 <- function(x, y, z) {
+  # test if the data input is a data.frame or a tibble
+  test_2 <- function(x) {
     
-    (assertthat::is.string(y) & assertthat::is.string(z)) & all(c(y, z) %in% names(x))
+    ( is.data.frame(x) | dplyr::is.tbl(x) )
     
   }
   
   assertthat::on_failure(test_2) <- function(call, env){
     
-    paste0(deparse(call$y), " or ", deparse(call$x),  " are not strings and/or are not present in the data object")
+    paste0(deparse(call$x), " is not a data.frame or tibble object")
     
   }
   
-  assertthat::assert_that(test_2(x = data, y = latitude_dd, z = longitude_dd))
+  assertthat::assert_that(test_2(data))
   
-  # test if the data object has more than 0 rows
-  test_3 <- function(x) {
+  # test if the latitude and longitude columns are present in the data object
+  test_3 <- function(x, y, z) {
     
-    (nrow(x) > 0)
+    (assertthat::is.string(y) & assertthat::is.string(z)) & all(c(y, z) %in% names(x))
     
   }
   
   assertthat::on_failure(test_3) <- function(call, env){
     
-    paste0(deparse(call$x),  " object has zero rows and therefore no data")
+    paste0(deparse(call$y), " or ", deparse(call$x),  " are not strings and/or are not present in the data object")
     
   }
   
-  assertthat::assert_that(test_3(x = data))
+  assertthat::assert_that(test_3(x = data, y = latitude_dd, z = longitude_dd))
   
   # test if the data object has more than 0 rows
-  test_4 <- function(x, y) {
+  test_4 <- function(x) {
     
-    ( is.numeric(x) & is.numeric(y) ) | (all(is.na(x)) & all(is.na(x)))
+    (nrow(x) > 0)
     
   }
   
   assertthat::on_failure(test_4) <- function(call, env){
     
+    paste0(deparse(call$x),  " object has zero rows and therefore no data")
+    
+  }
+  
+  assertthat::assert_that(test_4(x = data))
+  
+  # test if the data object has more than 0 rows
+  test_5 <- function(x, y) {
+    
+    ( is.numeric(x) & is.numeric(y) ) | (all(is.na(x)) & all(is.na(x)))
+    
+  }
+  
+  assertthat::on_failure(test_5) <- function(call, env){
+    
     paste0(deparse(call$x), " or ",deparse(call$y), " are not numeric variables")
     
   }
   
-  assertthat::assert_that(test_4(x = data[[latitude_dd]], data[[longitude_dd]]))
+  assertthat::assert_that(test_5(x = data[[latitude_dd]], data[[longitude_dd]]))
   
   # make sure the decimal degree variables are within the ranges of the variables
-  test_5 <- function(x, y) {
+  test_6 <- function(x, y) {
     
     t1 <- (x[!is.na(x)] <= 90 & x[!is.na(x)] >= -90)
     
@@ -196,13 +200,13 @@ Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
     
   }
   
-  assertthat::on_failure(test_5) <- function(call, env){
+  assertthat::on_failure(test_6) <- function(call, env){
     
     paste0(deparse(call$x), " or ",deparse(call$x), " are too big/small to be valid decimal degrees")
     
   }
   
-  assertthat::assert_that(test_5(x = data[[latitude_dd]], data[[longitude_dd]]))
+  assertthat::assert_that(test_6(x = data[[latitude_dd]], data[[longitude_dd]]))
   
   # create a data.frame with latitude and longitude columns
   lat.lon <- data.frame(longitude_dd = as.numeric(data[[longitude_dd]]),
@@ -279,8 +283,23 @@ Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
 
 Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif") {
   
-  # test if the database input is a supported taxonomic backbone
+  # make sure the correct packages are installed
   test_1 <- function(x) {
+    
+    all(c("bdc", "dplyr", "taxadb", "curl") %in% installed.packages()[,1])
+    
+  }
+  
+  assertthat::on_failure(test_1) <- function(call, env){
+    
+    paste0(c("bdc", "dplyr", "taxadb", "curl"), " must be installed for this function to work")
+    
+  }
+  
+  assertthat::assert_that(test_1())
+  
+  # test if the database input is a supported taxonomic backbone
+  test_2 <- function(x) {
     
     assertthat::are_equal(x, "gbif") | 
       assertthat::are_equal(x, "itis") | 
@@ -288,73 +307,73 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
     
   }
   
-  assertthat::on_failure(test_1) <- function(call, env){
+  assertthat::on_failure(test_2) <- function(call, env){
     
     paste0(deparse(call$x), " is not a valid taxonomic backbone, pick: gbif, itis or col")
     
   }
   
-  assertthat::assert_that(test_1(database))
+  assertthat::assert_that(test_2(database))
   
   # test if the data input is a data.frame or a tibble
-  test_2 <- function(x) {
+  test_3 <- function(x) {
     
     ( is.data.frame(x) | dplyr::is.tbl(x) )
     
   }
   
-  assertthat::on_failure(test_2) <- function(call, env){
+  assertthat::on_failure(test_3) <- function(call, env){
     
     paste0(deparse(call$x), " is not a data.frame or tibble object")
     
   }
   
-  assertthat::assert_that(test_2(data))
+  assertthat::assert_that(test_3(data))
   
   # test if the target_taxon in the data object
-  test_3 <- function(x, y) {
+  test_4 <- function(x, y) {
     
     assertthat::is.string(y) & ( y %in% names(x) )
     
   }
   
-  assertthat::on_failure(test_3) <- function(call, env){
+  assertthat::on_failure(test_4) <- function(call, env){
     
     paste0(deparse(call$y), " column is not a column in the supplied data object")
     
   }
   
-  assertthat::assert_that(test_3(x = data, y = target_taxon))
+  assertthat::assert_that(test_4(x = data, y = target_taxon))
   
   # test if the name column has a length of more than zero and that it is a character variable
-  test_4 <- function(x) {
+  test_5 <- function(x) {
     
     is.character(x) & (length(x) > 0 )
     
   }
   
-  assertthat::on_failure(test_4) <- function(call, env){
+  assertthat::on_failure(test_5) <- function(call, env){
     
     paste0(deparse(call$x), " is not a character variable with length greater than zero")
     
   }
   
-  assertthat::assert_that(test_4(data[[target_taxon]]))
+  assertthat::assert_that(test_5(data[[target_taxon]]))
   
   # test if the life-stage column is a character vector without NAs
-  test_5 <- function(x) {
+  test_6 <- function(x) {
     
     (is.character(x) & all(x %in% c(NA, "none", "larva", "pupa", "nymph", "adult", "nauplius", "copepodite", "tadpole")))
     
   }
   
-  assertthat::on_failure(test_5) <- function(call, env){
+  assertthat::on_failure(test_6) <- function(call, env){
     
     paste0(deparse(call$x), " one or more entries do not have appropriate life-stage classes: see documentation")
     
   }
   
-  assertthat::assert_that(test_5(data[[life_stage]]))
+  assertthat::assert_that(test_6(data[[life_stage]]))
   
   # subset a name column from the data object
   name.dat <- data[target_taxon]
@@ -473,20 +492,52 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
 
 Select_Traits <- function(input, max_tax_dist = 3, trait = "equation", gen_sp_dist = 0.5) {
   
-  # make sure the decimal degree variables are within the ranges of the variables
+  # make sure the correct packages are installed
   test_1 <- function(x) {
     
-    "igraph" %in% installed.packages()[,1]
+    all(c("igraph", "dplyr") %in% installed.packages()[,1])
     
   }
   
   assertthat::on_failure(test_1) <- function(call, env){
     
-    paste0(deparse(call$x), " must be installed for this function to work")
+    paste0(c("igraph", "dplyr"), " must be installed for this function to work")
     
   }
   
   assertthat::assert_that(test_1())
+  
+  # make sure the max_tax_dist argument is a number
+  test_2 <- function(x) {
+    
+    assertthat::is.number(x) & (x >= 0)
+    
+  }
+  
+  assertthat::on_failure(test_2) <- function(call, env){
+    
+    paste0(deparse(call$x), " must be a number that is either greater than or equal to zero")
+    
+  }
+  
+  assertthat::assert_that(test_2(max_tax_dist))
+  assertthat::assert_that(test_2(gen_sp_dist))
+  
+  # make sure the max_tax_dist argument is a number
+  test_3 <- function(x) {
+    
+    trait %in% c("equation", paste0("trait", 1:10))
+    
+  }
+  
+  assertthat::on_failure(test_3) <- function(call, env){
+    
+    paste0(deparse(call$x), " is not a valid trait or equation, see documentation")
+    
+  }
+  
+  assertthat::assert_that(test_3(trait))
+  
   
   # load the igraph package so that igraph objects can be manipulated
   library(igraph)
@@ -511,7 +562,9 @@ Select_Traits <- function(input, max_tax_dist = 3, trait = "equation", gen_sp_di
   input.list <- split(input, 1:nrow(input))
   
   # for each entry in the input.list, select appropriate traits
-  output <- 
+ 
+   output <- 
+    
     lapply(input.list, function(data) {
       
       # load the taxon matrices
@@ -644,14 +697,18 @@ Select_Traits <- function(input, max_tax_dist = 3, trait = "equation", gen_sp_di
       hab.sim <- tax.dist.df[["realm_match"]] + tax.dist.df[["maj_hab_match"]] + tax.dist.df[["ecoregion_match"]]
       
       # select the best matching habitat types
-      if(any(!is.na(hab.sim))) {
+      if( any(!is.na(hab.sim)) ) {
         
+        # select the best matching habitat
         tax.dist.df <- tax.dist.df[dplyr::near(hab.sim, max(hab.sim)), ]
+        tax.dist.df[["habitat_flag"]] <- "none"
+        
+      } else {
+        
+        # give a warning if none of the habitats match
+        tax.dist.df[["habitat_flag"]] <- as.character(ifelse(hab.sim == 0, "different realm, major habitat type and ecoregion", "none"))
         
       }
-      
-      # give a warning if none of the habitats match
-      tax.dist.df[["habitat_flag"]] <- as.character(ifelse(hab.sim == 0, "different realm, major habitat type and ecoregion", "none"))
       
       return(tax.dist.df)
       
@@ -694,7 +751,37 @@ Get_Trait_From_Taxon <- function(input_data,
                                  max_tax_dist = 3, gen_sp_dist = 0.5
                                  ) {
   
-  # add tests that are not present in the previous functions
+  # make sure the correct packages are installed
+  test_1 <- function(x) {
+    
+    all(c("dplyr") %in% installed.packages()[,1])
+    
+  }
+  
+  assertthat::on_failure(test_1) <- function(call, env){
+    
+    paste0(c("dplyr"), " must be installed for this function to work")
+    
+  }
+  
+  assertthat::assert_that(test_1())
+  
+  # make sure the max_tax_dist argument is a number
+  test_2 <- function(x, y) {
+    
+    all(x %in% names(y))
+    
+  }
+  
+  assertthat::on_failure(test_2) <- function(call, env){
+    
+    paste0(deparse(call$x), " are not all present in the input_data object")
+    
+  }
+  
+  assertthat::assert_that(test_2( x = c(target_taxon, life_stage, body_size, latitude_dd, longitude_dd),
+                                  y = input_data))
+  
   
   # get unique data points
   unique_data <- dplyr::distinct( dplyr::select(input_data, all_of(c(target_taxon, life_stage, latitude_dd, longitude_dd)) ) )
@@ -706,8 +793,8 @@ Get_Trait_From_Taxon <- function(input_data,
   # make a vector of taxon databases
   tax.vector <- c("gbif", "itis", "col")
   
- trait.dat <- 
-
+  trait.dat <- 
+    
     lapply(tax.vector, function(tax_database) {
       
       # clean the names and place in one of the three taxonomic backbones
@@ -725,7 +812,6 @@ Get_Trait_From_Taxon <- function(input_data,
   
   names(trait.dat) <- tax.vector
   trait.dat <- dplyr::bind_rows(trait.dat,  .id = "tax_database")
-  trait.dat
   
   # how to select traits from the list
   trait.dat <- 
@@ -782,8 +868,8 @@ Get_Trait_From_Taxon <- function(input_data,
   output <- 
     
     dplyr::left_join(dplyr::rename(input_data, 
-                                   latitude_dd = latitude_dd, 
-                                   longitude_dd = longitude_dd), 
+                                   latitude_dd = dplyr::all_of(latitude_dd), 
+                                   longitude_dd = dplyr::all_of(longitude_dd)), 
                      output, 
                      by = c(target_taxon, life_stage, "latitude_dd", "longitude_dd")
                      )
@@ -815,11 +901,12 @@ Get_Trait_From_Taxon <- function(input_data,
         default_bs[i] <- NA
         
         range_min <- (var1 > trait_sel[["body_size_min"]])
-        range_max <- (var1 < trait_sel[["body_size_min"]])
+        range_max <- (var1 < trait_sel[["body_size_max"]])
         
         flags[i] <- ifelse(any(c(range_min, range_max) == FALSE), 
                            "inputted length data is beyond the range used to fit the equation",
                            NA)
+        
         weight_mg[i] <- eval(parse(text = trait_sel[["equation"]]))
         
       }
@@ -842,8 +929,5 @@ Get_Trait_From_Taxon <- function(input_data,
   return(output)
   
 }
-
-
-  
 
 ### END
