@@ -2,8 +2,14 @@
 
 ## Deal with min-max problems where there are only NAs
 
+## Deal with situation where lat and lon data are not provided at all
+
+## Also, what to do when there are multiple lengths associated with one taxa
+
+# - right now, each name is treated separately which is very inefficient
+
 #'
-#' @title extract_genus()
+#' @title Extract_Genus()
 #' 
 #' @description If a binomial taxa is supplied, extract the genus name only
 #' 
@@ -89,7 +95,172 @@ Extract_Genus <- function(binomial) {
 }
 
 #'
-#' @title Get_Taxon_Names()
+#' @title Get_Habitat_Data()
+#' 
+#' @description Get habitat data from Abell et al.'s (2008) freshwater ecoregion map
+#' 
+#' @details This function takes a data.frame with latitude and longitude data and gets
+#' data on biogeographic realm, major habitat type and ecoregion based on Abell et al.'s (2008)
+#' freshwater ecoregion map.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param data - data.frame with a column containing latitude and longitude in decimal degrees
+#' @param latitude_dd - character string with the column name containing the latitude in decimal degrees
+#' @param longitude_dd - character string with the column name containing the longitude in decimal degrees
+#' 
+#' @return data.frame with target taxon names and cleaned names for the chosen taxonomic backbone
+#' 
+
+# function to get habitat data
+Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
+  
+  # load the freshwater habitat map
+  if (!exists("fw_map")) {
+    fw_map <- readRDS(file = here::here("database/freshwater_ecoregion_map.rds"))
+  }
+  
+  # load the freshwater habitat map
+  if (!exists("fw_meta")) {
+    fw_meta <- readRDS(file = here::here("database/freshwater_ecoregion_metadata.rds"))
+  }
+  
+  # test if the data input is a data.frame or a tibble
+  test_1 <- function(x) {
+    
+    ( is.data.frame(x) | dplyr::is.tbl(x) )
+    
+  }
+  
+  assertthat::on_failure(test_1) <- function(call, env){
+    
+    paste0(deparse(call$x), " is not a data.frame or tibble object")
+    
+  }
+  
+  assertthat::assert_that(test_1(data))
+  
+  # test if the latitude and longitude columns are present in the data object
+  test_2 <- function(x, y, z) {
+    
+    (assertthat::is.string(y) & assertthat::is.string(z)) & all(c(y, z) %in% names(x))
+    
+  }
+  
+  assertthat::on_failure(test_2) <- function(call, env){
+    
+    paste0(deparse(call$y), " or ", deparse(call$x),  " are not strings and/or are not present in the data object")
+    
+  }
+  
+  assertthat::assert_that(test_2(x = data, y = latitude_dd, z = longitude_dd))
+  
+  # test if the data object has more than 0 rows
+  test_3 <- function(x) {
+    
+    (nrow(x) > 0)
+    
+  }
+  
+  assertthat::on_failure(test_3) <- function(call, env){
+    
+    paste0(deparse(call$x),  " object has zero rows and therefore no data")
+    
+  }
+  
+  assertthat::assert_that(test_3(x = data))
+  
+  # test if the data object has more than 0 rows
+  test_4 <- function(x, y) {
+    
+    ( is.numeric(x) & is.numeric(y) ) | (all(is.na(x)) & all(is.na(x)))
+    
+  }
+  
+  assertthat::on_failure(test_4) <- function(call, env){
+    
+    paste0(deparse(call$x), " or ",deparse(call$y), " are not numeric variables")
+    
+  }
+  
+  assertthat::assert_that(test_4(x = data[[latitude_dd]], data[[longitude_dd]]))
+  
+  # make sure the decimal degree variables are within the ranges of the variables
+  test_5 <- function(x, y) {
+    
+    t1 <- (x[!is.na(x)] <= 90 & x[!is.na(x)] >= -90)
+    
+    t2 <- (y[!is.na(y)] <= 180 & y[!is.na(y)] >= -180)
+    
+    all( (t1 == TRUE) & (t2 == TRUE) )
+    
+  }
+  
+  assertthat::on_failure(test_5) <- function(call, env){
+    
+    paste0(deparse(call$x), " or ",deparse(call$x), " are too big/small to be valid decimal degrees")
+    
+  }
+  
+  assertthat::assert_that(test_5(x = data[[latitude_dd]], data[[longitude_dd]]))
+  
+  # create a data.frame with latitude and longitude columns
+  lat.lon <- data.frame(longitude_dd = as.numeric(data[[longitude_dd]]),
+                        latitude_dd = as.numeric(data[[latitude_dd]])) 
+  head(lat.lon)
+  
+  # add a row id column
+  lat.lon$row_id <- 1:nrow(lat.lon)
+  
+  # remove the NA values
+  lat.lon2 <- lat.lon[!(is.na(lat.lon$longitude_dd) | is.na(lat.lon$latitude_dd )), ]
+  
+  # if there are no non-NA values then we don't get habitat data
+  if( nrow(lat.lon2) == 0 ) {
+    
+    hab.dat <- dplyr::tibble(habitat_id = NA,
+                             area_km2 = NA,
+                             row_id = 1)
+    
+  } else {
+    
+    # convert this to a spatial points object
+    sp.pts <- sp::SpatialPoints(lat.lon2[, c("longitude_dd", "latitude_dd")], proj4string = raster::crs(fw_map) )
+    
+    # check where pts overlap with freshwater ecoregion
+    hab.dat <- sp::over(sp.pts, fw_map)
+    
+    # add row id to these data
+    hab.dat$row_id <- lat.lon2$row_id
+    names(hab.dat) <- c("habitat_id", "area_km2", "row_id")
+    
+    }
+    
+    # join to the original df to refill in the NAs
+    hab.dat <- dplyr::full_join(lat.lon, hab.dat, by = "row_id")
+    
+    # arrange by row_id
+    hab.dat <- dplyr::arrange(hab.dat, row_id)
+    
+    # remove the row_id column 
+    hab.dat <- dplyr::select(hab.dat, -row_id)
+    
+    # join these data to the metadata
+    hab.dat <- dplyr::left_join(hab.dat, fw_meta, by = "habitat_id")
+    
+    # bind the original data to the habitat data
+    hab.dat <- dplyr::bind_cols(dplyr::select(data, -dplyr::all_of(c(latitude_dd, longitude_dd)) ), 
+                                hab.dat)
+    
+    # convert to a tibble
+    hab.dat <- dplyr::as_tibble(hab.dat)
+    
+    return(hab.dat)
+  
+}
+
+#'
+#' @title Clean_Taxon_Names()
 #' 
 #' @description Get taxonomic distances of target names relative to the taxa databases
 #' 
@@ -214,14 +385,14 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   assertthat::assert_that(test_6(x = name.dat[[target_taxon]], y = name.dat[[clean.col]]))
   
   # give each row an id
-  name.dat$row_id <- 1:nrow(name.dat)
+  name.dat$targ_no <- 1:nrow(name.dat)
   
   # update the database if there is a valid internet connection
   if (curl::has_internet()) {
     
     taxadb::td_create(provider = database,
                       overwrite = FALSE
-                      )
+    )
     
   }
   
@@ -231,7 +402,7 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
                                 db = database,
                                 rank_name = "Animalia",
                                 rank = "kingdom"
-                                )
+    )
   
   # write some code to remove the output file
   unlink("Output", recursive=TRUE)
@@ -248,10 +419,10 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
                                                      ifelse(is.na(order), family, order) ) )                          
   
   # row_id
-  harm.tax$row_id <- 1:nrow(harm.tax)
+  harm.tax$targ_no <- 1:nrow(harm.tax)
   
   # select the relevant columns
-  harm.tax <- harm.tax[,c("row_id", "scientificName", "acceptedNameUsageID", "db_taxon_higher_rank", "db_taxon_higher")]
+  harm.tax <- harm.tax[,c("targ_no", "scientificName", "acceptedNameUsageID", "db_taxon_higher_rank", "db_taxon_higher")]
   
   # remove the names that we were not able to resolve
   harm.tax <- dplyr::filter(harm.tax, !(is.na(scientificName) |is.na(db_taxon_higher_rank) | is.na(db_taxon_higher) ) )
@@ -260,174 +431,24 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   name.dat$db <- database
   
   # join these data to the tax.dat data
-  name.dat <- dplyr::left_join(name.dat, harm.tax, by = c("row_id") )
-  name.dat <- dplyr::select(name.dat, -row_id)
+  name.dat <- dplyr::left_join(name.dat, harm.tax, by = c("targ_no") )
+  
+  # make sure the targ_no column is a character
+  name.dat <- dplyr::mutate(name.dat, targ_no = as.character(targ_no))
   
   # rename the life-stage column to life_stage
   data <- dplyr::rename(data, "life_stage" = dplyr::all_of(life_stage) )
   
   # join the rest of the input data
-  name.dat <- dplyr::full_join(name.dat, data, by = target_taxon)
+  name.dat <- dplyr::full_join(name.dat, data, by = "targ_no")
+  
+  # remove the targ_no column
+  name.dat <- dplyr::select(name.dat, -targ_no)
   
   # convert to a tibble
   name.dat <- dplyr::as_tibble(name.dat)
   
   return(name.dat)
-  
-}
-
-
-#'
-#' @title Get_Habitat_Data()
-#' 
-#' @description Get habitat data from Abell et al.'s (2008) freshwater ecoregion map
-#' 
-#' @details This function takes a data.frame with latitude and longitude data and gets
-#' data on biogeographic realm, major habitat type and ecoregion based on Abell et al.'s (2008)
-#' freshwater ecoregion map.
-#' 
-#' @author James G. Hagan (james_hagan(at)outlook.com)
-#' 
-#' @param data - data.frame with a column containing latitude and longitude in decimal degrees
-#' @param latitude_dd - character string with the column name containing the latitude in decimal degrees
-#' @param longitude_dd - character string with the column name containing the longitude in decimal degrees
-#' 
-#' @return data.frame with target taxon names and cleaned names for the chosen taxonomic backbone
-#' 
-
-# function to get habitat data
-Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
-  
-  # load the freshwater habitat map
-  if (!exists("fw_map")) {
-    fw_map <- readRDS(file = here::here("database/freshwater_ecoregion_map.rds"))
-  }
-  
-  # load the freshwater habitat map
-  if (!exists("fw_meta")) {
-    fw_meta <- readRDS(file = here::here("database/freshwater_ecoregion_metadata.rds"))
-  }
-  
-  # test if the data input is a data.frame or a tibble
-  test_1 <- function(x) {
-    
-    ( is.data.frame(x) | dplyr::is.tbl(x) )
-    
-  }
-  
-  assertthat::on_failure(test_1) <- function(call, env){
-    
-    paste0(deparse(call$x), " is not a data.frame or tibble object")
-    
-  }
-  
-  assertthat::assert_that(test_1(data))
-  
-  # test if the latitude and longitude columns are present in the data object
-  test_2 <- function(x, y, z) {
-    
-    (assertthat::is.string(y) & assertthat::is.string(z)) & all(c(y, z) %in% names(x))
-    
-  }
-  
-  assertthat::on_failure(test_2) <- function(call, env){
-    
-    paste0(deparse(call$y), " or ", deparse(call$x),  " are not strings and/or are not present in the data object")
-    
-  }
-  
-  assertthat::assert_that(test_2(x = data, y = latitude_dd, z = longitude_dd))
-  
-  # test if the data object has more than 0 rows
-  test_3 <- function(x) {
-    
-    (nrow(x) > 0)
-    
-  }
-  
-  assertthat::on_failure(test_3) <- function(call, env){
-    
-    paste0(deparse(call$x),  " object has zero rows and therefore no data")
-    
-  }
-  
-  assertthat::assert_that(test_3(x = data))
-  
-  # test if the data object has more than 0 rows
-  test_4 <- function(x, y) {
-    
-    ( is.numeric(x) & is.numeric(y) )
-    
-  }
-  
-  assertthat::on_failure(test_4) <- function(call, env){
-    
-    paste0(deparse(call$x), " or ",deparse(call$x), " are not numeric variables")
-    
-  }
-  
-  assertthat::assert_that(test_4(x = data[[latitude_dd]], data[[longitude_dd]]))
-  
-  # make sure the decimal degree variables are within the ranges of the variables
-  test_5 <- function(x, y) {
-    
-    t1 <- (x[!is.na(x)] <= 90 & x[!is.na(x)] >= -90)
-    
-    t2 <- (y[!is.na(y)] <= 180 & y[!is.na(y)] >= -180)
-    
-    all( (t1 == TRUE) & (t2 == TRUE) )
-    
-  }
-  
-  assertthat::on_failure(test_5) <- function(call, env){
-    
-    paste0(deparse(call$x), " or ",deparse(call$x), " are too big/small to be valid decimal degrees")
-    
-  }
-  
-  assertthat::assert_that(test_5(x = data[[latitude_dd]], data[[longitude_dd]]))
-  
-  # create a data.frame with latitude and longitude columns
-  lat.lon <- data.frame(longitude_dd = as.numeric(data[[longitude_dd]]),
-                        latitude_dd = as.numeric(data[[latitude_dd]])) 
-  head(lat.lon)
-  
-  # add a row id column
-  lat.lon$row_id <- 1:nrow(lat.lon)
-  
-  # remove the NA values
-  lat.lon2 <- lat.lon[!(is.na(lat.lon$longitude_dd) | is.na(lat.lon$latitude_dd )), ]
-
-  # convert this to a spatial points object
-  sp.pts <- sp::SpatialPoints(lat.lon2[, c("longitude_dd", "latitude_dd")], proj4string = raster::crs(fw_map) )
-  
-  # check where pts overlap with freshwater ecoregion
-  hab.dat <- sp::over(sp.pts, fw_map)
-  
-  # add row id to these data
-  hab.dat$row_id <- lat.lon2$row_id
-  names(hab.dat) <- c("habitat_id", "area_km2", "row_id")
-  
-  # join to the original df to refill in the NAs
-  hab.dat <- dplyr::full_join(lat.lon, hab.dat, by = "row_id")
-  
-  # arrange by row_id
-  hab.dat <- dplyr::arrange(hab.dat, row_id)
-  
-  # remove the row_id column 
-  hab.dat <- dplyr::select(hab.dat, -row_id)
-  
-  # join these data to the metadata
-  hab.dat <- dplyr::left_join(hab.dat, fw_meta, by = "habitat_id")
-  
-  # bind the original data to the habitat data
-  hab.dat <- dplyr::bind_cols(dplyr::select(data, -dplyr::all_of(c(latitude_dd, longitude_dd)) ), 
-                              hab.dat)
-  
-  # convert to a tibble
-  hab.dat <- dplyr::as_tibble(hab.dat)
-  
-  return(hab.dat)
   
 }
 
@@ -600,12 +621,9 @@ Select_Traits <- function(input, max_tax_dist = 3, trait = "equation", gen_sp_di
       
       # from the equations within the relevant maximum taxonomic distance and with the correct life-stage
       # choose the equation with the lowest taxonomic distance
-      tax.dist.df <- tax.dist.df[dplyr::near(tax.dist.df$tax_distance, min(tax.dist.df$tax_distance)), ]
-      
-      # check if the target has habitat data
-      if ( is.na(data[["habitat_id"]]) ) {
+      if(any(!is.na(tax.dist.df$tax_distance)) ) {
         
-        return( tax.dist.df )
+        tax.dist.df <- tax.dist.df[dplyr::near(tax.dist.df$tax_distance, min(tax.dist.df$tax_distance)), ]
         
       }
       
@@ -626,7 +644,11 @@ Select_Traits <- function(input, max_tax_dist = 3, trait = "equation", gen_sp_di
       hab.sim <- tax.dist.df[["realm_match"]] + tax.dist.df[["maj_hab_match"]] + tax.dist.df[["ecoregion_match"]]
       
       # select the best matching habitat types
-      tax.dist.df <- tax.dist.df[dplyr::near(hab.sim, max(hab.sim)), ]
+      if(any(!is.na(hab.sim))) {
+        
+        tax.dist.df <- tax.dist.df[dplyr::near(hab.sim, max(hab.sim)), ]
+        
+      }
       
       # give a warning if none of the habitats match
       tax.dist.df[["habitat_flag"]] <- as.character(ifelse(hab.sim == 0, "different realm, major habitat type and ecoregion", "none"))
@@ -641,11 +663,8 @@ Select_Traits <- function(input, max_tax_dist = 3, trait = "equation", gen_sp_di
   
 }
 
-
-### ADD special names to the mix
-
 #'
-#' @title Get_Taxon_Names()
+#' @title Get_Trait_From_Taxon()
 #' 
 #' @description Get taxonomic distances of target names relative to the taxa databases
 #' 
@@ -668,25 +687,27 @@ Select_Traits <- function(input, max_tax_dist = 3, trait = "equation", gen_sp_di
 #' @return data.frame with outputted trait information
 #' 
 
-Get_Trait_From_Taxon <- function(input_data, 
+Get_Trait_From_Taxon <- function(input_data,
                                  target_taxon, life_stage, body_size,
                                  latitude_dd, longitude_dd,
-                                 trait, 
-                                 max_tax_dist,
-                                 gen_sp_dist) {
-  
+                                 trait = "equation",
+                                 max_tax_dist = 3, gen_sp_dist = 0.5
+                                 ) {
   
   # add tests that are not present in the previous functions
   
+  # get unique data points
+  unique_data <- dplyr::distinct( dplyr::select(input_data, all_of(c(target_taxon, life_stage, latitude_dd, longitude_dd)) ) )
+  
   # get the habitat data
-  hab.dat <- Get_Habitat_Data(data = input_data, latitude_dd = latitude_dd, longitude_dd = longitude_dd)
+  hab.dat <- Get_Habitat_Data(data = unique_data, latitude_dd = latitude_dd, longitude_dd = longitude_dd)
   hab.dat[["targ_no"]] <- as.character(1:nrow(hab.dat))
   
   # make a vector of taxon databases
   tax.vector <- c("gbif", "itis", "col")
   
-  trait.dat <- 
-    
+ trait.dat <- 
+
     lapply(tax.vector, function(tax_database) {
       
       # clean the names and place in one of the three taxonomic backbones
@@ -700,12 +721,11 @@ Get_Trait_From_Taxon <- function(input_data,
                                        trait = trait, 
                                        gen_sp_dist = gen_sp_dist)
       
-      return(selected.traits)
-      
     } )
   
   names(trait.dat) <- tax.vector
   trait.dat <- dplyr::bind_rows(trait.dat,  .id = "tax_database")
+  trait.dat
   
   # how to select traits from the list
   trait.dat <- 
@@ -758,6 +778,16 @@ Get_Trait_From_Taxon <- function(input_data,
   # assign the object to trait_db
   trait_db <- get(paste0(trait, "_db"))
   
+  # add other information to the input data after we have got unique data points
+  output <- 
+    
+    dplyr::left_join(dplyr::rename(input_data, 
+                                   latitude_dd = latitude_dd, 
+                                   longitude_dd = longitude_dd), 
+                     output, 
+                     by = c(target_taxon, life_stage, "latitude_dd", "longitude_dd")
+                     )
+  
   # assign the relevant trait values
   if (trait == "equation") {
     
@@ -802,12 +832,18 @@ Get_Trait_From_Taxon <- function(input_data,
     
   } else {
     
-    dplyr::left_join(output, trait_db[, c(paste0(trait, "_id"), trait)])
+    output <- dplyr::left_join(output, trait_db[, c(paste0(trait, "_id"), trait)])
     
   }
+  
+  # convert the output to a tibble
+  output <- as_tibble(output)
   
   return(output)
   
 }
+
+
+  
 
 ### END
