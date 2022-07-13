@@ -397,7 +397,7 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   
   assertthat::on_failure(test_6) <- function(call, env){
     
-    "Length of clean names do not match length of original names is not a character variable with length greater than zero"
+    "Length of clean names do not match length of original names"
     
   }
   
