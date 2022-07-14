@@ -407,7 +407,6 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   name.dat$targ_no <- 1:nrow(name.dat)
   
   # update the database if there is a valid internet connection
-  database <- "gbif"
   if (curl::has_internet()) {
     
     taxadb::td_create(provider = database,
