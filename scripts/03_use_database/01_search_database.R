@@ -407,6 +407,7 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   name.dat$targ_no <- 1:nrow(name.dat)
   
   # update the database if there is a valid internet connection
+  database <- "gbif"
   if (curl::has_internet()) {
     
     taxadb::td_create(provider = database,
@@ -415,9 +416,20 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
     
   }
   
+  # subset out taxa with special names
+  spec.names <- c("Rotifera", "Tardigrada", "Nematoda", "Platyhelminthes",
+                  "Turbellaria", "Annelida", "Oligochaeta")
+  name.dat.sp <- dplyr::filter(name.dat, (eval(parse(text = clean.col)) %in% spec.names) )
+  
+  # add a data.base column to the name.dat.sp object
+  name.dat.sp[["db"]] <- "special"
+  
+  # remove the special names from the name.dat
+  name.dat <- dplyr::filter(name.dat, !(eval(parse(text = clean.col)) %in% spec.names) )
+  
   # harmonise the names to the gbif database
   harm.tax <- 
-    bdc::bdc_query_names_taxadb(sci_name = name.dat[[target_taxon]],
+    bdc::bdc_query_names_taxadb(sci_name = name.dat[[clean.col]],
                                 db = database,
                                 rank_name = "Animalia",
                                 rank = "kingdom"
@@ -452,6 +464,9 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   # join these data to the tax.dat data
   name.dat <- dplyr::left_join(name.dat, harm.tax, by = c("targ_no") )
   
+  # add the special names back
+  name.dat <- dplyr::bind_rows(name.dat, name.dat.sp)
+  
   # make sure the targ_no column is a character
   name.dat <- dplyr::mutate(name.dat, targ_no = as.character(targ_no))
   
@@ -459,7 +474,7 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   data <- dplyr::rename(data, "life_stage" = dplyr::all_of(life_stage) )
   
   # join the rest of the input data
-  name.dat <- dplyr::full_join(name.dat, data, by = "targ_no")
+  name.dat <- dplyr::full_join(name.dat, data, by = c("taxon", "targ_no") )
   
   # remove the targ_no column
   name.dat <- dplyr::select(name.dat, -targ_no)
@@ -562,103 +577,120 @@ Select_Traits <- function(input, max_tax_dist = 3, trait = "equation", gen_sp_di
   input.list <- split(input, 1:nrow(input))
   
   # for each entry in the input.list, select appropriate traits
- 
-   output <- 
+  
+  output <- 
     
     lapply(input.list, function(data) {
       
-      # load the taxon matrices
-      if (!exists("htm_db")) {
-        htm_db <- readRDS(file = paste0(here::here("database"), "/", data[["db"]], "_higher_taxon_matrices.rds"))
-      }
       
-      # load the taxon database
-      if (!exists("td_db")) {
-        td_db <- readRDS(file = paste0(here::here("database"), "/", data[["db"]], "_taxon_database.rds"))
-      }  
-      
-      # if the input is NA then we return an NA
-      if (any( is.na(c(data[["scientificName"]], data[["db_taxon_higher"]])) ) ) {
+      if (data[["db"]] == "special") {
         
-        return( dplyr::tibble(targ.scientificName = data[["scientificName"]]) )
         
-      }
-      
-      # if the higher taxon is not in the database then return an NA
-      if (all((names(htm_db) == data[["db_taxon_higher"]]) == FALSE)) {
+        trait_spec <- dplyr::filter(trait_db, db_taxon == data[[paste0("clean_", target_taxon)]] )
         
-        return( dplyr::tibble(targ.scientificName = data[["scientificName"]]) )
+        tax.dist.df <- 
+          dplyr::tibble(targ.scientificName = data[[paste0("clean_", target_taxon)]],
+                        db.scientificName = if(nrow(trait_spec) == 0) { NA } else { trait_spec[["db_taxon"]] },
+                        trait_out = trait,
+                        id = if(nrow(trait_spec) == 0) { NA } else { trait_spec[[paste0(trait, "_id")]] },
+                        tax_distance = NA)
         
-      }
-      
-      # taxon matrix
-      htm <- htm_db[(names(htm_db) == data[["db_taxon_higher"]])][[1]]
-      
-      # extract vertices
-      v.x <- V(htm)
-      
-      # extract the taxon database
-      td <- td_db[td_db$database == trait,]
-      td <- td[td$db_taxon_higher == data[["db_taxon_higher"]], ]
-      
-      # extract the target.name
-      targ.name <- data[["scientificName"]]
-      
-      # taxonomic distance
-      
-      tax.dist.df <- 
-        mapply( function(db.name, id) {
+      } else {
+        
+        # load the taxon matrices
+        if (!exists("htm_db")) {
+          htm_db <- readRDS(file = paste0(here::here("database"), "/", data[["db"]], "_higher_taxon_matrices.rds"))
+        }
+        
+        # load the taxon database
+        if (!exists("td_db")) {
+          td_db <- readRDS(file = paste0(here::here("database"), "/", data[["db"]], "_taxon_database.rds"))
+        }  
+        
+        # if the input is NA then we return an NA
+        if (any( is.na(c(data[["scientificName"]], data[["db_taxon_higher"]])) ) ) {
           
-          # extract genus for species-level names
-          targ.name2 <- Extract_Genus(targ.name)
-          db.name2 <- Extract_Genus(db.name)
+          return( dplyr::tibble(targ.scientificName = data[["scientificName"]]) )
           
-          tax.dist <- 
-            igraph::distances(htm, 
-                              v.x[which(attr(v.x, "names") == targ.name2)],
-                              v.x[which(attr(v.x, "names") == db.name2)],
-                              mode = c("all"),
-                              algorithm = c("bellman-ford")
-            )
+        }
+        
+        # if the higher taxon is not in the database then return an NA
+        if (all((names(htm_db) == data[["db_taxon_higher"]]) == FALSE)) {
           
-          # if length is zero then the distance is zero
-          if(length(tax.dist) == 0) {
+          return( dplyr::tibble(targ.scientificName = data[["scientificName"]]) )
+          
+        }
+        
+        # taxon matrix
+        htm <- htm_db[(names(htm_db) == data[["db_taxon_higher"]])][[1]]
+        
+        # extract vertices
+        v.x <- V(htm)
+        
+        # extract the taxon database
+        td <- td_db[td_db$database == trait,]
+        td <- td[td$db_taxon_higher == data[["db_taxon_higher"]], ]
+        
+        # extract the target.name
+        targ.name <- data[["scientificName"]]
+        
+        # taxonomic distance
+        
+        tax.dist.df <- 
+          mapply( function(db.name, id) {
             
-            tax.dist <- 0
+            # extract genus for species-level names
+            targ.name2 <- Extract_Genus(targ.name)
+            db.name2 <- Extract_Genus(db.name)
             
-          } else {
+            tax.dist <- 
+              igraph::distances(htm, 
+                                v.x[which(attr(v.x, "names") == targ.name2)],
+                                v.x[which(attr(v.x, "names") == db.name2)],
+                                mode = c("all"),
+                                algorithm = c("bellman-ford")
+              )
             
-            tax.dist <- tax.dist[[1]]
+            # if length is zero then the distance is zero
+            if(length(tax.dist) == 0) {
+              
+              tax.dist <- 0
+              
+            } else {
+              
+              tax.dist <- tax.dist[[1]]
+              
+            }
             
-          }
-          
-          # extra distance for species level: gen_sp_dist argument
-          sp.l <- sum( ifelse(c(attr(targ.name2, "n"), attr(db.name2, "n")) > 1,  gen_sp_dist, 0))
-          
-          dist.df <- 
-            dplyr::tibble(targ.scientificName = targ.name,
-                          db.scientificName = db.name,
-                          trait_out = trait,
-                          id = id,
-                          tax_distance = tax.dist + sp.l
-            )
-          
-          return(dist.df)
-          
-        }, td[["scientificName"]], td[["id"]], SIMPLIFY = FALSE)
-      
-      # bind into a data.frame
-      tax.dist.df <- dplyr::bind_rows(tax.dist.df)
-      
-      # if the taxonomic distances are too big then we output NA
-      if (min(tax.dist.df[["tax_distance"]]) > max_tax_dist ) {
+            # extra distance for species level: gen_sp_dist argument
+            sp.l <- sum( ifelse(c(attr(targ.name2, "n"), attr(db.name2, "n")) > 1,  gen_sp_dist, 0))
+            
+            dist.df <- 
+              dplyr::tibble(targ.scientificName = targ.name,
+                            db.scientificName = db.name,
+                            trait_out = trait,
+                            id = id,
+                            tax_distance = tax.dist + sp.l
+              )
+            
+            return(dist.df)
+            
+          }, td[["scientificName"]], td[["id"]], SIMPLIFY = FALSE)
         
-        return(dplyr::tibble(targ.scientificName = data[["scientificName"]]))
+        # bind into a data.frame
+        tax.dist.df <- dplyr::bind_rows(tax.dist.df)
+        
+        # if the taxonomic distances are too big then we output NA
+        if (min(tax.dist.df[["tax_distance"]]) > max_tax_dist ) {
+          
+          return(dplyr::tibble(targ.scientificName = data[["scientificName"]]))
+          
+        }
+        
+        # remove the rows where tax_distance is too large
+        tax.dist.df <- dplyr::filter(tax.dist.df, tax_distance <= max_tax_dist)
         
       }
-      
-      # remove the rows where tax_distance is too large
-      tax.dist.df <- dplyr::filter(tax.dist.df, tax_distance <= max_tax_dist)
       
       # life-stage data
       
@@ -712,7 +744,7 @@ Select_Traits <- function(input, max_tax_dist = 3, trait = "equation", gen_sp_di
       
       return(tax.dist.df)
       
-    } )
+    })
   
   output <- dplyr::bind_rows(output, .id = "targ_no")
   
@@ -808,7 +840,9 @@ Get_Trait_From_Taxon <- function(input_data,
                                        trait = trait, 
                                        gen_sp_dist = gen_sp_dist)
       
-    } )
+      return(selected.traits)
+      
+    })
   
   names(trait.dat) <- tax.vector
   trait.dat <- dplyr::bind_rows(trait.dat,  .id = "tax_database")
@@ -850,20 +884,9 @@ Get_Trait_From_Taxon <- function(input_data,
       
     })
   
-  output <- full_join(hab.dat, dplyr::bind_rows(trait.dat), by = "targ_no")
+  output <- dplyr::full_join(hab.dat, dplyr::bind_rows(trait.dat), by = "targ_no")
   output <- dplyr::select(output, -targ_no)
-  
-  # evaluate the trait i.e. get the trait value
-  if (!exists(paste0(trait, "_db"))) {
-    
-    assign( paste0(trait, "_db"),
-            readRDS(file = paste0(here::here("database"), "/", trait, "_database.rds")))
-    
-  }
-  
-  # assign the object to trait_db
-  trait_db <- get(paste0(trait, "_db"))
-  
+ 
   # add other information to the input data after we have got unique data points
   output <- 
     
@@ -872,7 +895,7 @@ Get_Trait_From_Taxon <- function(input_data,
                                    longitude_dd = dplyr::all_of(longitude_dd)), 
                      output, 
                      by = c(target_taxon, life_stage, "latitude_dd", "longitude_dd")
-                     )
+    )
   
   # assign the relevant trait values
   if (trait == "equation") {
@@ -924,7 +947,7 @@ Get_Trait_From_Taxon <- function(input_data,
   }
   
   # convert the output to a tibble
-  output <- as_tibble(output)
+  output <- dplyr::as_tibble(output)
   
   return(output)
   
