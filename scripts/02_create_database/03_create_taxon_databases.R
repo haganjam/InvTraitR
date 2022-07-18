@@ -22,17 +22,17 @@ library(tidyr)
 library(Matrix)
 library(here)
 
+# load the special names function
+source(here("scripts/01_special_names_func.R"))
+
 # check for the correct packages
 source(here("scripts/02_create_database/01_version_package_warnings.R"))
 
 # load the taxonomic distance matrix
 source(here("scripts/02_create_database/02_taxon_matrix_function.R"))
 
-# load the special names function
-source(here("scripts/01_special_names_func.R"))
-
 # choose the taxonomic database: "gbif", "itis", "col"
-database <- "col"
+database <- "gbif"
 
 # create the local database
 td_create(
@@ -40,7 +40,7 @@ td_create(
   overwrite = FALSE)
 
 # load the taxon data
-tax.dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/taxon_database.xlsx")
+tax.dat <- readRDS(file = here("database/taxon_database.rds") )
 head(tax.dat)
 
 # remove the empty columns
