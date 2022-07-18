@@ -1,5 +1,5 @@
 #'
-#' @title GBIF taxonomic hierarchy framework
+#' @title Taxonomic hierarchy framework
 #'
 #' @description The different taxonomic levels and the distances (weights) between them for the GBIF taxonomic backbone
 #'

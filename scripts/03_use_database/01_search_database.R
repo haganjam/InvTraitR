@@ -416,8 +416,8 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   }
   
   # subset out taxa with special names
-  spec.names <- c("Rotifera", "Tardigrada", "Nematoda", "Platyhelminthes",
-                  "Turbellaria", "Annelida", "Oligochaeta")
+  source(here("scripts/01_special_names_func.R"))
+  spec.names <- special_taxon_names()
   name.dat.sp <- dplyr::filter(name.dat, (eval(parse(text = clean.col)) %in% spec.names) )
   
   # add a data.base column to the name.dat.sp object
