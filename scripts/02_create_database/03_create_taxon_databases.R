@@ -7,6 +7,8 @@
 #' names in the taxon database, get the higher classification for each taxon in the
 #' taxon database and generate higher-level taxon matrices for each taxon in the taxon
 #' database. It supports three different taxonomic frameworks: itis, gbif and col.
+#' To create the full database, you need to run the script three times each time
+#' changing the database <- ("col", "gbif", "itis").
 #' 
 #' @author James G. Hagan (james_hagan(at)outlook.com)
 #' 
@@ -25,6 +27,9 @@ source(here("scripts/02_create_database/01_version_package_warnings.R"))
 
 # load the taxonomic distance matrix
 source(here("scripts/02_create_database/02_taxon_matrix_function.R"))
+
+# load the special names function
+source(here("scripts/01_special_names_func.R"))
 
 # choose the taxonomic database: "gbif", "itis", "col"
 database <- "col"
@@ -59,6 +64,13 @@ if ( !any(x$scientificName != x$names_clean) ) {
 
 # replace the names in tax.dat with these cleaned names
 tax.dat$db_taxon <- x$names_clean
+
+# remove the special names
+spec.names <- special_taxon_names()
+
+tax.dat <- 
+  tax.dat %>%
+  filter( !(db_taxon %in% spec.names) )
 
 # harmonise the names to the gbif database
 harm.tax <- 

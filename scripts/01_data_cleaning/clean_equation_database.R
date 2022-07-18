@@ -4,6 +4,10 @@
 # load relevant libraries
 library(bdc)
 library(here)
+library(stringdist)
+
+# load special names function
+source(here("scripts/01_special_names_func.R"))
 
 # load the equation data
 equ.dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/equation_database.xlsx")
@@ -23,6 +27,25 @@ equ.dat$db_taxon <- x$names_clean
 
 # write some code to remove the output file
 unlink("Output", recursive=TRUE)
+
+# fix the special names
+spec.names <- special_taxon_names()
+
+equ.dat[grepl("Oligo", equ.dat$db_taxon), ]
+
+# replace incorrectly spelled special names
+for(i in 1:length(spec.names)) {
+  
+  x <- 
+    sapply(equ.dat$db_taxon, function(y) { 
+      
+      ain(x = spec.names[i], table = y, method = "lv", maxDist = 2) }
+      
+    )
+  
+  equ.dat[x, "db_taxon"] <- spec.names[i]
+  
+  }  
 
 # write this into a .rds file
 saveRDS(equ.dat, file = paste(here("database"), "/", "equation_database.rds", sep = ""))
