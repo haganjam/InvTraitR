@@ -473,7 +473,7 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   data <- dplyr::rename(data, "life_stage" = dplyr::all_of(life_stage) )
   
   # join the rest of the input data
-  name.dat <- dplyr::full_join(name.dat, data, by = c("taxon", "targ_no") )
+  name.dat <- dplyr::full_join(name.dat, data, by = c(target_taxon, "targ_no") )
   
   # remove the targ_no column
   name.dat <- dplyr::select(name.dat, -targ_no)
@@ -497,6 +497,7 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
 #' @author James G. Hagan (james_hagan(at)outlook.com)
 #' 
 #' @param input - input data.frame exported from Get_Habitat_Data() and Clean_Taxon_Names() function
+#' @param target_taxon - character string with the column name containing the taxon names
 #' @param max_tax_dist - maximum taxonomic distance acceptable between the target and the taxa in the database (default = 3)
 #' @param trait - trait to be searched for (default = "equation")
 #' @param gen_sp_dist - taxonomic distance between a genus and a species (default = 0.5)
@@ -504,7 +505,7 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
 #' @return data.frame with target taxon names and cleaned names for the chosen taxonomic backbone
 #' 
 
-Select_Traits <- function(input, max_tax_dist = 3, trait = "equation", gen_sp_dist = 0.5) {
+Select_Traits <- function(input, target_taxon, max_tax_dist = 3, trait = "equation", gen_sp_dist = 0.5) {
   
   # make sure the correct packages are installed
   test_1 <- function(x) {
@@ -741,6 +742,9 @@ Select_Traits <- function(input, max_tax_dist = 3, trait = "equation", gen_sp_di
         
       }
       
+      # make sure the db.scientificName column is a character variable
+      tax.dist.df[["db.scientificName"]] <- as.character(tax.dist.df[["db.scientificName"]])
+      
       return(tax.dist.df)
       
     })
@@ -834,7 +838,8 @@ Get_Trait_From_Taxon <- function(input_data,
                                          life_stage = life_stage, database = tax_database)
       
       # select the traits based on taxonomic distance, life-stage and habitat
-      selected.traits <- Select_Traits(input = cleaned.names, 
+      selected.traits <- Select_Traits(input = cleaned.names,
+                                       target_taxon = target_taxon,
                                        max_tax_dist = max_tax_dist, 
                                        trait = trait, 
                                        gen_sp_dist = gen_sp_dist)
@@ -895,6 +900,17 @@ Get_Trait_From_Taxon <- function(input_data,
                      output, 
                      by = c(target_taxon, life_stage, "latitude_dd", "longitude_dd")
     )
+  
+  # evaluate the trait i.e. get the trait value
+  if (!exists(paste0(trait, "_db"))) {
+    
+    assign( paste0(trait, "_db"),
+            readRDS(file = paste0(here::here("database"), "/", trait, "_database.rds")))
+    
+  }
+  
+  # assign the object to trait_db
+  trait_db <- get(paste0(trait, "_db"))
   
   # assign the relevant trait values
   if (trait == "equation") {

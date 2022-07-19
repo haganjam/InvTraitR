@@ -10,8 +10,9 @@ library(here)
 
 # load the relevant data
 z.dat <- 
-  read_csv2(file = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database/papers_to_get_test_data_from/Hebert_2016a/zooplankton_traits.csv")
+  read_csv2(file = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/input_data/papers_to_get_test_data_from/Hebert_2016a/zooplankton_traits.csv")
 str(z.dat)
+View(z.dat)
 
 # subset the freshwater species
 z.dat <- 
