@@ -32,7 +32,7 @@ source(here("scripts/02_create_database/01_version_package_warnings.R"))
 source(here("scripts/02_create_database/02_taxon_matrix_function.R"))
 
 # choose the taxonomic database: "gbif", "itis", "col"
-database <- "gbif"
+database <- "itis"
 
 # create the local database
 td_create(
@@ -47,6 +47,13 @@ head(tax.dat)
 tax.dat <-
   tax.dat %>%
   select(-db_order_source, -db_taxon_higher, -db_taxon_higher_rank)
+
+# remove the special names
+spec.names <- special_taxon_names()
+
+tax.dat <- 
+  tax.dat %>%
+  filter( !(db_taxon %in% spec.names) )
 
 # add a row_id column
 tax.dat <- 
@@ -64,13 +71,6 @@ if ( !any(x$scientificName != x$names_clean) ) {
 
 # replace the names in tax.dat with these cleaned names
 tax.dat$db_taxon <- x$names_clean
-
-# remove the special names
-spec.names <- special_taxon_names()
-
-tax.dat <- 
-  tax.dat %>%
-  filter( !(db_taxon %in% spec.names) )
 
 # harmonise the names to the gbif database
 harm.tax <- 

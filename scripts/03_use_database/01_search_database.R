@@ -416,7 +416,7 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   }
   
   # subset out taxa with special names
-  source(here("scripts/01_special_names_func.R"))
+  source(here::here("scripts/01_special_names_func.R"))
   spec.names <- special_taxon_names()
   name.dat.sp <- dplyr::filter(name.dat, (eval(parse(text = clean.col)) %in% spec.names) )
   
@@ -505,7 +505,10 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
 #' @return data.frame with target taxon names and cleaned names for the chosen taxonomic backbone
 #' 
 
-Select_Traits <- function(input, target_taxon, max_tax_dist = 3, trait = "equation", gen_sp_dist = 0.5) {
+Select_Traits <- function(input, target_taxon, 
+                          max_tax_dist = 3, trait = "equation", 
+                          workflow = "workflow2", 
+                          gen_sp_dist = 0.5) {
   
   # make sure the correct packages are installed
   test_1 <- function(x) {
@@ -585,7 +588,6 @@ Select_Traits <- function(input, target_taxon, max_tax_dist = 3, trait = "equati
       
       if (data[["db"]] == "special") {
         
-        
         trait_spec <- dplyr::filter(trait_db, db_taxon == data[[paste0("clean_", target_taxon)]] )
         
         tax.dist.df <- 
@@ -610,14 +612,14 @@ Select_Traits <- function(input, target_taxon, max_tax_dist = 3, trait = "equati
         # if the input is NA then we return an NA
         if (any( is.na(c(data[["scientificName"]], data[["db_taxon_higher"]])) ) ) {
           
-          return( dplyr::tibble(targ.scientificName = data[["scientificName"]]) )
+          return( dplyr::tibble(targ.scientificName = data[[paste0("clean_", target_taxon)]]) )
           
         }
         
         # if the higher taxon is not in the database then return an NA
         if (all((names(htm_db) == data[["db_taxon_higher"]]) == FALSE)) {
           
-          return( dplyr::tibble(targ.scientificName = data[["scientificName"]]) )
+          return( dplyr::tibble(targ.scientificName = data[[paste0("clean_", target_taxon)]]) )
           
         }
         
@@ -692,6 +694,13 @@ Select_Traits <- function(input, target_taxon, max_tax_dist = 3, trait = "equati
         
       }
       
+      # if workflow1, then output all equations within the correct taxonomic distance
+      if (workflow == "workflow1") {
+        
+        return(tax.dist.df)
+        
+      }
+      
       # life-stage data
       
       # subset the equations that have the correct taxonomic distance
@@ -749,9 +758,19 @@ Select_Traits <- function(input, target_taxon, max_tax_dist = 3, trait = "equati
       
     })
   
-  output <- dplyr::bind_rows(output, .id = "targ_no")
-  
-  return(output)
+    output <- dplyr::bind_rows(output, .id = "targ_no")
+    
+    # if workflow1, then output all equations within the correct taxonomic distance
+    if (workflow == "workflow1") {
+      
+      x <- dplyr::rename(cleaned.names, targ.scientificName = paste0("clean_", target_taxon) )
+      y <- dplyr::full_join(x, output, by = "targ.scientificName")
+      names(y)[names(y) == "id"] <- paste0(trait, "_id")
+      output <- dplyr::left_join(y, trait_db, by = paste0(trait, "_id"))
+      
+    }
+    
+    return(output)
   
 }
 
@@ -850,6 +869,12 @@ Get_Trait_From_Taxon <- function(input_data,
   
   names(trait.dat) <- tax.vector
   trait.dat <- dplyr::bind_rows(trait.dat,  .id = "tax_database")
+  
+  if (workflow == "workflow1") {
+    
+    return(trait.dat)
+    
+  }
   
   # how to select traits from the list
   trait.dat <- 
