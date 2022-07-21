@@ -84,7 +84,7 @@ equ.null <-
 equ.null.m <- do.call("rbind", equ.null)
 
 # calculate percentile intervals
-equ.null.m <- apply(equ.null.m, 2, function(x) quantile(x = x, c(0.10, 0.90)) )
+equ.null.m <- apply(equ.null.m, 2, function(x) quantile(x = x, c(0.05, 0.95)) )
 
 # add the percentile intervals to the test data
 test1.output$lower_PI <- apply(equ.null.m, 2, function(x) x[1] )
@@ -93,7 +93,7 @@ test1.output$upper_PI <- apply(equ.null.m, 2, function(x) x[2] )
 # check the data
 View(test1.output)
 
-library(ggplot2)
+# plot dry weight inferred versus actual dry weight
 ggplot() +
   geom_ribbon(data = test1.output,
               mapping = aes(x = log(Dry_weight_mg),
@@ -137,7 +137,7 @@ ggplot(data = error_hist,
   geom_density(alpha = 0.6) +
   scale_colour_manual(values = c("#0c1787", "#fadb25")) +
   scale_fill_manual(values = c("#0c1787", "#fadb25")) +
-  xlab("Absolute error (%, log-scale)") +
+  xlab("Absolute error (%, log10-scale)") +
   ylab("Density") +
   geom_vline(xintercept = mean( log10( test1.output$error_perc) ), 
              linetype = "dashed", size = 0.5,
@@ -187,6 +187,9 @@ test2 <- read_csv("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpool
 test2$lat <- NA
 test2$lon <- NA
 
+# view the data
+View(test2)
+
 # test the method
 test2.output <- 
   Get_Trait_From_Taxon(input_data = test2, 
@@ -197,7 +200,7 @@ test2.output <-
                        longitude_dd = "lon",
                        trait = "equation", 
                        workflow = "workflow2",
-                       max_tax_dist = 3.5,
+                       max_tax_dist = 4,
                        gen_sp_dist = 0.5
   )
 
@@ -205,13 +208,22 @@ test2.output <-
 test2.output <- 
   test2.output %>%
   filter(!is.na(weight_mg) )
+names(test2.output)
+
+test2.output %>%
+  select(Focal_taxon, Life_stage, length_mm, targ.scientificName, db.scientificName, 
+         tax_distance, id,
+         Biomass_mg, weight_mg, life_stage_match) %>%
+  mutate(weight_mg = round(weight_mg, 3),
+         error_perc = (abs(Biomass_mg - weight_mg)/Biomass_mg)*100) %>%
+  View()
 
 # check how many unique taxa there are
 length(unique(test2.output$Focal_taxon))
 
 library(ggplot2)
 ggplot(data = test2.output,
-       mapping = aes(x = log(Biomass_mg), y = log(weight_mg)) ) +
+       mapping = aes(x = log10(Biomass_mg), y = log10(weight_mg)) ) +
   geom_point() +
   ylab("log estimated weight (mg)") +
   xlab("log expert weight (mg)") +

@@ -420,9 +420,6 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   spec.names <- special_taxon_names()
   name.dat.sp <- dplyr::filter(name.dat, (eval(parse(text = clean.col)) %in% spec.names) )
   
-  # add a data.base column to the name.dat.sp object
-  name.dat.sp[["db"]] <- "special"
-  
   # remove the special names from the name.dat
   name.dat <- dplyr::filter(name.dat, !(eval(parse(text = clean.col)) %in% spec.names) )
   
@@ -463,8 +460,16 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   # join these data to the tax.dat data
   name.dat <- dplyr::left_join(name.dat, harm.tax, by = c("targ_no") )
   
-  # add the special names back
-  name.dat <- dplyr::bind_rows(name.dat, name.dat.sp)
+  # if there are special names then add them back
+  if (nrow(name.dat.sp) > 0) {
+    
+    # add a data.base column to the name.dat.sp object
+    name.dat.sp[["db"]] <- "special"
+    
+    # add the special names back
+    name.dat <- dplyr::bind_rows(name.dat, name.dat.sp)
+    
+  }
   
   # make sure the targ_no column is a character
   name.dat <- dplyr::mutate(name.dat, targ_no = as.character(targ_no))
