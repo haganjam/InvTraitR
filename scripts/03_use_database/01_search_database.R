@@ -375,6 +375,9 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   
   assertthat::assert_that(test_6(data[[life_stage]]))
   
+  # add a targ_no column to the data input
+  data[["targ_no"]] <- as.character(1:nrow(data))
+  
   # subset a name column from the data object
   name.dat <- data[target_taxon]
   
@@ -446,7 +449,7 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
                                                      ifelse(is.na(order), family, order) ) )                          
   
   # row_id
-  harm.tax$targ_no <- 1:nrow(harm.tax)
+  harm.tax$targ_no <- name.dat$targ_no
   
   # select the relevant columns
   harm.tax <- harm.tax[,c("targ_no", "scientificName", "acceptedNameUsageID", "db_taxon_higher_rank", "db_taxon_higher")]
@@ -562,6 +565,8 @@ Select_Traits <- function(input, target_taxon,
   
   assertthat::assert_that(test_3(trait))
   
+  # add an identifier for the individual inputs
+  input[["targ_no"]] <- as.character(1:nrow(input))
   
   # load the igraph package so that igraph objects can be manipulated
   library(igraph)
@@ -618,14 +623,14 @@ Select_Traits <- function(input, target_taxon,
         # if the input is NA then we return an NA
         if (any( is.na(c(data[["scientificName"]], data[["db_taxon_higher"]])) ) ) {
           
-          return( dplyr::tibble(targ.scientificName = data[[paste0("clean_", target_taxon)]]) )
+          return( dplyr::tibble(targ.scientificName = data[["scientificName"]]) )
           
         }
         
         # if the higher taxon is not in the database then return an NA
         if (all((names(htm_db) == data[["db_taxon_higher"]]) == FALSE)) {
           
-          return( dplyr::tibble(targ.scientificName = data[[paste0("clean_", target_taxon)]]) )
+          return( dplyr::tibble(targ.scientificName = data[["scientificName"]]) )
           
         }
         
@@ -766,17 +771,33 @@ Select_Traits <- function(input, target_taxon,
   
     output <- dplyr::bind_rows(output, .id = "targ_no")
     
+    # join the input data
+    in_out_join <- dplyr::full_join(input, output, by = "targ_no")
+    
+    # reorder the columns
+    in_out_join <- 
+      in_out_join %>%
+      dplyr::select(targ_no, dplyr::all_of(names(in_out_join)[names(in_out_join) != "targ_no"] ))
+    
     # if workflow1, then output all equations within the correct taxonomic distance
     if (workflow == "workflow1") {
       
-      x <- dplyr::rename(cleaned.names, targ.scientificName = paste0("clean_", target_taxon) )
-      y <- dplyr::full_join(x, output, by = "targ.scientificName")
-      names(y)[names(y) == "id"] <- paste0(trait, "_id")
-      output <- dplyr::left_join(y, trait_db, by = paste0(trait, "_id"))
+      names(in_out_join)[names(in_out_join) == "id"] <- paste0(trait, "_id")
+      
+      # join the equations
+      in_out_join <- dplyr::left_join(in_out_join, trait_db, by = paste0(trait, "_id"))
+      
+      return(in_out_join)
+      
+    } else if (workflow == "workflow2") {
+      
+      return(in_out_join)
+      
+    } else {
+      
+      stop("Choose an appropriate workflow: workflow1 or workflow2")
       
     }
-    
-    return(output)
   
 }
 
@@ -922,17 +943,62 @@ Get_Trait_From_Taxon <- function(input_data,
       
     })
   
-  output <- dplyr::full_join(hab.dat, dplyr::bind_rows(trait.dat), by = "targ_no")
-  output <- dplyr::select(output, -targ_no)
- 
+  # how to select traits from the list
+  trait.dat <- 
+    
+    lapply(split(trait.dat, trait.dat$targ_no), function(x){
+      
+      # if all the taxonomic distances are NA then return an NA
+      if( all(is.na(x$tax_distance)) ) {
+        
+        return(x[sample(1:nrow(x), 1), c("targ_no", target_taxon, paste0("clean_", target_taxon)) ])
+        
+      } else {
+        
+        # remove NAs from tax_distance
+        y <- x[!is.na(x$tax_distance), ]
+        
+        # select the minimum taxonomic distance
+        z <- y[ dplyr::near(y$tax_distance, min(y$tax_distance, na.rm = TRUE)), ]
+        
+        # calculate habitat match score
+        u <- apply(z[,c("realm_match", "maj_hab_match", "ecoregion_match")], 1, sum)
+        
+        # subset the entries with the highest habitat match score
+        if (all(!is.na(u))) {
+          
+          z <- z[u == max(u), ]
+          
+        }
+        
+        # if there are still multiple equations, choose randomly
+        z <- z[sample(1:nrow(z), 1), ] 
+        
+        return(z)
+        
+      }
+      
+    })
+  
+  # bind rows of the trait data
+  trait.dat <- dplyr::bind_rows(trait.dat)
+  
   # add other information to the input data after we have got unique data points
   output <- 
     
     dplyr::left_join(dplyr::rename(input_data, 
+                                   life_stage = dplyr::all_of(life_stage),
                                    latitude_dd = dplyr::all_of(latitude_dd), 
                                    longitude_dd = dplyr::all_of(longitude_dd)), 
-                     output, 
-                     by = c(target_taxon, life_stage, "latitude_dd", "longitude_dd")
+                     dplyr::select(trait.dat,
+                                   dplyr::all_of(target_taxon), 
+                                   "life_stage", "latitude_dd", "longitude_dd",
+                                   "tax_database", "scientificName", "acceptedNameUsageID", 
+                                   "db_taxon_higher_rank", "db_taxon_higher", 
+                                   area_km2, realm, major_habitat_type, ecoregion, 
+                                   db.scientificName, tax_distance, life_stage_match, 
+                                   realm_match, maj_hab_match, ecoregion_match, habitat_flag) , 
+                     by = c(target_taxon, "life_stage", "latitude_dd", "longitude_dd")
     )
   
   # evaluate the trait i.e. get the trait value
@@ -946,8 +1012,6 @@ Get_Trait_From_Taxon <- function(input_data,
   # assign the object to trait_db
   trait_db <- get(paste0(trait, "_db"))
   
-  # assign the relevant trait values
-  if (trait == "equation") {
     
     weight_mg <- vector(length = nrow(output))
     default_bs <- vector(length = nrow(output))
@@ -988,12 +1052,6 @@ Get_Trait_From_Taxon <- function(input_data,
     output[["default_body_size"]] <- default_bs
     output[["weight_mg"]] <- weight_mg
     output[["flags"]] <- flags
-    
-  } else {
-    
-    output <- dplyr::left_join(output, trait_db[, c(paste0(trait, "_id"), trait)])
-    
-  }
   
   # convert the output to a tibble
   output <- dplyr::as_tibble(output)
