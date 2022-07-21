@@ -46,6 +46,7 @@ View(test1.output)
 test1.output <- 
   test1.output %>%
   filter(!is.na(weight_mg) )
+View(test1.output)
 
 # variable for whether equation is outside the range developed for
 test1.output <- 
@@ -132,24 +133,32 @@ error_hist <- bind_rows(tibble(Method = "FreshInvTraitR",
                         tibble(Method = "Random",
                                error_perc = equ.null.error))
 
-ggplot(data = error_hist,
-       mapping = aes(x = log10( error_perc ), colour = Method, fill = Method)) +
+# get the 90 % quantiles of the error for both
+error_hist %>%
+  group_by(Method) %>%
+  mutate(low_PI = quantile(error_perc, 0.05),
+         upper_PI = quantile(error_perc, 0.95)) %>%
+  filter(error_perc > low_PI, error_perc < upper_PI) %>%
+  
+  ggplot(data = .,
+       mapping = aes(x = log( error_perc ), colour = Method, fill = Method)) +
   geom_density(alpha = 0.6) +
   scale_colour_manual(values = c("#0c1787", "#fadb25")) +
   scale_fill_manual(values = c("#0c1787", "#fadb25")) +
   xlab("Absolute error (%, log10-scale)") +
   ylab("Density") +
-  geom_vline(xintercept = mean( log10( test1.output$error_perc) ), 
+  geom_vline(xintercept = mean( log( test1.output$error_perc) ), 
              linetype = "dashed", size = 0.5,
              colour = "#0c1787") +
-  geom_vline(xintercept = mean(log10(equ.null.error) ), 
+  geom_vline(xintercept = mean(log(equ.null.error) ), 
              linetype = "dashed", size = 0.5,
              colour = "#fadb25") +
   theme_meta()
 
-# what is this like on an absolute scale? Four-fold difference in average error
-10^mean( log10( test1.output$error_perc) )
-10^mean(log10(equ.null.error) )
+# what is this like on an absolute scale? Ten-fold difference in average error
+mean(test1.output$error_perc)
+mean(equ.null.error)
+
 
 # plot how the error changes with taxonomic distance
 test1.eplot <- 
@@ -200,7 +209,7 @@ test2.output <-
                        longitude_dd = "lon",
                        trait = "equation", 
                        workflow = "workflow2",
-                       max_tax_dist = 4,
+                       max_tax_dist = 3,
                        gen_sp_dist = 0.5
   )
 
@@ -211,7 +220,7 @@ test2.output <-
 names(test2.output)
 
 test2.output %>%
-  select(Focal_taxon, Life_stage, length_mm, targ.scientificName, db.scientificName, 
+  select(Focal_taxon, life_stage, length_mm, scientificName, db.scientificName, 
          tax_distance, id,
          Biomass_mg, weight_mg, life_stage_match) %>%
   mutate(weight_mg = round(weight_mg, 3),

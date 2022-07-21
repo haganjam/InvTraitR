@@ -871,7 +871,6 @@ Get_Trait_From_Taxon <- function(input_data,
   
   # get the habitat data
   hab.dat <- Get_Habitat_Data(data = unique_data, latitude_dd = latitude_dd, longitude_dd = longitude_dd)
-  hab.dat[["targ_no"]] <- as.character(1:nrow(hab.dat))
   
   # make a vector of taxon databases
   tax.vector <- c("gbif", "itis", "col")
@@ -905,43 +904,6 @@ Get_Trait_From_Taxon <- function(input_data,
     return(trait.dat)
     
   }
-  
-  # how to select traits from the list
-  trait.dat <- 
-    
-    lapply(split(trait.dat, trait.dat$targ_no), function(x){
-      
-      # if all the taxonomic distances are NA then return an NA
-      if( all(is.na(x$tax_distance)) ) {
-        
-        return(x[sample(1:nrow(x), 1), c("targ_no") ])
-        
-      } else {
-        
-        # remove NAs from tax_distance
-        y <- x[!is.na(x$tax_distance), ]
-        
-        # select the minimum taxonomic distance
-        z <- y[ dplyr::near(y$tax_distance, min(y$tax_distance, na.rm = TRUE)), ]
-        
-        # calculate habitat match score
-        u <- apply(z[,c("realm_match", "maj_hab_match", "ecoregion_match")], 1, sum)
-        
-        # subset the entries with the highest habitat match score
-        if (all(!is.na(u))) {
-          
-          z <- z[u == max(u), ]
-          
-        }
-        
-        # if there are still multiple equations, choose randomly
-        z <- z[sample(1:nrow(z), 1), ] 
-        
-        return(z)
-        
-      }
-      
-    })
   
   # how to select traits from the list
   trait.dat <- 
@@ -993,9 +955,9 @@ Get_Trait_From_Taxon <- function(input_data,
                      dplyr::select(trait.dat,
                                    dplyr::all_of(target_taxon), 
                                    "life_stage", "latitude_dd", "longitude_dd",
-                                   "tax_database", "scientificName", "acceptedNameUsageID", 
+                                   "db", "scientificName", "acceptedNameUsageID", 
                                    "db_taxon_higher_rank", "db_taxon_higher", 
-                                   area_km2, realm, major_habitat_type, ecoregion, 
+                                   area_km2, realm, major_habitat_type, ecoregion, id,
                                    db.scientificName, tax_distance, life_stage_match, 
                                    realm_match, maj_hab_match, ecoregion_match, habitat_flag) , 
                      by = c(target_taxon, "life_stage", "latitude_dd", "longitude_dd")
