@@ -500,6 +500,7 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
 #' @param target_taxon - character string with the column name containing the taxon names
 #' @param max_tax_dist - maximum taxonomic distance acceptable between the target and the taxa in the database (default = 3)
 #' @param trait - trait to be searched for (default = "equation")
+#' @param workflow - "workflow1" or "workflow2" (default)
 #' @param gen_sp_dist - taxonomic distance between a genus and a species (default = 0.5)
 #' 
 #' @return data.frame with target taxon names and cleaned names for the chosen taxonomic backbone
@@ -792,6 +793,7 @@ Select_Traits <- function(input, target_taxon,
 #' @param latitude_dd - character string with the column name containing the latitude (decimal degrees)
 #' @param longitude_dd - character string with the column name containing the longitude (decimal degrees)
 #' @param trait - name of the trait to search (only "equation" is currently supported)
+#' @param workflow - "workflow1" or "workflow2" (default)
 #' @param max_tax_dist - maximum suitable taxonomic distance
 #' @param gen_sp_dist - taxonomic distance between a genus and a species
 #' 
@@ -802,6 +804,7 @@ Get_Trait_From_Taxon <- function(input_data,
                                  target_taxon, life_stage, body_size,
                                  latitude_dd, longitude_dd,
                                  trait = "equation",
+                                 workflow = "workflow2", 
                                  max_tax_dist = 3, gen_sp_dist = 0.5
                                  ) {
   
@@ -861,6 +864,7 @@ Get_Trait_From_Taxon <- function(input_data,
                                        target_taxon = target_taxon,
                                        max_tax_dist = max_tax_dist, 
                                        trait = trait, 
+                                       workflow = workflow,
                                        gen_sp_dist = gen_sp_dist)
       
       return(selected.traits)
