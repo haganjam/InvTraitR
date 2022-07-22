@@ -3,6 +3,7 @@
 *.txt
 *.xlsx
 *.rds
+*.pdf
 
 # History files
 .Rhistory
