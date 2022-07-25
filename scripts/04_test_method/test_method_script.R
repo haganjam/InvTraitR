@@ -254,6 +254,10 @@ test2.output <-
   )
 
 # remove rows where the weight is not there
+test2.output %>%
+  filter(is.na(weight_mg)) %>%
+  View()
+
 test2.output <- 
   test2.output %>%
   filter(!is.na(weight_mg) )
