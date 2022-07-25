@@ -300,4 +300,59 @@ test2.output %>%
   summarise(mean = mean(error_perc),
             sd = sd(error_perc))
 
+
+# gather data for the biomasses for oikos forum
+
+# load data compiled by Vincent
+test3 <- read_csv("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/oikos_forum_biomass_conversions/aus_ins_bio.csv")
+test3$lat <- NA
+test3$lon <- NA
+
+# view the data
+View(test3)
+
+# subset test3
+equ.req <- which(is.na(test3$biomass_mg), !is.na(test3$length_mm))
+
+test3.sub <- test3[equ.req,]
+View(test3.sub)
+
+# test the method
+test3.output <- 
+  Get_Trait_From_Taxon(input_data = test3.sub, 
+                       target_taxon = "taxon", 
+                       life_stage = "life_stage", 
+                       body_size = "length_mm",
+                       latitude_dd = "lat", 
+                       longitude_dd = "lon",
+                       trait = "equation", 
+                       workflow = "workflow2",
+                       max_tax_dist = 3,
+                       gen_sp_dist = 0.5
+  )
+
+View(test3.output)
+
+test3.output <- 
+  test3.output %>%
+  select(species, taxon, life_stage, length_mm, length_ref, 
+         biomass_mg = weight_mg, biomass_ref = db.scientificName,
+         lat = latitude_dd, lon = longitude_dd)
+
+# bind these data to the previous data.frame
+test3 <- 
+  bind_rows(test3[ !(1:nrow(test3) %in% equ.req), ],
+            test3.output)
+
+View(test3)
+
+# check how many biomass values we are missing
+test3 %>%
+  filter(is.na(biomass_mg)) %>%
+  View()
+
+# write this into a .csv file
+write_csv(x = test3, 
+          "C:/Users/james/Documents/github/predicting_trait_responses/data/biomass_conversions/aus_ins_bio.csv")
+
 ### END
