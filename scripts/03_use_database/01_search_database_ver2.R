@@ -14,7 +14,7 @@
 #' @param latitude_dd - character string with the column name containing the latitude in decimal degrees
 #' @param longitude_dd - character string with the column name containing the longitude in decimal degrees
 #' 
-#' @return data.frame with habitat data from Abell et al.s (2008) ecoregion map for a given set of coordinates
+#' @return tibble of the input data with habitat data from Abell et al.s (2008) ecoregion map attached as additional columns
 #' 
 
 # function to get habitat data
@@ -173,5 +173,310 @@ Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
   return(data)
   
 }
+
+#'
+#' @title Clean_Taxon_Names()
+#' 
+#' @description Get taxonomic distances of target names relative to the taxa databases
+#' 
+#' @details This function takes a data.frame with target_taxa and uses the bdc package
+#' to clean and harmonise the names.
+#' 
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' 
+#' @param data - data.frame with a column containing target taxon names and life-stages
+#' @param target_taxon - character string with the column name containing the taxon names
+#' @param life_stage - character string with the column name containing the life_stages
+#' @param database - taxonomic database to use: gbif, itis, col
+#' 
+#' @return data.frame with target taxon names and cleaned names for the chosen taxonomic backbone
+#' 
+
+Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif") {
+  
+  # set-up a vector of required packages
+  pack_vec <- c("bdc", "dplyr", "taxadb", "curl")
+  
+  # make sure the correct packages are installed
+  test_1 <- function(x) {
+    
+    all(pack_vec %in% installed.packages()[,1])
+    
+  }
+  
+  assertthat::on_failure(test_1) <- function(call, env){
+    
+    paste0(pack_vec, " must be installed for this function to work")
+    
+  }
+  
+  assertthat::assert_that(test_1())
+  
+  # test if the database input is a supported taxonomic backbone
+  test_2 <- function(x) {
+    
+    assertthat::are_equal(x, "gbif") | 
+      assertthat::are_equal(x, "itis") | 
+      assertthat::are_equal(x, "col")
+    
+  }
+  
+  assertthat::on_failure(test_2) <- function(call, env){
+    
+    paste0(deparse(call$x), " is not a valid taxonomic backbone, pick: gbif, itis or col")
+    
+  }
+  
+  assertthat::assert_that(test_2(database))
+  
+  # test if the data input is a data.frame or a tibble
+  test_3 <- function(x) {
+    
+    ( is.data.frame(x) | dplyr::is.tbl(x) )
+    
+  }
+  
+  assertthat::on_failure(test_3) <- function(call, env){
+    
+    paste0(deparse(call$x), " is not a data.frame or tibble object")
+    
+  }
+  
+  assertthat::assert_that(test_3(data))
+  
+  # test if the target_taxon column is in the data object
+  test_4 <- function(x, y) {
+    
+    assertthat::is.string(y) & ( y %in% names(x) )
+    
+  }
+  
+  assertthat::on_failure(test_4) <- function(call, env){
+    
+    paste0(deparse(call$y), " is not a column in the supplied data object")
+    
+  }
+  
+  assertthat::assert_that(test_4(x = data, y = target_taxon))
+  
+  # test if the name column has a length of more than zero and that it is a character variable
+  test_5 <- function(x) {
+    
+    is.character(x) & (length(x) > 0 )
+    
+  }
+  
+  assertthat::on_failure(test_5) <- function(call, env){
+    
+    paste0(deparse(call$x), " is not a character variable with length greater than zero")
+    
+  }
+  
+  assertthat::assert_that(test_5(data[[target_taxon]]))
+  
+  # test if the life-stage column is a character vector without NAs
+  test_6 <- function(x) {
+    
+    (is.character(x) & all(x %in% c(NA, "none", "larva", "pupa", "nymph", "adult", "nauplius", "copepodite", "tadpole")))
+    
+  }
+  
+  assertthat::on_failure(test_6) <- function(call, env){
+    
+    paste0(deparse(call$x), " one or more entries do not have appropriate life-stage classes: see documentation")
+    
+  }
+  
+  assertthat::assert_that(test_6(data[[life_stage]]))
+  
+  # add a targ_no column to the data input
+  data[["row_id"]] <- 1:nrow(data)
+  
+  # clean the names for typos etc. using the bdc_clean_names function
+  clean.names <- bdc::bdc_clean_names(sci_names = data[[target_taxon]], save_outputs = FALSE)
+  
+  # write some code to remove the output file
+  unlink("Output", recursive=TRUE)
+  
+  # add the clean names to the data.frame
+  clean.col <- paste("clean_", target_taxon, sep = "")
+  data[[clean.col]] <- clean.names$names_clean
+  
+  # check that all the non-missing names were cleaned
+  test_7 <- function(x, y) {
+    
+    length(x) == length(y)
+    
+  }
+  
+  assertthat::on_failure(test_7) <- function(call, env){
+    
+    "Length of clean names do not match length of original names"
+    
+  }
+  
+  assertthat::assert_that(test_7(x = data[[target_taxon]], y = data[[clean.col]]))
+  
+  # update the database if there is a valid internet connection
+  if (curl::has_internet()) {
+    
+    taxadb::td_create(provider = database,
+                      overwrite = FALSE
+    )
+    
+  }
+  
+  # add the database to the data
+  data$db <- ifelse(is.na(data[[clean.col]]), NA, database )
+  
+  # subset out taxa with special names
+  source(here::here("scripts/01_special_names_func.R"))
+  spec.names <- special_taxon_names()
+  data.spec <- dplyr::filter(data, (eval(parse(text = clean.col)) %in% spec.names) )
+  
+  # change the database column to special
+  data.spec[["db"]] <- "special"
+  
+  # remove the special names from the data
+  data <- dplyr::filter(data, !(row_id %in% data.spec[["row_id"]]) )
+  
+  # if the are data points that are not special names, then we clean those names
+  if (nrow(data) > 0) {
+    
+    # harmonise the names to the chosen data.base
+    data.harm <- 
+      bdc::bdc_query_names_taxadb(sci_name = data[[clean.col]],
+                                  db = database,
+                                  rank_name = "Animalia",
+                                  rank = "kingdom"
+      )
+    
+    # write some code to remove the output file
+    unlink("Output", recursive=TRUE)
+    
+    # add a row_id to this harm.tax object
+    data.harm$row_id <- data$row_id
+    
+    # higher taxon rank
+    data.harm <- dplyr::mutate(data.harm,
+                              db_taxon_higher_rank = ifelse(is.na(order) & is.na(family), NA, 
+                                                            ifelse(is.na(order) & !is.na(family), "family", "order") ) )
+    # higher taxon name
+    data.harm <- dplyr::mutate(data.harm,
+                              db_taxon_higher = ifelse(is.na(order) & is.na(family), NA, 
+                                                       ifelse(is.na(order), family, order) ) )                          
+    
+    # select the relevant columns
+    data.harm <- data.harm[,c("row_id", "scientificName", "acceptedNameUsageID", "db_taxon_higher_rank", "db_taxon_higher")]
+    
+    # remove the names that we were not able to resolve
+    data.harm <- dplyr::filter(data.harm, !(is.na(scientificName) |is.na(db_taxon_higher_rank) | is.na(db_taxon_higher) ) )
+    
+    # join these data to the tax.dat data
+    data <- dplyr::left_join(data, data.harm, by = c("row_id") )
+    
+    # add the special names back
+    data <- dplyr::bind_rows(data, data.spec)
+    
+  } 
+  
+  # if we only have special names, then we only consider the special names and add additional columns for consistency
+  else {
+    
+    data <- data.spec
+    data[["scientificName"]] <- data[[clean.col]]
+    data[["acceptedNameUsageID"]] <- NA
+    data[["db_taxon_higher_rank"]] <- NA
+    data[["db_taxon_higher"]] <- NA
+    
+  }
+  
+  # rename the life-stage column to life_stage
+  data <- dplyr::rename(data, "life_stage" = dplyr::all_of(life_stage) )
+  
+  # remove the row_id column
+  data <- dplyr::select(data, -row_id)
+  
+  # convert to a tibble
+  data <- dplyr::as_tibble(data)
+  
+  return(data)
+  
+}
+
+
+# Clean_Taxon_Names() tests
+
+# set an error message
+error_string <- "Clean_Taxon_Names() does not properly clean the given taxon names"
+
+# set-up the test data
+df.test1 <- data.frame(taxon_name = c("Gammarus_", 
+                                      "Daphnia", 
+                                      "Triops granitica",
+                                      "Triops",
+                                      "Simocephalus vetulus",
+                                      NA,
+                                      "Turbellaria",
+                                      "Nematoda", 
+                                      "Bae.tidae"),
+                       Life_stage = c("adult", 
+                                      "adult", 
+                                      "adult", 
+                                      "adult",
+                                      "adult",
+                                      NA,
+                                      "none",
+                                      "none", 
+                                      NA))
+
+# set-up the correct result
+clean_taxon_name <- c("Gammarus", "Daphnia", "Triops granitica", "Triops",
+                      "Simocephalus vetulus", NA, NA, "Turbellaria", "Nematoda")
+db <- c("gbif", "gbif", "gbif", "gbif", "gbif", NA, NA , "special", "special")
+acceptedNameUsageID <- c("GBIF:2218440", "GBIF:2234785", NA, "GBIF:2235057",
+                         "GBIF:2234807", NA, NA, NA, NA)
+db_taxon_higher <- c("Amphipoda", "Diplostraca", NA, "Notostraca", 
+                     "Diplostraca", NA, NA, NA, NA)
+
+# test1: Does the Clean_Taxon_names() function obtain the correct information?
+
+# run the fnuction on the test data
+x <- Clean_Taxon_Names(data = df.test1, 
+                       target_taxon = "taxon_name", 
+                       life_stage = "Life_stage", database = "gbif")
+
+# test whether all derived entries are correct i.e. TRUE
+t1 <- x$clean_taxon_name == clean_taxon_name
+t2 <- x$db == db
+t3 <- x$acceptedNameUsageID == acceptedNameUsageID
+t4 <- x$db_taxon_higher == db_taxon_higher
+
+# combine these four tests
+y <- c(t1, t2, t3, t4)
+
+# all should either be true or NA
+assertthat::assert_that(assertthat::see_if(all(y == TRUE | is.na(y))), 
+                        msg = error_string)
+
+# add an identifier column to the df.test1 data
+df.test2 <- dplyr::mutate(df.test1, site = 1:nrow(df.test1))
+
+# run the function
+x <- Get_Habitat_Data(data = df.test2, latitude_dd = "latitude", longitude_dd = "longitude")
+
+# test if the columns are there and whether they are correct
+assertthat::assert_that(assertthat::see_if( all( names(x) == c("latitude", "longitude", "site", "habitat_id", "realm", "major_habitat_type", "ecoregion")) ), 
+                        msg = error_string)
+
+# test if the identifier column is correctly attached
+assertthat::assert_that(assertthat::see_if(all( x[["site"]] == df.test2[["site"]] ) ),
+                        msg = error_string)
+
+
+
+
+
+
 
 
