@@ -335,7 +335,9 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   data.spec <- dplyr::filter(data, (eval(parse(text = clean.col)) %in% spec.names) )
   
   # change the database column to special
-  data.spec[["db"]] <- "special"
+  if (nrow(data.spec) > 0) {
+    data.spec[["db"]] <- "special"
+  }
   
   # remove the special names from the data
   data <- dplyr::filter(data, !(row_id %in% data.spec[["row_id"]]) )
@@ -405,76 +407,26 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
 }
 
 
-# Clean_Taxon_Names() tests
+# generate some test data and run through the two functions
+df.test <- 
+  data.frame(taxon_name = c("Gammarus", "Daphnia", "Triops granitica", "Triops", 
+                          "Simocephalus vetulus", "Turbellaria", "Nematoda"),
+             Life_stage = c("adult", "adult", "adult", "adult",
+                          "adult", "none", "none"),
+             lat = rep(50.55, 7 ),
+             lon = rep(4.98, 7),
+             body_length_mm = rnorm(n = 7, mean = 10, sd = 1))
+head(df.test)
 
-# set an error message
-error_string <- "Clean_Taxon_Names() does not properly clean the given taxon names"
+# run the Clean_Taxon_Names() function
+df.test1 <- Clean_Taxon_Names(data = df.test, 
+                             target_taxon = "taxon_name", life_stage = "Life_stage",
+                             database = "gbif")
+head(df.test1)
 
-# set-up the test data
-df.test1 <- data.frame(taxon_name = c("Gammarus_", 
-                                      "Daphnia", 
-                                      "Triops granitica",
-                                      "Triops",
-                                      "Simocephalus vetulus",
-                                      NA,
-                                      "Turbellaria",
-                                      "Nematoda", 
-                                      "Bae.tidae"),
-                       Life_stage = c("adult", 
-                                      "adult", 
-                                      "adult", 
-                                      "adult",
-                                      "adult",
-                                      NA,
-                                      "none",
-                                      "none", 
-                                      NA))
-
-# set-up the correct result
-clean_taxon_name <- c("Gammarus", "Daphnia", "Triops granitica", "Triops",
-                      "Simocephalus vetulus", NA, NA, "Turbellaria", "Nematoda")
-db <- c("gbif", "gbif", "gbif", "gbif", "gbif", NA, NA , "special", "special")
-acceptedNameUsageID <- c("GBIF:2218440", "GBIF:2234785", NA, "GBIF:2235057",
-                         "GBIF:2234807", NA, NA, NA, NA)
-db_taxon_higher <- c("Amphipoda", "Diplostraca", NA, "Notostraca", 
-                     "Diplostraca", NA, NA, NA, NA)
-
-# test1: Does the Clean_Taxon_names() function obtain the correct information?
-
-# run the fnuction on the test data
-x <- Clean_Taxon_Names(data = df.test1, 
-                       target_taxon = "taxon_name", 
-                       life_stage = "Life_stage", database = "gbif")
-
-# test whether all derived entries are correct i.e. TRUE
-t1 <- x$clean_taxon_name == clean_taxon_name
-t2 <- x$db == db
-t3 <- x$acceptedNameUsageID == acceptedNameUsageID
-t4 <- x$db_taxon_higher == db_taxon_higher
-
-# combine these four tests
-y <- c(t1, t2, t3, t4)
-
-# all should either be true or NA
-assertthat::assert_that(assertthat::see_if(all(y == TRUE | is.na(y))), 
-                        msg = error_string)
-
-# add an identifier column to the df.test1 data
-df.test2 <- dplyr::mutate(df.test1, site = 1:nrow(df.test1))
-
-# run the function
-x <- Get_Habitat_Data(data = df.test2, latitude_dd = "latitude", longitude_dd = "longitude")
-
-# test if the columns are there and whether they are correct
-assertthat::assert_that(assertthat::see_if( all( names(x) == c("latitude", "longitude", "site", "habitat_id", "realm", "major_habitat_type", "ecoregion")) ), 
-                        msg = error_string)
-
-# test if the identifier column is correctly attached
-assertthat::assert_that(assertthat::see_if(all( x[["site"]] == df.test2[["site"]] ) ),
-                        msg = error_string)
-
-
-
+# run the Get_Habitat_Data() function
+df.test2 <- Get_Habitat_Data(data = df.test1, latitude_dd = "lat", longitude_dd = "lon")
+View(df.test2)
 
 
 
