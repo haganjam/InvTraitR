@@ -11,7 +11,7 @@ library(ggpubr)
 
 # load the use-scripts
 source(here("scripts/02_function_plotting_theme.R"))
-source(here("scripts/03_use_database/01_search_database.R"))
+source(here("scripts/03_use_database/01_search_database_ver2.R"))
 
 # check if a figure folder exists
 if(! dir.exists(here("figures"))){
@@ -33,7 +33,7 @@ test1 <- dplyr::filter(test1, !is.na(Life_stage), Life_stage != "NA")
 
 # test the method
 test1.output <- 
-  Get_Trait_From_Taxon(input_data = test1, 
+  Get_Trait_From_Taxon(data = test1, 
                        target_taxon = "Taxa", 
                        life_stage = "Life_stage", 
                        body_size = "Length_mm",
@@ -50,17 +50,11 @@ View(test1.output)
 # remove rows where the weight is not there
 test1.output <- 
   test1.output %>%
-  filter(!is.na(weight_mg) )
+  filter(!is.na(dry_biomass_mg) )
 View(test1.output)
-
-# variable for whether equation is outside the range developed for
-test1.output <- 
-  test1.output %>% 
-  mutate(range_flag = ifelse(is.na(flags), FALSE, TRUE))
 
 # check how many unique taxa are left
 length(unique(test1.output$Taxa))
-
 
 # null model i.e. randomly chosen equations
 
@@ -108,7 +102,7 @@ p1 <-
                             ymax = log10(upper_PI) ),
               alpha = 0.1) +
   geom_point(data = test1.output,
-             mapping = aes(x = log10(Dry_weight_mg), y = log10(weight_mg)),
+             mapping = aes(x = log10(Dry_weight_mg), y = log10(dry_biomass_mg)),
              alpha = 0.2) +
   ylab("Estimated dry biomass (mg, log10)") +
   xlab("Measured dry biomass (mg, log10)") +
@@ -118,7 +112,7 @@ p1 <-
 plot(p1)
 
 # observed correlation
-cor.test(test1.output$Dry_weight_mg, test1.output$weight_mg)
+cor.test(test1.output$Dry_weight_mg, test1.output$dry_biomass_mg)
 
 # null correlations
 null_cor <- sapply(equ.null, function(x) cor(test1.output$Dry_weight_mg, x) )
@@ -127,7 +121,7 @@ quantile(null_cor, c(0.025, 0.975))
 # calculate percentage
 test1.output <- 
   test1.output %>%
-  mutate(error_perc = (abs(Dry_weight_mg - weight_mg)/Dry_weight_mg)*100 )
+  mutate(error_perc = (abs(Dry_weight_mg - dry_biomass_mg)/Dry_weight_mg)*100 )
 
 # calculate the error for each randomisation
 equ.null.error <- 
@@ -223,6 +217,7 @@ p3 <-
                               ymax = mean_error + sd_error),
                 width = 0.1, colour = "black") +
   theme_meta()
+plot(p3)
 
 # export Fig. 5
 ggsave(filename = here("figures/fig_5.pdf"), plot = p3, 

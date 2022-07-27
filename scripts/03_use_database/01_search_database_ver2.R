@@ -795,14 +795,14 @@ Get_Trait_From_Taxon <- function(data,
     form.agg <- reformulate(termlabels = c(target_taxon, life_stage, latitude_dd, longitude_dd), body_size )
     
     # calculate the minimum body size per group
-    x.min <- aggregate(form.agg, data = df.test1, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(min(x, na.rm = TRUE))},
+    x.min <- aggregate(form.agg, data = data, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(min(x, na.rm = TRUE))},
                        na.action = na.pass)
     
     # rename the body_size variable to min_body_size_mm
     names(x.min)[names(x.min) == body_size] <- "min_body_size_mm"
     
     # calculate the maximum body size per group
-    x.max <- aggregate(form.agg, data = df.test1, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(max(x, na.rm = TRUE))},
+    x.max <- aggregate(form.agg, data = data, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(max(x, na.rm = TRUE))},
                        na.action = na.pass)
     
     # rename the body_size variable to max_body_size_mm
@@ -921,7 +921,7 @@ Get_Trait_From_Taxon <- function(data,
           
           trait_db_sel <- trait_db[trait_db[[paste0(trait, "_id")]] == x, ]
           
-          t1 <- (trait_db_sel[["body_size_min"]] > y) & (trait_db_sel[["body_size_max"]] < z)
+          t1 <- (trait_db_sel[["body_size_min"]] >= y) & (trait_db_sel[["body_size_max"]] <= z)
           
           return(t1)
           
@@ -1059,7 +1059,7 @@ Get_Trait_From_Taxon <- function(data,
       input <- input[input[["life_stage_match"]] == TRUE & !is.na(input[["life_stage_match"]]), ]
       
       # get the minimum taxonomic distance as long as the difference is greater than 0.5
-      if (all( !is.na(input[["tax_distance"]]) )) {
+      if ( all( !is.na(input[["tax_distance"]]) ) ) {
         
         input <- input[input[["tax_distance"]] <= ( min(input[["tax_distance"]], na.rm = TRUE) + 0.5 ), ]
         
