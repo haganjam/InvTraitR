@@ -591,11 +591,8 @@ Select_Traits_Tax_Dist <- function(data,
     td_db <- readRDS(file = paste0(here::here("database"), "/", input[["db"]], "_taxon_database.rds"))
   } 
   
-  # add an identifier for the individual inputs
-  data[["row_id"]] <- 1:nrow(data)
-  
   # split the input data.frame into a list
-  data.list <- split(data, data[["row_id"]])
+  data.list <- split(data, 1:nrow(data))
   
   # for each entry in the input.list, select appropriate traits
   output <- 
@@ -712,14 +709,16 @@ Select_Traits_Tax_Dist <- function(data,
 # function to combine the clean taxon names, get habitat data and select traits functions
 # generate some test data and run through the two functions
 df.test1 <- 
-  data.frame(taxon_name = c("Gammarus", "Daphnia", "Triops granitica", "Triops", 
-                            "Simocephalus vetulus", "Turbellaria", "Oligochaeta"),
-             Life_stage = c("adult", "adult", "adult", "adult",
-                            "adult", "none", "none"),
-             lat = rep(50.55, 7 ),
-             lon = rep(4.98, 7),
-             body_size_mm = rnorm(7, 10, 2))
+  data.frame(taxon_name = c("Gammarus", "Gammarus", "Gammarus", "Daphnia", "Triops granitica", "Triops", 
+                            "Simocephalus vetulus", "Simocephalus vetulus", "Turbellaria", "Oligochaeta", "Oligochaeta"),
+             Life_stage = c("adult", "adult", "adult", "adult", "adult", "adult",
+                            "adult", "adult", "none", "none", "none"),
+             lat = rep(50.55, 1),
+             lon = rep(4.98, 1),
+             body_size_mm = rnorm(11, 10, 2))
 
+# add an NA to see how the functions react
+df.test1[9, ]$body_size_mm <- NA
 
 data <- df.test1
 target_taxon <- "taxon_name"
@@ -729,50 +728,69 @@ longitude_dd <- "lon"
 body_size <- "body_size_mm"
 
 
+# get min and max of body size for each unique combination of name, life-stage and latitude-longitude
+
+# get a formula to describe the grouping used for the calculation
+form.agg <- reformulate(termlabels = c(target_taxon, life_stage, latitude_dd, longitude_dd), body_size )
+
+# calculate the minimum body size per group
+x.min <- aggregate(form.agg, data = df.test1, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(min(x, na.rm = TRUE))},
+                   na.action = na.pass)
+
+# rename the body_size variable to min_body_size_mm
+names(x.min)[names(x.min) == body_size] <- "min_body_size_mm"
+
+# calculate the maximum body size per group
+x.max <- aggregate(form.agg, data = df.test1, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(max(x, na.rm = TRUE))},
+                   na.action = na.pass)
+
+# rename the body_size variable to max_body_size_mm
+names(x.max)[names(x.max) == body_size] <- "max_body_size_mm"
+
+# join the max and minimum body_size data together
+data.unique <- dplyr::full_join(x.min, x.max, by = c(target_taxon, life_stage, latitude_dd, longitude_dd))
+
+# add a row_id variable
+data.unique <- dplyr::bind_cols(dplyr::tibble(taxon_id = 1:nrow(data.unique)),
+                                data.unique)
+
+# run the Get_Habitat_Data() function
+x1 <- Get_Habitat_Data(data = data.unique, latitude_dd = latitude_dd, longitude_dd = longitude_dd )
+
+# set-up a vector of taxonomic databases 
 db_vec <- c("gbif", "itis", "col")
 
-x1 <- 
+# clean the taxon names for each of the three taxonomic databases
+y1 <- 
   lapply(db_vec, function(database) {
   
   # run the Clean_Taxon_Names() function
-  cl.tax <- Clean_Taxon_Names(data = df.test1, 
+  cl.tax <- Clean_Taxon_Names(data = x1, 
                               target_taxon = "taxon_name", life_stage = "Life_stage",
                               database = database
                               )
-                          
   
   return(cl.tax)
   
 })
 
-View(x1[[1]])
-View(x1[[2]])
-View(x1[[3]])
+# bind these rows into a single data.frame
+y1 <- dplyr::bind_rows(y1)
 
-dplyr::arrange(dplyr::bind_rows(x1), taxon_name, Life_stage, lat, lon ) %>%
-  View()
+# arrange by taxon_name
+y1 <- dplyr::arrange(y1, taxon_id)
 
-# run the Clean_Taxon_Names() function
-x1 <- Clean_Taxon_Names(data = df.test1, 
-                        target_taxon = "taxon_name", life_stage = "Life_stage",
-                        database = "gbif"
-)
-
-# run the Get_Habitat_Data() function
-y1 <- Get_Habitat_Data(data = x1, latitude_dd = "lat", longitude_dd = "lon")
+# remove any duplicates that can arise from the special name procedure
+y1 <- dplyr::distinct(y1)
 
 # run the Select_Traits_Tax_Dist() function
 z1 <- Select_Traits_Tax_Dist(data = y1, target_taxon = "taxon_name")
 
+# bind the rows together
+z1 <- dplyr::bind_rows(z1)
 
 
-
-
-
-# load the habitat database
-if (!exists("hab_db")) {
-  hab_db <- readRDS(file = here::here("database/freshwater_ecoregion_data.rds"))
-}
+# get equation match data
 
 # load the trait data
 if (!exists(paste0(trait, "_db"))) {
@@ -785,17 +803,167 @@ if (!exists(paste0(trait, "_db"))) {
 # assign the object to trait_db
 trait_db <- get(paste0(trait, "_db"))
 
-input <- z1[[1]]
-View(input)
+# life_stage match
+life_stage_match <- 
+  
+  mapply(function(x, y) {
+    
+    if(!is.na(x)) {
+      
+      return( (trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["db_life_stage"]] == y) )
+      
+    } else {
+      
+      return(NA)
+      
+    }
+    
+  }, z1[["id"]], z1[[life_stage]])
 
-# add database life-stage information
-db_life_stage <- trait_db[trait_db[[paste0(trait, "_id")]] %in% input[["id"]], ][["db_life_stage"]]
+# add life-stage match column
+z1[["life_stage_match"]] <- life_stage_match
 
-input[["life_stage_match"]] <- (input[[life_stage]] == db_life_stage)
-View(input)
+# additional matches that are only relevant for the equation trait
+if (trait == "equation") {
+  
+  # life_stage match
+  r2_match <- 
+    
+    sapply(z1[["id"]], function(x) {
+      
+      if(!is.na(x)) {
+        
+        return( trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["r2"]] )
+        
+      } else {
+        
+        return(NA)
+        
+      }
+      
+    })
+  
+  z1[["r2_match"]] <- r2_match
+  
+  # body size range match
+  body_size_range_match <- 
+    
+    mapply(function(x, y, z) {
+      
+      if(!is.na(x)) {
+        
+        trait_db_sel <- trait_db[trait_db[[paste0(trait, "_id")]] == x, ]
+        
+        t1 <- (trait_db_sel[["body_size_min"]] > y) & (trait_db_sel[["body_size_max"]] < z)
+        
+        return(t1)
+        
+      } else {
+        
+        return(NA)
+        
+      }
+      
+    }, z1[["id"]], z1[["min_body_size_mm"]], z1[["max_body_size_mm"]])
+  
+  z1[["body_size_range_match"]] <- body_size_range_match
+  
+}
 
-dist.df[["db_life_stage"]] <- if(length(db_life_stage) == 0) {NA} else {db_life_stage}
 
-View(z1[[1]])
+# get habitat match data
+
+# load the habitat database
+if (!exists("hab_db")) {
+  hab_db <- readRDS(file = here::here("database/freshwater_ecoregion_data.rds"))
+}
+
+# select the correct trait from the habitat database
+hab_db_sel <- hab_db[hab_db[["database"]] == trait, ]
+
+# realm match
+realm_match <- 
+  
+  mapply(function(x, y) {
+    
+    if(!is.na(x)) {
+      
+      return( (hab_db_sel[hab_db_sel[["id"]] == x, ][["realm"]] == y) )
+      
+    } else {
+      
+      return(NA)
+      
+    }
+    
+  }, z1[["id"]], z1[["realm"]])
+
+# major habitat type match
+mht_match <- 
+  
+  mapply(function(x, y) {
+    
+    if( !is.na(x) ) {
+      
+      # subset the hab_db_sel data to only include the correct id
+      hab_db_sel.sub <- hab_db_sel[hab_db_sel[["id"]] == x, ]
+      
+    } else {
+      
+      return(NA)
+      
+    }
+    
+    # test whether the equation has an ID and if the scale is correct
+    if( !is.na(x) & (hab_db_sel.sub[["accuracy"]] %in% c("approximate", "exact"))  ) {
+      
+      return( (hab_db_sel.sub[["major_habitat_type"]] == y) )
+      
+    } else {
+      
+      return(NA)
+      
+    }
+    
+  }, z1[["id"]], z1[["major_habitat_type"]])
+
+# ecoregion match
+ecoregion_match <- 
+  
+  mapply(function(x, y) {
+    
+    if( !is.na(x) ) {
+      
+      # subset the hab_db_sel data to only include the correct id
+      hab_db_sel.sub <- hab_db_sel[hab_db_sel[["id"]] == x, ]
+      
+    } else {
+      
+      return(NA)
+      
+    }
+    
+    # test whether the equation has an ID and if the scale is correct
+    if( !is.na(x) & (hab_db_sel.sub[["accuracy"]] %in% c("exact"))  ) {
+      
+      return( (hab_db_sel.sub[["ecoregion"]] == y) )
+      
+    } else {
+      
+      return(NA)
+      
+    }
+    
+  }, z1[["id"]], z1[["ecoregion"]])
+
+# add the habitat matches to the data.frame
+z1[["realm_match"]] <- realm_match
+z1[["major_habitat_type_match"]] <- mht_match
+z1[["ecoregion_match"]] <- ecoregion_match
+
+View(z1)
+
+# 
+
 
 
