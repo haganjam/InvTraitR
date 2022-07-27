@@ -5,6 +5,7 @@ set.seed(347854)
 # load the search functions for testing
 source(here::here("scripts/03_use_database/01_search_database_ver2.R"))
 
+
 # Get_Habitat_Data tests
 
 # set an error message
@@ -151,7 +152,7 @@ x <- Clean_Taxon_Names(data = df.test2,
                        life_stage = "Life_stage", database = "gbif")
 
 # test if the columns are there and whether they are correct
-assertthat::assert_that(assertthat::see_if( all( names(x) == c("taxon_name", "life_stage", "site", "sex", "clean_taxon_name", "db", "scientificName", "acceptedNameUsageID", "db_taxon_higher_rank", "db_taxon_higher")) ), 
+assertthat::assert_that(assertthat::see_if( all( names(x) == c("taxon_name", "Life_stage", "site", "sex", "clean_taxon_name", "db", "scientificName", "acceptedNameUsageID", "db_taxon_higher_rank", "db_taxon_higher")) ), 
                         msg = error_string)
 
 # test if the identifier columns are correctly attached
@@ -174,7 +175,7 @@ x <- Clean_Taxon_Names(data = df.test3,
 assertthat::assert_that(assertthat::see_if( all(x$db == "special") ), 
                         msg = error_string)
 
-assertthat::assert_that(assertthat::see_if( all(x$scientificName == c("Turbellaria", "Nematoda")) ), 
+assertthat::assert_that(assertthat::see_if( all(x$clean_taxon_name == c("Turbellaria", "Nematoda")) ), 
                         msg = error_string)
 
 # test4: Does the Clean_Taxon_Names() function work when there are no special names?
@@ -225,7 +226,7 @@ t1 <-
     all(names(input) == c("taxon_name", "Life_stage", "lat", "lon", "clean_taxon_name",
                           "db", "scientificName", "acceptedNameUsageID", "db_taxon_higher_rank",
                           "db_taxon_higher", "habitat_id", "realm", "major_habitat_type", "ecoregion",
-                          "row_id", "db.scientificName", "trait_out", "id", "tax_distance"
+                          "db.scientificName", "trait_out", "id", "tax_distance"
     ))
     
   })
@@ -254,7 +255,7 @@ assertthat::assert_that(assertthat::see_if( all( t3 ) ),
 # test4: test if Select_Traits_Tax_Dist() works correctly with only special names
 
 # get the special names from the df.test1 data.frame
-df.test2 <- df.test[c(6, 7), ]
+df.test2 <- df.test1[c(6, 7), ]
 
 # run the Clean_Taxon_Names() function
 x2 <- Clean_Taxon_Names(data = df.test2, 
@@ -284,7 +285,7 @@ assertthat::assert_that(assertthat::see_if( all( t4 ) ),
 # test5: test if Select_Traits_Tax_Dist() works correctly without any special names
 
 # get the special names from the df.test1 data.frame
-df.test3 <- df.test[-c(6, 7), ]
+df.test3 <- df.test1[-c(6, 7), ]
 
 # run the Clean_Taxon_Names() function
 x3 <- Clean_Taxon_Names(data = df.test3, 
@@ -312,4 +313,33 @@ assertthat::assert_that(assertthat::see_if( all( t4 ) ),
                         msg = error_string)
 
 
+# Get_Trait_From_Taxon() tests
 
+# generate some test data to test the function
+df.test1 <- 
+  data.frame(taxon_name = c("Gammarus", "Gammarus", "Gammarus", "Daphnia", "Triops granitica", "Triops", 
+                            "Simocephalus vetulus", "Simocephalus vetulus", "Turbellaria", "Oligochaeta", "Oligochaeta"),
+             Life_stage = c("adult", "adult", "adult", "adult", "adult", "adult",
+                            "adult", "adult", "none", "none", "none"),
+             lat = c( rep(50.5, 6), rep(47.5, 5) ) ,
+             lon = c( rep(4.98, 6), rep(-105.4, 5) ),
+             body_size_mm = rnorm(11, 10, 2))
+
+# add an NA to see how the functions react
+df.test1[9, ]$body_size_mm <- NA
+
+x <- 
+  Get_Trait_From_Taxon(data = df.test1, 
+                       target_taxon = "taxon_name", 
+                       life_stage = "Life_stage", 
+                       latitude_dd = "lat", 
+                       longitude_dd = "lon", 
+                       body_size = "body_size_mm",
+                       max_tax_dist = 3, 
+                       trait = "equation", 
+                       gen_sp_dist = 0.5
+  )
+
+View(x)
+
+### END

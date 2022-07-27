@@ -552,7 +552,7 @@ Select_Traits_Tax_Dist <- function(data,
   assertthat::assert_that(test_2(max_tax_dist))
   assertthat::assert_that(test_2(gen_sp_dist))
   
-  # make sure the max_tax_dist argument is a number
+  # make sure the trait chosen is supported
   test_3 <- function(x) {
     
     trait %in% c("equation", paste0("trait", 1:10))
@@ -581,16 +581,6 @@ Select_Traits_Tax_Dist <- function(data,
   # assign the object to trait_db
   trait_db <- get(paste0(trait, "_db"))
   
-  # load the taxon matrices
-  if (!exists("htm_db")) {
-    htm_db <- readRDS(file = paste0(here::here("database"), "/", input[["db"]], "_higher_taxon_matrices.rds"))
-  }
-  
-  # load the taxon database
-  if (!exists("td_db")) {
-    td_db <- readRDS(file = paste0(here::here("database"), "/", input[["db"]], "_taxon_database.rds"))
-  } 
-  
   # split the input data.frame into a list
   data.list <- split(data, 1:nrow(data))
   
@@ -598,6 +588,34 @@ Select_Traits_Tax_Dist <- function(data,
   output <- 
     
     lapply(data.list, function(input) {
+      
+      # get the higher-level taxon databases if the input database is one of the taxonomic backbones
+      if (input[["db"]] %in% c("gbif", "itis", "col")) {
+        
+        db_name <- paste0(input[["db"]], "_db")
+        td_name <- paste0(input[["db"]], "_td")
+        
+        if ( !exists(db_name) ) {
+          
+          assign(db_name, readRDS(file = paste0(here::here("database"), "/", input[["db"]], "_higher_taxon_matrices.rds")) ) 
+                 
+        }
+        
+        htm_db <- get(db_name)
+        
+        if ( !exists(td_name) ) {
+          
+          assign(td_name, readRDS(file = paste0(here::here("database"), "/", input[["db"]], "_taxon_database.rds")) ) 
+          
+        }
+        
+        td_db <- get(td_name)
+        
+      } else {
+        
+        htm_db <- NA
+        
+      }
       
       if ( !is.na( input[["scientificName"]] ) & !is.na( input[["db_taxon_higher"]] ) & ( input[["db_taxon_higher"]] %in% names(htm_db) ) ) {
         
@@ -683,9 +701,6 @@ Select_Traits_Tax_Dist <- function(data,
         
       } else {
         
-        message("Input data do not match any of the conditions for selecting appropriate traits/equations")
-        message(paste0("Returning NA for ", input[[paste0("clean_", target_taxon)]]) )
-        
         dist.df <- dplyr::tibble(db.scientificName = NA,
                                  trait_out = trait,
                                  id = NA,
@@ -735,29 +750,72 @@ Select_Traits_Tax_Dist <- function(data,
 
 Get_Trait_From_Taxon <- function(data, 
                                  target_taxon, life_stage, latitude_dd, longitude_dd, body_size,
+                                 workflow = "workflow2",
                                  max_tax_dist = 3, trait = "equation", gen_sp_dist = 0.5) {
   
-  # get min and max of body size for each unique combination of name, life-stage and latitude-longitude
+  # make sure the max_tax_dist argument is a number
+  test_1 <- function(x) {
+    
+    is.character(x) & (x %in% c("workflow1", "workflow2"))
+    
+  }
   
-  # get a formula to describe the grouping used for the calculation
-  form.agg <- reformulate(termlabels = c(target_taxon, life_stage, latitude_dd, longitude_dd), body_size )
+  assertthat::on_failure(test_1) <- function(call, env){
+    
+    paste0(deparse(call$x), " must be a character string corresponding to: workflow1 or workflow2")
+    
+  }
   
-  # calculate the minimum body size per group
-  x.min <- aggregate(form.agg, data = df.test1, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(min(x, na.rm = TRUE))},
-                     na.action = na.pass)
+  assertthat::assert_that(test_1(workflow))
   
-  # rename the body_size variable to min_body_size_mm
-  names(x.min)[names(x.min) == body_size] <- "min_body_size_mm"
+  # make sure the max_tax_dist argument is a number
+  test_2 <- function(x, y) {
+    
+    if(x == "equation") {
+      !is.na(y) & is.character(y)
+    }
+    
+  }
   
-  # calculate the maximum body size per group
-  x.max <- aggregate(form.agg, data = df.test1, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(max(x, na.rm = TRUE))},
-                     na.action = na.pass)
+  assertthat::on_failure(test_2) <- function(call, env){
+    
+    paste0("if trait = equation then body size data must be provided")
+    
+  }
   
-  # rename the body_size variable to max_body_size_mm
-  names(x.max)[names(x.max) == body_size] <- "max_body_size_mm"
+  assertthat::assert_that(test_2(trait, body_size))
   
-  # join the max and minimum body_size data together
-  data.unique <- dplyr::full_join(x.min, x.max, by = c(target_taxon, life_stage, latitude_dd, longitude_dd))
+  # if the trait is an equation then we calculate the maximum and minimum body size
+  # if not, then we simply get the unique values for the different parameters
+  if (trait == "equation") {
+    
+    # get min and max of body size for each unique combination of name, life-stage and latitude-longitude
+    
+    # get a formula to describe the grouping used for the calculation
+    form.agg <- reformulate(termlabels = c(target_taxon, life_stage, latitude_dd, longitude_dd), body_size )
+    
+    # calculate the minimum body size per group
+    x.min <- aggregate(form.agg, data = df.test1, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(min(x, na.rm = TRUE))},
+                       na.action = na.pass)
+    
+    # rename the body_size variable to min_body_size_mm
+    names(x.min)[names(x.min) == body_size] <- "min_body_size_mm"
+    
+    # calculate the maximum body size per group
+    x.max <- aggregate(form.agg, data = df.test1, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(max(x, na.rm = TRUE))},
+                       na.action = na.pass)
+    
+    # rename the body_size variable to max_body_size_mm
+    names(x.max)[names(x.max) == body_size] <- "max_body_size_mm"
+    
+    # join the max and minimum body_size data together
+    data.unique <- dplyr::full_join(x.min, x.max, by = c(target_taxon, life_stage, latitude_dd, longitude_dd))
+    
+  } else {
+    
+    data.unique <- dplyr::distinct(data[, c(target_taxon, life_stage, latitude_dd, longitude_dd)])
+    
+  }
   
   # add a row_id variable
   data.unique <- dplyr::bind_cols(dplyr::tibble(taxon_id = 1:nrow(data.unique)),
@@ -775,7 +833,7 @@ Get_Trait_From_Taxon <- function(data,
       
       # run the Clean_Taxon_Names() function
       cl.tax <- Clean_Taxon_Names(data = x1, 
-                                  target_taxon = "taxon_name", life_stage = "Life_stage",
+                                  target_taxon = target_taxon, life_stage = life_stage,
                                   database = database
       )
       
@@ -793,7 +851,7 @@ Get_Trait_From_Taxon <- function(data,
   y1 <- dplyr::distinct(y1)
   
   # run the Select_Traits_Tax_Dist() function
-  z1 <- Select_Traits_Tax_Dist(data = y1, target_taxon = "taxon_name")
+  z1 <- Select_Traits_Tax_Dist(data = y1, target_taxon = target_taxon)
   
   # bind the rows together
   z1 <- dplyr::bind_rows(z1)
@@ -1066,6 +1124,9 @@ Get_Trait_From_Taxon <- function(data,
   # combine these chosen traits or equations with the original data
   z1.select <- dplyr::full_join(data, z1.select, by = c(target_taxon, life_stage, latitude_dd, longitude_dd) )
   
+  # remove the taxon_id column
+  z1.select <- dplyr::select(z1.select, -taxon_id)
+  
   # parse the equation to calculate dry_biomass_mg
   if (trait == "equation") {
     
@@ -1092,24 +1153,4 @@ Get_Trait_From_Taxon <- function(data,
   
 }
 
-
-
-
-
-
-
-# function to combine the clean taxon names, get habitat data and select traits functions
-# generate some test data and run through the two functions
-df.test1 <- 
-  data.frame(taxon_name = c("Gammarus", "Gammarus", "Gammarus", "Daphnia", "Triops granitica", "Triops", 
-                            "Simocephalus vetulus", "Simocephalus vetulus", "Turbellaria", "Oligochaeta", "Oligochaeta"),
-             Life_stage = c("adult", "adult", "adult", "adult", "adult", "adult",
-                            "adult", "adult", "none", "none", "none"),
-             lat = rep(50.55, 1),
-             lon = rep(4.98, 1),
-             body_size_mm = rnorm(11, 10, 2))
-
-# add an NA to see how the functions react
-df.test1[9, ]$body_size_mm <- NA
-
-
+### END
