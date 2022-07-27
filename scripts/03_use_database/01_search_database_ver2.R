@@ -709,8 +709,65 @@ Select_Traits_Tax_Dist <- function(data,
   }
 
 
-trait_db
-View(z1[[1]])
+# function to combine the clean taxon names, get habitat data and select traits functions
+# generate some test data and run through the two functions
+df.test1 <- 
+  data.frame(taxon_name = c("Gammarus", "Daphnia", "Triops granitica", "Triops", 
+                            "Simocephalus vetulus", "Turbellaria", "Oligochaeta"),
+             Life_stage = c("adult", "adult", "adult", "adult",
+                            "adult", "none", "none"),
+             lat = rep(50.55, 7 ),
+             lon = rep(4.98, 7),
+             body_size_mm = rnorm(7, 10, 2))
+
+
+data <- df.test1
+target_taxon <- "taxon_name"
+life_stage <- "Life_stage"
+latitude_dd <- "lat"
+longitude_dd <- "lon"
+body_size <- "body_size_mm"
+
+
+db_vec <- c("gbif", "itis", "col")
+
+x1 <- 
+  lapply(db_vec, function(database) {
+  
+  # run the Clean_Taxon_Names() function
+  cl.tax <- Clean_Taxon_Names(data = df.test1, 
+                              target_taxon = "taxon_name", life_stage = "Life_stage",
+                              database = database
+                              )
+                          
+  
+  return(cl.tax)
+  
+})
+
+View(x1[[1]])
+View(x1[[2]])
+View(x1[[3]])
+
+dplyr::arrange(dplyr::bind_rows(x1), taxon_name, Life_stage, lat, lon ) %>%
+  View()
+
+# run the Clean_Taxon_Names() function
+x1 <- Clean_Taxon_Names(data = df.test1, 
+                        target_taxon = "taxon_name", life_stage = "Life_stage",
+                        database = "gbif"
+)
+
+# run the Get_Habitat_Data() function
+y1 <- Get_Habitat_Data(data = x1, latitude_dd = "lat", longitude_dd = "lon")
+
+# run the Select_Traits_Tax_Dist() function
+z1 <- Select_Traits_Tax_Dist(data = y1, target_taxon = "taxon_name")
+
+
+
+
+
 
 # load the habitat database
 if (!exists("hab_db")) {
@@ -728,9 +785,15 @@ if (!exists(paste0(trait, "_db"))) {
 # assign the object to trait_db
 trait_db <- get(paste0(trait, "_db"))
 
+input <- z1[[1]]
+View(input)
 
 # add database life-stage information
-db_life_stage <- trait_db[trait_db[[paste0(trait, "_id")]] %in% dist.df[["id"]], ][["db_life_stage"]]
+db_life_stage <- trait_db[trait_db[[paste0(trait, "_id")]] %in% input[["id"]], ][["db_life_stage"]]
+
+input[["life_stage_match"]] <- (input[[life_stage]] == db_life_stage)
+View(input)
+
 dist.df[["db_life_stage"]] <- if(length(db_life_stage) == 0) {NA} else {db_life_stage}
 
 View(z1[[1]])
