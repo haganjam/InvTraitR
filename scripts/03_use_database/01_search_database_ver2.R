@@ -581,11 +581,6 @@ Select_Traits_Tax_Dist <- function(data,
   # assign the object to trait_db
   trait_db <- get(paste0(trait, "_db"))
   
-  # load the habitat database
-  if (!exists("hab_db")) {
-    hab_db <- readRDS(file = here::here("database/freshwater_ecoregion_data.rds"))
-  }
-  
   # load the taxon matrices
   if (!exists("htm_db")) {
     htm_db <- readRDS(file = paste0(here::here("database"), "/", input[["db"]], "_higher_taxon_matrices.rds"))
@@ -713,5 +708,31 @@ Select_Traits_Tax_Dist <- function(data,
   
   }
 
+
+trait_db
+View(z1[[1]])
+
+# load the habitat database
+if (!exists("hab_db")) {
+  hab_db <- readRDS(file = here::here("database/freshwater_ecoregion_data.rds"))
+}
+
+# load the trait data
+if (!exists(paste0(trait, "_db"))) {
+  
+  assign( paste0(trait, "_db"),
+          readRDS(file = paste0(here::here("database"), "/", trait, "_database.rds")))
+  
+}
+
+# assign the object to trait_db
+trait_db <- get(paste0(trait, "_db"))
+
+
+# add database life-stage information
+db_life_stage <- trait_db[trait_db[[paste0(trait, "_id")]] %in% dist.df[["id"]], ][["db_life_stage"]]
+dist.df[["db_life_stage"]] <- if(length(db_life_stage) == 0) {NA} else {db_life_stage}
+
+View(z1[[1]])
 
 

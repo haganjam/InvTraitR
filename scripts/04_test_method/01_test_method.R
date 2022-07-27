@@ -216,7 +216,7 @@ y1 <- Get_Habitat_Data(data = x1, latitude_dd = "lat", longitude_dd = "lon")
 
 # run the Select_Traits_Tax_Dist() function
 z1 <- Select_Traits_Tax_Dist(data = y1, target_taxon = "taxon_name")
-
+View(z1[[7]])
 
 # test1: test if Select_Traits_Tax_Dist() the column names that are outputted are correct
 
