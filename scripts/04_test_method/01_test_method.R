@@ -119,7 +119,7 @@ db_taxon_higher <- c("Amphipoda", "Diplostraca", NA, "Notostraca",
 
 # test1: Does the Clean_Taxon_names() function obtain the correct information?
 
-# run the fnuction on the test data
+# run the function on the test data
 x <- Clean_Taxon_Names(data = df.test1, 
                        target_taxon = "taxon_name", 
                        life_stage = "Life_stage", database = "gbif")
@@ -189,5 +189,128 @@ x <- Clean_Taxon_Names(data = df.test4,
 # test if the output is correct
 assertthat::assert_that(assertthat::see_if( all(x$db == "gbif" | is.na(x$db)) ), 
                         msg = error_string)
+
+
+# Select_Traits_Tax_Dist() tests
+
+# set an error message
+error_string <- "Select_Traits_Tax_Dist() does not correctly find traits or equations"
+
+# generate some test data and run through the two functions
+df.test1 <- 
+  data.frame(taxon_name = c("Gammarus", "Daphnia", "Triops granitica", "Triops", 
+                            "Simocephalus vetulus", "Turbellaria", "Oligochaeta"),
+             Life_stage = c("adult", "adult", "adult", "adult",
+                            "adult", "none", "none"),
+             lat = rep(50.55, 7 ),
+             lon = rep(4.98, 7))
+
+# run the Clean_Taxon_Names() function
+x1 <- Clean_Taxon_Names(data = df.test1, 
+                        target_taxon = "taxon_name", life_stage = "Life_stage",
+                        database = "gbif"
+)
+
+# run the Get_Habitat_Data() function
+y1 <- Get_Habitat_Data(data = x1, latitude_dd = "lat", longitude_dd = "lon")
+
+# run the Select_Traits_Tax_Dist() function
+z1 <- Select_Traits_Tax_Dist(data = y1, target_taxon = "taxon_name")
+
+
+# test1: test if Select_Traits_Tax_Dist() the column names that are outputted are correct
+
+t1 <- 
+  lapply(z1, function(input) {
+    
+    all(names(input) == c("taxon_name", "Life_stage", "lat", "lon", "clean_taxon_name",
+                          "db", "scientificName", "acceptedNameUsageID", "db_taxon_higher_rank",
+                          "db_taxon_higher", "habitat_id", "realm", "major_habitat_type", "ecoregion",
+                          "row_id", "db.scientificName", "trait_out", "id", "tax_distance"
+    ))
+    
+  })
+
+assertthat::assert_that(assertthat::see_if( all(unlist(t1)) ), 
+                        msg = error_string)
+
+# test2: test if Select_Traits_Tax_Dist() outputs entries that should have scientific names do have a non-missing scientificName column
+
+t2 <- sapply(z1, function(input) unique(input[["scientificName"]])) == c("Gammarus", "Daphnia", NA, "Triops", "Simocephalus vetulus", NA, NA)
+
+assertthat::assert_that(assertthat::see_if( all(is.na(t2) | (t2 == TRUE)) ), 
+                        msg = error_string)
+
+# test3: test if Select_Traits_Tax_Dist() outputs the taxonomic distances properly
+
+t3 <- sapply(z1, function(input) { 
+  
+  all(is.numeric(input[["tax_distance"]]) | is.na(input[["tax_distance"]]))
+  
+}  )
+
+assertthat::assert_that(assertthat::see_if( all( t3 ) ), 
+                        msg = error_string)
+
+# test4: test if Select_Traits_Tax_Dist() works correctly with only special names
+
+# get the special names from the df.test1 data.frame
+df.test2 <- df.test[c(6, 7), ]
+
+# run the Clean_Taxon_Names() function
+x2 <- Clean_Taxon_Names(data = df.test2, 
+                        target_taxon = "taxon_name", life_stage = "Life_stage",
+                        database = "gbif"
+)
+
+# run the Get_Habitat_Data() function
+y2 <- Get_Habitat_Data(data = x2, latitude_dd = "lat", longitude_dd = "lon")
+
+# run the Select_Traits_Tax_Dist() function
+z2 <- Select_Traits_Tax_Dist(data = y2, target_taxon = "taxon_name")
+
+t4 <- 
+  mapply(function(spec, all) {
+    
+    spec <- spec[, names(spec) != "row_id"]
+    all <- all[, names(all) != "row_id"]
+    x <- (spec == all)
+    all(is.na(x) | (x == TRUE))
+    
+  }, z2, z1[c(6, 7)])
+
+assertthat::assert_that(assertthat::see_if( all( t4 ) ), 
+                        msg = error_string)
+
+# test5: test if Select_Traits_Tax_Dist() works correctly without any special names
+
+# get the special names from the df.test1 data.frame
+df.test3 <- df.test[-c(6, 7), ]
+
+# run the Clean_Taxon_Names() function
+x3 <- Clean_Taxon_Names(data = df.test3, 
+                        target_taxon = "taxon_name", life_stage = "Life_stage",
+                        database = "gbif"
+)
+
+# run the Get_Habitat_Data() function
+y3 <- Get_Habitat_Data(data = x3, latitude_dd = "lat", longitude_dd = "lon")
+
+# run the Select_Traits_Tax_Dist() function
+z3 <- Select_Traits_Tax_Dist(data = y3, target_taxon = "taxon_name")
+
+t5 <- 
+  mapply(function(spec, all) {
+    
+    spec <- spec[, names(spec) != "row_id"]
+    all <- all[, names(all) != "row_id"]
+    x <- (spec == all)
+    all(is.na(x) | (x == TRUE))
+    
+  }, z3, z1[-c(6, 7)])
+
+assertthat::assert_that(assertthat::see_if( all( t4 ) ), 
+                        msg = error_string)
+
 
 
