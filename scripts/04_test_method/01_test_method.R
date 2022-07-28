@@ -315,6 +315,9 @@ assertthat::assert_that(assertthat::see_if( all( t4 ) ),
 
 # Get_Trait_From_Taxon() tests
 
+# set-up an error string
+error_string <- "Get_Trait_From_Taxon() function is not correctly outputting trait or equation data"
+
 # generate some test data to test the function
 df.test1 <- 
   data.frame(taxon_name = c("Gammarus", "Gammarus", "Gammarus", "Daphnia", "Triops granitica", "Triops", 
@@ -340,6 +343,34 @@ x <-
                        gen_sp_dist = 0.5
   )
 
-View(x)
+# test if all the relevant taxon names are present
+assertthat::assert_that(assertthat::see_if( all( x[["taxon_name"]] == df.test1[["taxon_name"]] ) ), 
+                        msg = error_string)
+
+# body size must be within the min and max
+t1 <- (x[["body_size_mm"]] >= x[["min_body_size_mm"]]) & (x[["body_size_mm"]] <= x[["max_body_size_mm"]])
+
+assertthat::assert_that(assertthat::see_if( all(t1 | is.na(t1)) ), 
+                        msg = error_string)
+
+# if the equation is NA then the dry_biomass_mg should be NA
+assertthat::assert_that(assertthat::see_if( all( is.na(x[["equation"]]) == is.na(x[["dry_biomass_mg"]]) ) ), 
+                        msg = error_string)
+
+# if the body_length_mm column is NA then the dry_biomass_mg column should be NA
+t2 <- is.na(x[["body_size_mm"]])
+
+assertthat::assert_that(assertthat::see_if( all( is.na(x[["body_size_mm"]][t2]) == is.na(x[["dry_biomass_mg"]][t2]) ) ), 
+                        msg = error_string)
+
+# if the id column is NA, then the dry_biomass_mg and equation columns should be NA
+t3 <- is.na(x[["id"]])
+
+assertthat::assert_that(assertthat::see_if( all( is.na( c( x[["dry_biomass_mg"]][t3], x[["equation"]][t3] ) )  ) ), 
+                        msg = error_string)
+
+# check if the outputted taxonomic distances are less than the max tax distance
+assertthat::assert_that(assertthat::see_if( all( x[["tax_distance"]][!is.na(x[["tax_distance"]])] < 3  ) ), 
+                        msg = error_string)
 
 ### END

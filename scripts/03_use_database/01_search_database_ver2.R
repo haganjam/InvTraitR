@@ -921,7 +921,7 @@ Get_Trait_From_Taxon <- function(data,
           
           trait_db_sel <- trait_db[trait_db[[paste0(trait, "_id")]] == x, ]
           
-          t1 <- (trait_db_sel[["body_size_min"]] >= y) & (trait_db_sel[["body_size_max"]] <= z)
+          t1 <- (trait_db_sel[["body_size_min"]] <= y) & (trait_db_sel[["body_size_max"]] >= z)
           
           return(t1)
           
