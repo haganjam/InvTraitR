@@ -1059,9 +1059,9 @@ Get_Trait_From_Taxon <- function(data,
       input <- input[input[["life_stage_match"]] == TRUE & !is.na(input[["life_stage_match"]]), ]
       
       # get the minimum taxonomic distance as long as the difference is greater than 0.5
-      if ( all( !is.na(input[["tax_distance"]]) ) ) {
+      if ( all( !is.na(input[["tax_distance"]]) ) & ( sum( !is.na(input[["tax_distance"]]) ) >= 1 ) ) {
         
-        input <- input[input[["tax_distance"]] <= ( min(input[["tax_distance"]], na.rm = TRUE) + 0.5 ), ]
+        input <- input[input[["tax_distance"]] <= ( min(input[["tax_distance"]], na.rm = FALSE) + 0.5 ), ]
         
       }
       
