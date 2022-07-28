@@ -250,12 +250,16 @@ test2.output <-
                        gen_sp_dist = 0.5
   )
 
+# view the output
+View(test2.output)
+
 # get names that were not found
 test2.missing <- 
   test2.output %>%
   filter(is.na(id)) %>%
   pull(Focal_taxon) %>%
   unique()
+test2.missing
 
 # remove rows where the weight is not there
 test2.output <- 
