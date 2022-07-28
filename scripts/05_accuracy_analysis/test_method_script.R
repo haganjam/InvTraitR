@@ -30,6 +30,7 @@ test1$lon <- as.numeric(test1$lon)
 
 # remove cases where life-stages are NA
 test1 <- dplyr::filter(test1, !is.na(Life_stage), Life_stage != "NA")
+length(unique(test1$Taxa))
 
 # test the method
 test1.output <- 
@@ -41,17 +42,21 @@ test1.output <-
                        longitude_dd = "lon",
                        workflow = "workflow2",
                        trait = "equation", 
-                       max_tax_dist = 3.5,
+                       max_tax_dist = 4,
                        gen_sp_dist = 0.5
   )
 
-View(test1.output)
+# get names that were not found
+test1.missing <- 
+  test1.output %>%
+  filter(is.na(id)) %>%
+  pull(Taxa) %>%
+  unique()
 
-# remove rows where the weight is not there
+# remove rows where the dry-biomass is not there
 test1.output <- 
   test1.output %>%
   filter(!is.na(dry_biomass_mg) )
-View(test1.output)
 
 # check how many unique taxa are left
 length(unique(test1.output$Taxa))
@@ -90,25 +95,24 @@ equ.null.m <- apply(equ.null.m, 2, function(x) quantile(x = x, c(0.025, 0.975)) 
 test1.output$lower_PI <- apply(equ.null.m, 2, function(x) x[1] )
 test1.output$upper_PI <- apply(equ.null.m, 2, function(x) x[2] )
 
-# check the data
-View(test1.output)
-
 # plot dry weight inferred versus actual dry weight
 p1 <- 
   ggplot() +
   geom_ribbon(data = test1.output,
               mapping = aes(x = log10(Dry_weight_mg),
                             ymin = log10(lower_PI),
-                            ymax = log10(upper_PI) ),
+                            ymax = log10(upper_PI)),
               alpha = 0.1) +
   geom_point(data = test1.output,
-             mapping = aes(x = log10(Dry_weight_mg), y = log10(dry_biomass_mg)),
-             alpha = 0.2) +
+             mapping = aes(x = log10(Dry_weight_mg), y = log10(dry_biomass_mg), colour = Taxa),
+             alpha = 0.5) +
   ylab("Estimated dry biomass (mg, log10)") +
   xlab("Measured dry biomass (mg, log10)") +
   geom_abline(intercept = 0, slope = 1, 
               colour = "#ec7853", linetype = "dashed", size = 1) +
-  theme_meta()
+  scale_colour_viridis_d(option = "D") +
+  theme_meta() +
+  theme(legend.position = "none")
 plot(p1)
 
 # observed correlation
@@ -165,7 +169,6 @@ p2 <-
   theme_meta()
 plot(p2)
 
-
 p12 <- ggarrange(p1, p2, ncol = 2,nrow = 1,
                  labels = c("a", "b"),
                  widths = c(1, 1.1),
@@ -183,39 +186,41 @@ sd(test1.output$error_perc)
 mean(equ.null.error)
 sd(equ.null.error)
 
-# plot how the error changes with taxonomic distance
-test1.eplot <- 
-  test1.output %>% 
-  filter(error_perc < 1000)
+max(test1.output$error_perc)
 
-test1.eplot.s <- 
-  test1.eplot %>%
+# check the very large error cases
+test1.output[test1.output$error_perc > quantile(test1.output$error_perc, 0.90), ] %>%
+  select(Reference, Taxa, Length_mm, Dry_weight_mg, db.scientificName, id, tax_distance:equation, dry_biomass_mg, error_perc) %>%
+  View()
+
+# plot how the error changes with taxonomic distance
+test1.output.s <- 
+  test1.output %>%
   group_by(tax_distance) %>%
   summarise(mean_error = mean(error_perc, na.rm = TRUE),
             sd_error = sd(error_perc, na.rm = TRUE))
 
-test1.eplot %>%
+test1.output %>%
   filter(tax_distance <= 1) %>%
   summarise(mean_error = mean(error_perc),
             sd_error = sd(error_perc), 
             n = length(unique(Taxa)))
 
-# replot without the major outliers
 p3 <- 
   ggplot() +
   ylab("Absolute deviation (%)") +
   xlab("Taxonomic distance") +
-  geom_quasirandom(data = test1.eplot,
-              mapping = aes(x = tax_distance, y = (error_perc) ), 
+  geom_quasirandom(data = test1.output,
+              mapping = aes(x = tax_distance, y = error_perc), 
               width = 0.15, alpha = 0.15) +
-  geom_point(data = test1.eplot.s,
+  geom_point(data = test1.output.s,
              mapping = aes(x = tax_distance, y = mean_error),
-             colour = "black", size = 2.5) +
-  geom_errorbar(data = test1.eplot.s,
+             size = 2.5) +
+  geom_errorbar(data = test1.output.s,
                 mapping = aes(x = tax_distance, 
                               ymin = mean_error - sd_error,
                               ymax = mean_error + sd_error),
-                width = 0.1, colour = "black") +
+                width = 0.1) +
   theme_meta()
 plot(p3)
 
@@ -231,12 +236,9 @@ test2 <- read_csv("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpool
 test2$lat <- NA
 test2$lon <- NA
 
-# view the data
-View(test2)
-
 # test the method
 test2.output <- 
-  Get_Trait_From_Taxon(input_data = test2, 
+  Get_Trait_From_Taxon(data = test2, 
                        target_taxon = "Focal_taxon", 
                        life_stage = "Life_stage", 
                        body_size = "length_mm",
@@ -248,30 +250,32 @@ test2.output <-
                        gen_sp_dist = 0.5
   )
 
-# remove rows where the weight is not there
-test2.output %>%
-  filter(is.na(weight_mg)) %>%
-  View()
+# get names that were not found
+test2.missing <- 
+  test2.output %>%
+  filter(is.na(id)) %>%
+  pull(Focal_taxon) %>%
+  unique()
 
+# remove rows where the weight is not there
 test2.output <- 
   test2.output %>%
-  filter(!is.na(weight_mg) )
-names(test2.output)
+  filter(!is.na(dry_biomass_mg) )
 
 test2.output <- 
   test2.output %>%
   select(Focal_taxon, life_stage, length_mm, scientificName, db.scientificName, 
          tax_distance, id,
-         Biomass_mg, weight_mg, life_stage_match) %>%
-  mutate(weight_mg = round(weight_mg, 3),
-         error_perc = (abs(Biomass_mg - weight_mg)/Biomass_mg)*100)
+         Biomass_mg, dry_biomass_mg, life_stage_match) %>%
+  mutate(dry_biomass_mg = round(dry_biomass_mg, 5),
+         error_perc = (abs(Biomass_mg - dry_biomass_mg)/Biomass_mg)*100)
 
 # check how many unique taxa there are
 length(unique(test2.output$Focal_taxon))
 
 p4 <- 
   ggplot(data = test2.output,
-       mapping = aes(x = log10(Biomass_mg), y = log10(weight_mg)) ) +
+       mapping = aes(x = log10(Biomass_mg), y = log10(dry_biomass_mg)) ) +
   geom_point() +
   ylab("Estimated dry biomass (mg, log10)") +
   xlab("Expert dry biomass (mg, log10)") +
@@ -284,7 +288,7 @@ plot(p4)
 ggsave(filename = here("figures/fig_6.pdf"), plot = p4, 
        units = "cm", width = 10, height = 10, dpi = 300)
 
-cor.test(log10(test2.output$Biomass_mg), log10(test2.output$weight_mg) )
+cor.test(log10(test2.output$Biomass_mg), log10(test2.output$dry_biomass_mg) )
 
 # what about the error?
 mean(test2.output$error_perc)
@@ -298,6 +302,10 @@ test2.output %>%
   filter(error_perc < 500) %>%
   summarise(mean = mean(error_perc),
             sd = sd(error_perc))
+
+# make a list of names that we don't have equations for
+test2.output
+
 
 
 # gather data for the biomasses for oikos forum

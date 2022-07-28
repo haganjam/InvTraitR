@@ -787,29 +787,40 @@ Get_Trait_From_Taxon <- function(data,
   
   # if the trait is an equation then we calculate the maximum and minimum body size
   # if not, then we simply get the unique values for the different parameters
+  
   if (trait == "equation") {
+    
+    # create a data.unique data.frame
+    data.unique <- data
+    
+    # get a unique identifier
+    data.unique[["group_id"]] <- apply(data.unique[, c(target_taxon, life_stage, latitude_dd, longitude_dd)], 1, function(x) paste0(x, collapse = "_") )
     
     # get min and max of body size for each unique combination of name, life-stage and latitude-longitude
     
     # get a formula to describe the grouping used for the calculation
-    form.agg <- reformulate(termlabels = c(target_taxon, life_stage, latitude_dd, longitude_dd), body_size )
+    form.agg <- reformulate(termlabels = c("group_id"), body_size )
     
     # calculate the minimum body size per group
-    x.min <- aggregate(form.agg, data = data, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(min(x, na.rm = TRUE))},
+    x.min <- aggregate(form.agg, data = data.unique, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(min(x, na.rm = TRUE))},
                        na.action = na.pass)
     
     # rename the body_size variable to min_body_size_mm
     names(x.min)[names(x.min) == body_size] <- "min_body_size_mm"
     
     # calculate the maximum body size per group
-    x.max <- aggregate(form.agg, data = data, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(max(x, na.rm = TRUE))},
+    x.max <- aggregate(form.agg, data = data.unique, FUN = function(x) if(all(is.na(x))) {return(NA)} else {return(max(x, na.rm = TRUE))},
                        na.action = na.pass)
     
     # rename the body_size variable to max_body_size_mm
     names(x.max)[names(x.max) == body_size] <- "max_body_size_mm"
     
+    # bind x.min and x.max
+    x.min.max <- dplyr::full_join(x.min, x.max, by = "group_id" )
+    data.unique <- dplyr::full_join(data.unique, x.min.max, by = "group_id")
+    
     # join the max and minimum body_size data together
-    data.unique <- dplyr::full_join(x.min, x.max, by = c(target_taxon, life_stage, latitude_dd, longitude_dd))
+    data.unique <- dplyr::distinct(data.unique[, c(target_taxon, life_stage, latitude_dd, longitude_dd, "min_body_size_mm", "max_body_size_mm")])
     
   } else {
     
@@ -1056,7 +1067,15 @@ Get_Trait_From_Taxon <- function(data,
       }
       
       # get the equations with matching life-stages
-      input <- input[input[["life_stage_match"]] == TRUE & !is.na(input[["life_stage_match"]]), ]
+      if( sum(input[["life_stage_match"]] == TRUE, na.rm = TRUE) == 0 ) {
+        
+        return( dplyr::select(input[1, ], taxon_id:trait_out) )
+        
+      } else {
+        
+        input <- input[input[["life_stage_match"]] == TRUE & !is.na(input[["life_stage_match"]]), ]
+        
+      }
       
       # get the minimum taxonomic distance as long as the difference is greater than 0.5
       if ( all( !is.na(input[["tax_distance"]]) ) & ( sum( !is.na(input[["tax_distance"]]) ) >= 1 ) ) {
@@ -1148,6 +1167,21 @@ Get_Trait_From_Taxon <- function(data,
       }, z1.select[[body_size]], z1.select[[trait]])
     
   }
+  
+  # make sure the max_tax_dist argument is a number
+  test_3 <- function(x, y) {
+    
+    all(unique(x[[target_taxon]]) == unique(y[[target_taxon]]))
+    
+  }
+  
+  assertthat::on_failure(test_3) <- function(call, env){
+    
+    "number of unique taxa in input and output do not match"
+    
+  }
+  
+  assertthat::assert_that(test_3(x = data, y = z1.select))
   
   return(z1.select)
   
