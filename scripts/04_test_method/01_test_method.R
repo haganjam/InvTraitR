@@ -373,4 +373,52 @@ assertthat::assert_that(assertthat::see_if( all( is.na( c( x[["dry_biomass_mg"]]
 assertthat::assert_that(assertthat::see_if( all( x[["tax_distance"]][!is.na(x[["tax_distance"]])] < 3  ) ), 
                         msg = error_string)
 
+
+# test a highly marginal case where there are no matches for the life-stages
+df.test2 <- 
+  data.frame(taxon_name = c("Gammarus", "Daphnia"),
+             Life_stage = c("larva", "none"),
+             lat = rep(50.5, 1) ,
+             lon = rep(4.98, 1),
+             body_size_mm = rnorm(2, 10, 2))
+head(df.test2)
+
+x <- 
+  Get_Trait_From_Taxon(data = df.test2, 
+                       target_taxon = "taxon_name", 
+                       life_stage = "Life_stage", 
+                       latitude_dd = "lat", 
+                       longitude_dd = "lon", 
+                       body_size = "body_size_mm",
+                       max_tax_dist = 3, 
+                       trait = "equation", 
+                       gen_sp_dist = 0.5
+  )
+
+t2 <- all( is.na( x[, c("id", "tax_distance", names(x)[grepl("_match", x = names(x) )] )] ))
+assertthat::assert_that(assertthat::see_if( t2  ), msg = error_string)
+
+# test the case where there are only special names
+df.test3 <- 
+  data.frame(taxon_name = c("Oligochaeta", "Oligochaeta", "Turbellaria"),
+             Life_stage = c("none", "none", "none"),
+             lat = rep(50.5, 1) ,
+             lon = rep(4.98, 1),
+             body_size_mm = rnorm(3, 10, 2))
+head(df.test3)
+
+x <- 
+  Get_Trait_From_Taxon(data = df.test3, 
+                       target_taxon = "taxon_name", 
+                       life_stage = "Life_stage", 
+                       latitude_dd = "lat", 
+                       longitude_dd = "lon", 
+                       body_size = "body_size_mm",
+                       max_tax_dist = 3, 
+                       trait = "equation", 
+                       gen_sp_dist = 0.5
+  )
+
+assertthat::assert_that(assertthat::see_if( all(df.test3[["taxon_name"]] == x[["taxon_name"]])  ), msg = error_string)
+
 ### END

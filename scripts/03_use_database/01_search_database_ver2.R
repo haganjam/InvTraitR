@@ -1069,7 +1069,10 @@ Get_Trait_From_Taxon <- function(data,
       # get the equations with matching life-stages
       if( sum(input[["life_stage_match"]] == TRUE, na.rm = TRUE) == 0 ) {
         
-        return( dplyr::select(input[1, ], taxon_id:trait_out) )
+        input <- input[sample(1:nrow(input), 1), ]
+        input[1, c("id", "tax_distance", names(input)[grepl(pattern = "_match", x = names(input))] ) ] <- NA
+        
+        return( input )
         
       } else {
         
