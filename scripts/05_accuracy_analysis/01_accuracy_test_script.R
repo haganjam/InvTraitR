@@ -290,7 +290,7 @@ plot(p4)
 
 # which are the outliers
 test2.output %>%
-  filter(log10(dry_biomass_mg) < -2.5, log10(Biomass_mg) > -2) %>%
+  filter(log10(dry_biomass_mg) > -1.5, log10(Biomass_mg) < -2) %>%
   View()
 
 ggsave(filename = here("figures/fig_6.pdf"), plot = p4, 
@@ -301,19 +301,12 @@ cor.test(log10(test2.output$Biomass_mg), log10(test2.output$dry_biomass_mg) )
 # what about the error?
 mean(test2.output$error_perc)
 sd(test2.output$error_perc)
+round(range(test2.output$error_perc), 3)
 
 test2.output %>%
-  filter(error_perc > 500) %>% 
-  pull(error_perc)
-
-test2.output %>%
-  filter(error_perc < 500) %>%
+  filter(error_perc < 200) %>%
   summarise(mean = mean(error_perc),
             sd = sd(error_perc))
-
-# make a list of names that we don't have equations for
-test2.output
-
 
 
 # gather data for the biomasses for oikos forum
