@@ -52,6 +52,7 @@ test1.missing <-
   filter(is.na(id)) %>%
   pull(Taxa) %>%
   unique()
+print(test1.missing)
 
 # remove rows where the dry-biomass is not there
 test1.output <- 
@@ -235,6 +236,7 @@ ggsave(filename = here("figures/fig_5.pdf"), plot = p3,
 test2 <- read_csv("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/test_data_vincent.csv")
 test2$lat <- NA
 test2$lon <- NA
+str(test2)
 
 # test the method
 test2.output <- 
@@ -250,16 +252,13 @@ test2.output <-
                        gen_sp_dist = 0.5
   )
 
-# view the output
-View(test2.output)
-
 # get names that were not found
 test2.missing <- 
   test2.output %>%
   filter(is.na(id)) %>%
   pull(Focal_taxon) %>%
   unique()
-test2.missing
+print(test2.missing)
 
 # remove rows where the weight is not there
 test2.output <- 
@@ -268,7 +267,7 @@ test2.output <-
 
 test2.output <- 
   test2.output %>%
-  select(Focal_taxon, life_stage, length_mm, scientificName, db.scientificName, 
+  select(Focal_taxon, Life_stage, length_mm, scientificName, db.scientificName, 
          tax_distance, id,
          Biomass_mg, dry_biomass_mg, life_stage_match) %>%
   mutate(dry_biomass_mg = round(dry_biomass_mg, 5),
@@ -288,6 +287,11 @@ p4 <-
   theme_meta() +
   theme(legend.position = "bottom")
 plot(p4)
+
+# which are the outliers
+test2.output %>%
+  filter(log10(dry_biomass_mg) < -2.5, log10(Biomass_mg) > -2) %>%
+  View()
 
 ggsave(filename = here("figures/fig_6.pdf"), plot = p4, 
        units = "cm", width = 10, height = 10, dpi = 300)
