@@ -41,12 +41,11 @@ for(j in 1:length(database)) {
   
   # load the taxon data
   tax.dat <- readRDS(file = here("database/taxon_database.rds") )
-  head(tax.dat)
   
   # remove the empty columns
   tax.dat <-
     tax.dat %>%
-    select(-db_order_source, -db_taxon_higher, -db_taxon_higher_rank)
+    select(-db_higher_rank_source, -db_taxon_higher_rank, -db_taxon_higher)
   
   # remove the special names
   spec.names <- special_taxon_names()

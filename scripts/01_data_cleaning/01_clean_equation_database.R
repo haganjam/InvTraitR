@@ -42,7 +42,16 @@ for(i in 1:length(spec.names)) {
   
   equ.dat[x, "db_taxon"] <- spec.names[i]
   
-  }  
+}  
+
+# convert relevant columns to numeric variables
+equ.dat[["body_size_min"]] <- round(as.numeric(equ.dat[["body_size_min"]]), 4)
+equ.dat[["body_size_max"]] <- round(as.numeric(equ.dat[["body_size_max"]]), 4)
+equ.dat[["n"]] <- round(as.numeric(equ.dat[["n"]]), 0)
+equ.dat[["r2"]] <- round(as.numeric(equ.dat[["r2"]]), 2)
+
+# check the variables structure
+str(equ.dat)
 
 # write this into a .rds file
 saveRDS(equ.dat, file = paste(here("database"), "/", "equation_database.rds", sep = ""))
