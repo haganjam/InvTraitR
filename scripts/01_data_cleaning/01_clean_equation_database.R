@@ -12,7 +12,6 @@ source(here("scripts/01_special_names_func.R"))
 # load the equation data
 equ.dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/equation_database.xlsx")
 head(equ.dat)
-View(equ.dat)
 
 # clean the names for typos etc.
 x <- bdc_clean_names(sci_names = equ.dat$db_taxon, save_outputs = FALSE)

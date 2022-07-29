@@ -44,7 +44,7 @@ warning_messages <- function(x) {
   } )
   
   # check package versions currently installed
-  pack.ver <- in.packs[(unique(in.packs$Package) %in% packs.used), ]
+  pack.ver <- in.packs[which(unique(in.packs$Package) %in% packs.used), ]
   pack.ver <- paste(pack.ver$Package, pack.ver$Version, sep = ": ")
   pack.cond <- sort(pack.ver) == sort(warn.packs)
   
