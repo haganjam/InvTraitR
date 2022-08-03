@@ -18,26 +18,72 @@ if(! dir.exists(here("figures"))){
   dir.create(here("figures"))
 }
 
+# path to where raw data is stored
+path_rd <- "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/"
+
 # test 1: actual body size data and actual length data from the literature
 
-# load the literature test data
-test1 <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/test_data.xlsx")
-str(test1)
+# dataset1
 
-# convert the lat-lon variables to numeric variables
-test1$lat <- as.numeric(test1$lat)
-test1$lon <- as.numeric(test1$lon)
+# load the literature test data
+test1.a <- read_csv(paste0(path_rd, "test_data_Eklof_2016_Dumont_1975.csv") )
+str(test1.a)
 
 # remove cases where life-stages are NA
-test1 <- dplyr::filter(test1, !is.na(Life_stage), Life_stage != "NA")
-length(unique(test1$Taxa))
+test1.a <- dplyr::filter(test1.a, !is.na(Life_stage), Life_stage != "NA")
+names(test1.a)
 
-# test the method
+# equalise the names
+test1.a <- 
+  test1.a %>%
+  select(Reference, Taxa, Life_stage, lat, lon, Length_mm, Dry_weight_mg)
+
+# dataset2
+test1.b <- read_csv(paste0(path_rd, "test_data_Gonzalez_2008.csv") )
+str(test1.b)
+
+# remove cases where life-stages are NA
+test1.b <- dplyr::filter(test1.b, !is.na(life_stage), life_stage != "NA")
+names(test1.b)
+
+# equalise the names
+test1.b <- 
+  test1.b %>%
+  select(author_year, taxon, life_stage, lat, lon, mean_length_mm, mean_mass_g)
+
+# dataset3
+test1.c <- read_csv(paste0(path_rd, "test_data_Rudolph_2014.csv") )
+str(test1.c)
+
+# remove cases where life-stages are NA
+test1.c <- dplyr::filter(test1.c, !is.na(life_stage), life_stage != "NA")
+names(test1.c)
+
+# equalise the names
+test1.c <- 
+  test1.c %>%
+  select(author_year, taxon, life_stage, lat, lon, average_body_length_mm, average_mass_mg)
+
+test1.dat <- 
+  
+  lapply(list(test1.a, test1.b, test1.c), function(x) {
+  
+  names(x) <- c("author_year", "taxon", "life_stage", "lat", "lon", "body_length_mm", "biomass_mg")
+  
+  return(x)
+  
+} )
+
+# bind the rows
+test1.dat <- bind_rows(test1.dat)
+View(test1.dat)
+
+# use method to get biomass data
 test1.output <- 
-  Get_Trait_From_Taxon(data = test1, 
-                       target_taxon = "Taxa", 
-                       life_stage = "Life_stage", 
-                       body_size = "Length_mm",
+  Get_Trait_From_Taxon(data = test1.dat, 
+                       target_taxon = "taxon", 
+                       life_stage = "life_stage", 
+                       body_size = "body_length_mm",
                        latitude_dd = "lat", 
                        longitude_dd = "lon",
                        workflow = "workflow2",
@@ -47,12 +93,10 @@ test1.output <-
   )
 
 # get names that were not found
-test1.missing <- 
-  test1.output %>%
+test1.output %>%
   filter(is.na(id)) %>%
-  pull(Taxa) %>%
+  pull(taxon) %>%
   unique()
-print(test1.missing)
 
 # remove rows where the dry-biomass is not there
 test1.output <- 
@@ -60,7 +104,7 @@ test1.output <-
   filter(!is.na(dry_biomass_mg) )
 
 # check how many unique taxa are left
-length(unique(test1.output$Taxa))
+length(unique(test1.output$taxon))
 
 # null model i.e. randomly chosen equations
 
@@ -75,7 +119,7 @@ equ.dat <-
 equ.null <- 
   lapply(1:1000, function(y) {
   
-  sapply(test1.output$Length_mm, function(x) {
+  sapply(test1.output$body_length_mm, function(x) {
     
     var1 <- x
     equ <- equ.dat[sample(1:nrow(equ.dat), 1),][["equation"]]
@@ -100,40 +144,41 @@ test1.output$upper_PI <- apply(equ.null.m, 2, function(x) x[2] )
 p1 <- 
   ggplot() +
   geom_ribbon(data = test1.output,
-              mapping = aes(x = log10(Dry_weight_mg),
+              mapping = aes(x = log10(biomass_mg),
                             ymin = log10(lower_PI),
                             ymax = log10(upper_PI)),
               alpha = 0.1) +
   geom_point(data = test1.output,
-             mapping = aes(x = log10(Dry_weight_mg), y = log10(dry_biomass_mg), colour = Taxa),
+             mapping = aes(x = log10(biomass_mg), 
+                           y = log10(dry_biomass_mg), colour = author_year),
              alpha = 0.5) +
   ylab("Estimated dry biomass (mg, log10)") +
   xlab("Measured dry biomass (mg, log10)") +
   geom_abline(intercept = 0, slope = 1, 
               colour = "#ec7853", linetype = "dashed", size = 1) +
-  scale_colour_viridis_d(option = "D") +
+  scale_colour_viridis_d(option = "C", begin = 0, end = 0.9) +
   theme_meta() +
   theme(legend.position = "none")
 plot(p1)
 
 # observed correlation
-cor.test(test1.output$Dry_weight_mg, test1.output$dry_biomass_mg)
+cor.test(test1.output$biomass_mg, test1.output$dry_biomass_mg)
 
 # null correlations
-null_cor <- sapply(equ.null, function(x) cor(test1.output$Dry_weight_mg, x) )
+null_cor <- sapply(equ.null, function(x) cor(test1.output$biomass_mg, x) )
 quantile(null_cor, c(0.025, 0.975))
 
 # calculate percentage
 test1.output <- 
   test1.output %>%
-  mutate(error_perc = (abs(Dry_weight_mg - dry_biomass_mg)/Dry_weight_mg)*100 )
+  mutate(error_perc = (abs(biomass_mg - dry_biomass_mg)/biomass_mg)*100 )
 
 # calculate the error for each randomisation
 equ.null.error <- 
   
   lapply(equ.null, function(x) {
   
-  (abs(test1.output$Dry_weight_mg - x)/test1.output$Dry_weight_mg)*100
+  (abs(test1.output$biomass_mg - x)/test1.output$biomass_mg)*100
   
 } )
 
@@ -160,7 +205,7 @@ p2 <-
   scale_colour_manual(values = c("#0c1787", "#fadb25")) +
   scale_fill_manual(values = c("#0c1787", "#fadb25")) +
   xlab("Absolute deviation (%, loge)") +
-  ylab(NULL) +
+  ylab("Density") +
   geom_vline(xintercept = mean( log( test1.output$error_perc) ), 
              linetype = "dashed", size = 0.5,
              colour = "#0c1787") +
@@ -172,7 +217,7 @@ plot(p2)
 
 p12 <- ggarrange(p1, p2, ncol = 2,nrow = 1,
                  labels = c("a", "b"),
-                 widths = c(1, 1.1),
+                 widths = c(1, 1.3),
                  font.label = list(size = 11, color = "black", face = "plain")
                  )
 plot(p12)
@@ -189,11 +234,6 @@ sd(equ.null.error)
 
 max(test1.output$error_perc)
 
-# check the very large error cases
-test1.output[test1.output$error_perc > quantile(test1.output$error_perc, 0.90), ] %>%
-  select(Reference, Taxa, Length_mm, Dry_weight_mg, db.scientificName, id, tax_distance:equation, dry_biomass_mg, error_perc) %>%
-  View()
-
 # plot how the error changes with taxonomic distance
 test1.output.s <- 
   test1.output %>%
@@ -205,7 +245,7 @@ test1.output %>%
   filter(tax_distance <= 1) %>%
   summarise(mean_error = mean(error_perc),
             sd_error = sd(error_perc), 
-            n = length(unique(Taxa)))
+            n = length(unique(taxon)))
 
 p3 <- 
   ggplot() +
