@@ -272,17 +272,61 @@ ggsave(filename = here("figures/fig_5.pdf"), plot = p3,
 
 # test 2: equations selected by expert
 
-# load data compiled by Vincent
-test2 <- read_csv("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/test_data_vincent.csv")
-test2$lat <- NA
-test2$lon <- NA
-str(test2)
+# load data from Dolmans (2022, unpublished)
+test2.a <- read_csv("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/test_data_Dolmans_2022.csv")
+test2.a$lat <- NA
+test2.a$lon <- NA
+
+# check the summary statistics
+summary(test2.a)
+str(test2.a)
+
+# add an author_year column
+test2.a$author_year <- "Dolmans_2022"
+
+# equalise the columns
+names(test2.a)
+
+test2.a <- 
+  test2.a %>%
+  select(author_year, Focal_taxon, Life_stage, lat, lon, length_mm, Biomass_mg)
+
+# load the data from Gorman et al. (2017, Nature Climate Change)
+test2.b <- read_csv("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/test_data_Gorman_2017.csv")
+
+# check the summary statistics
+summary(test2.b)
+str(test2.b)
+
+# add an author_year column
+test2.b$author_year <- "Gorman_2017"
+
+# equalise the columns
+names(test2.b)
+
+test2.b <- 
+  test2.b %>%
+  select(author_year, species, life_stage, lat_dd, lon_dd, length, mass)
+
+# make the names the same between the two datasets
+test2.dat <- 
+  lapply(list(test2.a, test2.b), function(x) {
+  
+  names(x) <- c("author_year", "taxon", "life_stage", "lat", "lon", "length_mm", "mass_mg")
+  
+  return(x)
+  
+} )
+
+# collapse into a single data.frame
+test2.dat <- bind_rows(test2.dat)
+View(test2.dat)
 
 # test the method
 test2.output <- 
-  Get_Trait_From_Taxon(data = test2, 
-                       target_taxon = "Focal_taxon", 
-                       life_stage = "Life_stage", 
+  Get_Trait_From_Taxon(data = test2.dat, 
+                       target_taxon = "taxon", 
+                       life_stage = "life_stage", 
                        body_size = "length_mm",
                        latitude_dd = "lat", 
                        longitude_dd = "lon",
@@ -293,12 +337,10 @@ test2.output <-
   )
 
 # get names that were not found
-test2.missing <- 
-  test2.output %>%
+test2.output %>%
   filter(is.na(id)) %>%
-  pull(Focal_taxon) %>%
+  pull(taxon) %>%
   unique()
-print(test2.missing)
 
 # remove rows where the weight is not there
 test2.output <- 
@@ -307,31 +349,37 @@ test2.output <-
 
 test2.output <- 
   test2.output %>%
-  select(Focal_taxon, Life_stage, length_mm, scientificName, db.scientificName, 
+  select(author_year, taxon, life_stage, length_mm, scientificName, db.scientificName, 
          tax_distance, id,
-         Biomass_mg, dry_biomass_mg, life_stage_match) %>%
+         mass_mg, dry_biomass_mg, life_stage_match) %>%
   mutate(dry_biomass_mg = round(dry_biomass_mg, 5),
-         error_perc = (abs(Biomass_mg - dry_biomass_mg)/Biomass_mg)*100)
+         error_perc = (abs(mass_mg - dry_biomass_mg)/mass_mg)*100)
 
 # check how many unique taxa there are
-length(unique(test2.output$Focal_taxon))
+length(unique(test2.output$taxon))
 
 p4 <- 
   ggplot(data = test2.output,
-       mapping = aes(x = log10(Biomass_mg), y = log10(dry_biomass_mg)) ) +
+       mapping = aes(x = log10(mass_mg), 
+                     y = log10(dry_biomass_mg),
+                     colour = author_year) ) +
   geom_point() +
   ylab("Estimated dry biomass (mg, log10)") +
   xlab("Expert dry biomass (mg, log10)") +
   geom_abline(intercept = 0, slope = 1, 
               colour = "#ec7853", linetype = "dashed", size = 1) +
-  theme_meta() +
-  theme(legend.position = "bottom")
+  theme_meta()
 plot(p4)
+
+# check the large errors
+test2.output %>%
+  filter(error_perc > quantile(test2.output$error_perc, 0.95)) %>%
+  View()
 
 ggsave(filename = here("figures/fig_6.pdf"), plot = p4, 
        units = "cm", width = 10, height = 10, dpi = 300)
 
-cor.test(log10(test2.output$Biomass_mg), log10(test2.output$dry_biomass_mg) )
+cor.test(log10(test2.output$mass_mg), log10(test2.output$dry_biomass_mg) )
 
 # what about the error?
 mean(test2.output$error_perc)
