@@ -105,6 +105,7 @@ test1.output <-
 
 # check how many unique taxa are left
 length(unique(test1.output$taxon))
+nrow(test1.output)
 
 # null model i.e. randomly chosen equations
 
@@ -308,6 +309,11 @@ test2.b <-
   test2.b %>%
   select(author_year, species, life_stage, lat_dd, lon_dd, length, mass)
 
+# there is a problem with the Scatella data i.e. same mass for different lengths
+test2.b <- 
+  test2.b %>%
+  filter(species != "Scatella")
+
 # make the names the same between the two datasets
 test2.dat <- 
   lapply(list(test2.a, test2.b), function(x) {
@@ -332,7 +338,7 @@ test2.output <-
                        longitude_dd = "lon",
                        trait = "equation", 
                        workflow = "workflow2",
-                       max_tax_dist = 3,
+                       max_tax_dist = 3.5,
                        gen_sp_dist = 0.5
   )
 
@@ -347,37 +353,68 @@ test2.output <-
   test2.output %>%
   filter(!is.na(dry_biomass_mg) )
 
+# calculate error percentages of the measurements
 test2.output <- 
   test2.output %>%
-  select(author_year, taxon, life_stage, length_mm, scientificName, db.scientificName, 
-         tax_distance, id,
-         mass_mg, dry_biomass_mg, life_stage_match) %>%
   mutate(dry_biomass_mg = round(dry_biomass_mg, 5),
          error_perc = (abs(mass_mg - dry_biomass_mg)/mass_mg)*100)
 
 # check how many unique taxa there are
 length(unique(test2.output$taxon))
 
+# check how many data points there are
+nrow(test2.output)
+
 p4 <- 
   ggplot(data = test2.output,
        mapping = aes(x = log10(mass_mg), 
                      y = log10(dry_biomass_mg),
                      colour = author_year) ) +
-  geom_point() +
+  geom_point(alpha = 0.75) +
   ylab("Estimated dry biomass (mg, log10)") +
   xlab("Expert dry biomass (mg, log10)") +
   geom_abline(intercept = 0, slope = 1, 
               colour = "#ec7853", linetype = "dashed", size = 1) +
-  theme_meta()
+  scale_colour_manual(values = c("#0c1787", "#fadb25")) +
+  theme_meta() +
+  theme(legend.position = "none")
 plot(p4)
 
-# check the large errors
-test2.output %>%
-  filter(error_perc > quantile(test2.output$error_perc, 0.95)) %>%
-  View()
+# summarise the error by taxonomic distance
+test2.output.s <- 
+  test2.output %>%
+  group_by(tax_distance) %>%
+  summarise(mean_error = mean(error_perc, na.rm = TRUE),
+            sd_error = sd(error_perc, na.rm = TRUE))
 
-ggsave(filename = here("figures/fig_6.pdf"), plot = p4, 
-       units = "cm", width = 10, height = 10, dpi = 300)
+p5 <- 
+  ggplot() +
+  ylab("Absolute deviation (%)") +
+  xlab("Taxonomic distance") +
+  geom_quasirandom(data = test2.output,
+                   mapping = aes(x = tax_distance, y = error_perc), 
+                   width = 0.15, alpha = 0.15) +
+  geom_point(data = test2.output.s,
+             mapping = aes(x = tax_distance, y = mean_error),
+             size = 2.5) +
+  geom_errorbar(data = test2.output.s,
+                mapping = aes(x = tax_distance, 
+                              ymin = mean_error - sd_error,
+                              ymax = mean_error + sd_error),
+                width = 0.1) +
+  theme_meta()
+plot(p5)
+
+p45 <- ggarrange(p4, p5, ncol = 2,nrow = 1,
+                 labels = c("a", "b"),
+                 widths = c(1, 1),
+                 font.label = list(size = 11, color = "black", face = "plain")
+)
+plot(p45)
+
+# check the outliers
+ggsave(filename = here("figures/fig_6.pdf"), plot = p45, 
+       units = "cm", width = 20, height = 10, dpi = 300)
 
 cor.test(log10(test2.output$mass_mg), log10(test2.output$dry_biomass_mg) )
 
@@ -387,8 +424,9 @@ sd(test2.output$error_perc)
 round(range(test2.output$error_perc), 3)
 
 test2.output %>%
-  filter(error_perc < 200) %>%
-  summarise(mean = mean(error_perc),
+  filter( error_perc < 200 ) %>%
+  summarise(m = mean(error_perc),
             sd = sd(error_perc))
+
 
 ### END
