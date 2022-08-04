@@ -163,10 +163,10 @@ p1 <-
 plot(p1)
 
 # observed correlation
-cor.test(test1.output$biomass_mg, test1.output$dry_biomass_mg)
+cor.test((test1.output$biomass_mg), (test1.output$dry_biomass_mg))
 
 # null correlations
-null_cor <- sapply(equ.null, function(x) cor(test1.output$biomass_mg, x) )
+null_cor <- sapply(equ.null, function(x) cor((test1.output$biomass_mg), (x) ) )
 quantile(null_cor, c(0.025, 0.975))
 
 # calculate percentage
@@ -416,7 +416,7 @@ plot(p45)
 ggsave(filename = here("figures/fig_6.pdf"), plot = p45, 
        units = "cm", width = 20, height = 10, dpi = 300)
 
-cor.test(log10(test2.output$mass_mg), log10(test2.output$dry_biomass_mg) )
+cor.test((test2.output$mass_mg), (test2.output$dry_biomass_mg) )
 
 # what about the error?
 mean(test2.output$error_perc)
