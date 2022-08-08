@@ -91,7 +91,7 @@ for(j in 1:length(database)) {
                                     ifelse(is.na(order), family, order) ) ) %>%
     mutate(db_higher_rank_source = database[j]) %>%
     mutate(row_id = 1:n()) %>%
-    select(row_id, original_search, scientificName, acceptedNameUsageID, db_higher_rank_source, db_taxon_higher_rank, db_taxon_higher)
+    select(row_id, original_search, scientificName, acceptedNameUsageID, db_higher_rank_source, family , db_taxon_higher_rank, db_taxon_higher)
   
   # remove the names that we were not able to resolve
   harm.tax <- 
