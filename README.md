@@ -1,72 +1,56 @@
 
 # FW_invert_biomass_allometry
 
-Pipeline to assign biomass-length allometry equations and other traits to a taxonomic name based on taxonomic hierarchy.
-
-## next steps:
-
-The next step is to input all the equation and length data and create the database. Then, make a test script to robustly test these different functions.
-
-Finally, we will need to integrate the gbif database as well. This should be simply about creating gbif versions of the different databases but it will be more complicated... Probably.
+Pipeline to assign body length-dry biomass allometry equations and other functional traits to a taxonomic name based on taxonomic hierarchy in freshwater invertebrates. However, the name-matching pipeline can technically be used for any taxonomic group.
 
 ## scripts: functions
 
-This folder contains functions that are used in multiple parts of the pipeline.
+This folder contains all the scripts used to create access and analyse the database. The different folders hold scripts for different tasks. The numbers of the folders and the numbers of the scripts within the folders indicate in which order the scripts should be run.
 
-> 01_get_taxon_id_function.R
+There are two scripts that hold general functions:
 
-To access the taxonomic backbones from taxize, a given taxon name needs to be converted into a numerical ID. This function takes a taxon name and the database and outputs the numerical ID required to use the other taxize functions.
++ 01_special_names_func.R : Function to generate the so-called *special names* that the database uses.
 
-The functions uses two other functions: (1) get_gbifid2(). It implements automatic checks on the output rather than a dynamic, user interaction and (2) extract_genus() which extracts the first name from a binomial.
++ 02_function_plotting_theme.R : Customised ggplot2 plotting function
 
-## scripts: create_database
+> 01_data_cleaning
 
-This folder contains functions and scripts that are used to create a database containing the relevant allometric equation data and the taxonomic database which contains relatedness information for taxa in the equation database.
+The data cleaning folder holds scripts that are used to clean the raw data that was compiled in excel files. The raw data files are then saved as .rds files and stored in the *database* folder.
 
-> 01_version_package_warnings.R
+> 02_create_database
 
-This script is sourced from all the other functions. It is designed to notify the user which packages were used to implement the functions. Moreover, it tests whether the user has the same version of the packages that were originally used to write the code and outputs the R-version used to write the code.
+There are four scripts in this folder. The first two are scripts that detect whether the correct packages are installed and describe the taxonomic distance between taxonomic ranks like families and genera:
 
-> 02_get_downstream_function.R
++ 01_version_package_warnings.R
 
-The downstream function from taxize gets taxon names downstream from a given numerical ID and database. However, it can sometimes get stuck due to a bad internet connection etc. Thus, this is a slight modification of the downstream that implements multiple tries if required.
++ 02_taxon_matrix_function.R
 
-> 03_gbif_downstream_function.R
+Then, there is a script that used to create the higher-level taxonomic graphs. This works by first harmonising all taxon names in the equation database to three different taxonomic backbones: COL, GBIF and ITIS. Once the names are harmonised, we extract either the family or order of each taxon name. Descendent taxa from all unique families and orders are then extracted and compiled into igraph objects that describe how the different taxon names i.e. species, genera, families, orders etc. relate to each other. These igraph objects are exported as .rds files and stored in the *database* folder.
 
-Function to get all downstream taxa from a given order to the genus level using the gbif database. The downstream taxa are then processed into a taxon list and a distance matrix with the taxonomic relatedness between all taxon names.
++ 03_create_taxon_database
 
-> 04_itis_downstream_function.R
+The final script is used to add biogeographical realm, major habitat type and ecoregion information to each equation in the database using the latitude and longitude data associated with each equation and Abell et al.'s (2008) global ecoregion map.
 
-Function to get all downstream from a given order to the genus level using the itis database. The downstream taxa are then processed into a taxon list and a distance matrix with the taxonomic relatedness between all taxon names.
++ 04_set_freshwater_ecoregion_data.R
 
-> 05_taxon_matrix_itis_function.R
+> 03_use_database
 
-The Itis database uses a complex taxononomic hierarchy structure. This structure can be found on pg. 12 at the following link: 
+This folder contains a script with functions that are written to access the database and find appropriate equations for a set of use-defined taxon names.
 
-- https://www.itis.gov/pdf/ITIS_ConceptualModelEntityDefinition.pdf
++ 01_search_database_ver2.R
 
-This script implements a numerical conversion of this taxonomic hierarchy structure.
+> 04_test_method
 
-> 06_get_taxonomic_information_function.R
+The script in this folder contains a set of idealised examples that are designed to cover the various permutations of inputs that different users might define. Examples are run through the search functions and the results are checked.
 
-This scripts contains two functions that combine the previous functions to package the relevant information for a given taxon name.
++ 01_test_method.R
 
-> 07_create_equation_database.R
+> 05_accuracy_analysis
 
-This script pulls together the equation databases and links them into a list which is outputted as .rds file.
+This folder contains the script where we test the accuracy of our method for matching names to appropriate equations. Specifically, we compare the biomass generated by selecting equations in the database to actual measured biomass that we compiled from the literature along with biomass generated from equations selected by experts.
 
-> 08_create_taxon_database.R
++ 01_accuracy_test_script.R
 
-This function combines all these functions to get the taxon information from order to genus for all taxon names in the equation database. The unique implementation in this script is to only get the taxonomic information from unique orders. These orders are then matched to the orders of the focal taxon names in the database which saves considerable computing time and memory.
+> 06_database_characteristics
 
-Finally, the database is exported as a .rds file which will then be searchable.
-
-## scripts: use_database
-
-This folder contains the scripts that allow users to extract suitable length-mass allometric equations and traits for a given taxon name given taxonomic relatedness.
-
-> 01_search_taxon_database.R
-
-Coming soon...
-
-
+These scripts are used to examine the taxonomic and geographical coverage of the equations in our database.
