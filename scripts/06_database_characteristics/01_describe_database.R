@@ -74,18 +74,6 @@ tax.dat %>%
 
 # describe the geographical coverage
 
-# set-up the CRS
-crdref <- CRS('+proj=longlat +datum=WGS84')
-
-# load the natural earth world layer
-world <- st_read("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/natural_earth/ne_10m_coastline.shp")
-
-# set the crs
-st_crs(world) <- crdref
-
-# convert to spatial object
-world <- as(world, 'Spatial')
-
 # load the habitat data
 hab.dat <- readxl::read_xlsx("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/habitat_database.xlsx")
 head(hab.dat)
@@ -113,9 +101,4 @@ ggplot() +
   theme_meta() +
   theme(panel.background = element_rect(fill = "grey90"))
 
-
-
-
-
-
-
+### END
