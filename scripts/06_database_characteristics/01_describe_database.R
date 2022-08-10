@@ -7,6 +7,12 @@ library(dplyr)
 library(readr)
 library(igraph)
 library(ggplot2)
+library(sp)
+library(sf)
+library(raster)
+
+# load the function plotting theme
+source(here("scripts/02_function_plotting_theme.R"))
 
 # describe the taxonomic coverage
 
@@ -67,6 +73,48 @@ tax.dat %>%
 
 
 # describe the geographical coverage
+
+# set-up the CRS
+crdref <- CRS('+proj=longlat +datum=WGS84')
+
+# load the natural earth world layer
+world <- st_read("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/natural_earth/ne_10m_coastline.shp")
+
+# set the crs
+st_crs(world) <- crdref
+
+# convert to spatial object
+world <- as(world, 'Spatial')
+
+# load the habitat data
+hab.dat <- readxl::read_xlsx("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/habitat_database.xlsx")
+head(hab.dat)
+
+# get the unique lat-lon coordinates
+hab.dat <- 
+  hab.dat %>%
+  filter( lat_dd != "NA" ) %>%
+  mutate(longitude = as.numeric(lon_dd),
+         latitude = as.numeric(lat_dd))
+
+# plot the points over the natural earth map
+ggplot() + 
+  geom_sf(data = spData::world, fill = "white", col = "black") +
+  coord_sf(ylim = c(-70,90)) +
+  geom_jitter(data = hab.dat,
+              mapping = aes(x = longitude, y = latitude),
+              colour = "black",
+              fill = "#FF3300",
+              width = 0.05,
+              shape = 21
+              ) +
+  ylab("Latitude (dd)") +
+  xlab("Longitude (dd)") +
+  theme_meta() +
+  theme(panel.background = element_rect(fill = "grey90"))
+
+
+
 
 
 
