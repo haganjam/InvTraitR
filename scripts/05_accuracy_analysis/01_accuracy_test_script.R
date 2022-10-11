@@ -52,22 +52,10 @@ test1.b <-
   test1.b %>%
   select(author_year, order, taxon, life_stage, lat, lon, mean_length_mm, mean_mass_g)
 
-# dataset3
-test1.c <- read_csv(paste0(path_rd, "test_data_Rudolph_2014.csv") )
-str(test1.c)
-
-# remove cases where life-stages are NA
-test1.c <- dplyr::filter(test1.c, !is.na(life_stage), life_stage != "NA")
-names(test1.c)
-
 # equalise the names
-test1.c <- 
-  test1.c %>%
-  select(author_year, order, taxon, life_stage, lat, lon, average_body_length_mm, average_mass_mg)
-
 test1.dat <- 
   
-  lapply(list(test1.a, test1.b, test1.c), function(x) {
+  lapply(list(test1.a, test1.b), function(x) {
   
   names(x) <- c("author_year", "order", "taxon", "life_stage", "lat", "lon", "body_length_mm", "biomass_mg")
   
@@ -165,7 +153,7 @@ error_plot <-
 
 # add a row with taxonomic distance of 2
 error_plot <- 
-  bind_rows(tibble(tax_distance = "2",
+  bind_rows(tibble(tax_distance = c("1.5", "2"),
                  error_perc = NA),
             error_plot)
 
@@ -221,6 +209,9 @@ ggsave(filename = here("figures/fig_4.pdf"), plot = p12,
 
 
 # test 1b: community-level simulations
+
+# function to simulate vectors of species abundances from a log-normal distribution
+# core function is from the mobsim() package
 Sim_regional <- function(nspec = 10, nind = 10000, cv_abun = 1, plot = TRUE) {
   
   # simulate a species pool
@@ -250,22 +241,23 @@ sp_list <- unique(test1.output$taxon)
 # set-up a parameter list
 par.space <- 
   expand.grid(REP = 1:10,
-              SR = seq(6, 18, 3),
-              IND = seq(100, 500, 50) )
+              SR = seq(6, 16, 2),
+              IND = seq(50, 500, 50) )
 
 nrow(par.space)
 
+output_df <- vector("list", length = nrow(par.space))
 for(i in 1:nrow(par.space)) {
   
   # generate a vector species abundances
   sp_abun <- Sim_regional(nspec = par.space[i,][["SR"]], 
-                          nind = par.space[i,][["IND"]],
-                          cv_abun = runif(n = 1, 0.5, 1),
+                          nind = rpois(n=1,par.space[i,][["IND"]]),
+                          cv_abun = 1,
                           plot = FALSE
   )
   
   # remove species names from the vector of species abundances
-  names(reg_vector) <- NULL
+  names(sp_abun) <- NULL
   
   # get a set of n species from the species list
   n_sp <- sample(sp_list, length(sp_abun), replace = FALSE)
@@ -276,10 +268,11 @@ for(i in 1:nrow(par.space)) {
     group_by(taxon) %>%
     sample_n(size = 1) %>%
     ungroup() %>%
-    select(taxon, biomass_mg, dry_biomass_mg)
+    select(taxon, tax_distance, biomass_mg, dry_biomass_mg) %>%
+    arrange(biomass_mg)
   
   # add the abundance data to the df_in vector
-  df_in$abun <- sp_abun
+  df_in$abun <- (sp_abun)
   
   # calculate the true and estimated biomasses
   df_in <- 
@@ -290,6 +283,8 @@ for(i in 1:nrow(par.space)) {
   # generate an output table
   output_df[[i]] <- tibble(total_abun = sum(sp_abun),
                            SR = length(sp_abun),
+                           tax_distance = mean(df_in$tax_distance),
+                           max_tax_distance = max(df_in$tax_distance),
                            true_com_biomass = sum(df_in$true_com_biomass),
                            est_com_biomass = sum(df_in$est_com_biomass))
   
@@ -304,22 +299,27 @@ output_df <-
   mutate(error_perc = (abs(true_com_biomass - est_com_biomass)/true_com_biomass)*100 )
 
 ggplot(data = output_df,
-       mapping = aes(x = log(true_com_biomass), 
-                     y = log(est_com_biomass), colour = SR)) +
+       mapping = aes(x = log10(true_com_biomass), 
+                     y = log10(est_com_biomass), colour = SR)) +
   geom_point() +
-  ylab("Est. community dry biomass (mg, loge)") +
-  xlab("True community dry biomass (mg, loge)") +
+  ylab("Est. community dry biomass (mg, log10)") +
+  xlab("True community dry biomass (mg, log10)") +
   geom_abline(intercept = 0, slope = 1, 
               colour = "#ec7853", linetype = "dashed", size = 1) +
   scale_colour_viridis_c(option = "C", begin = 0, end = 0.9) +
-  guides(color = guide_colourbar(title.position = "top", 
-                                 title.vjust = 1,
+  guides(color = guide_colourbar(title.position = "left", 
+                                 title.vjust = 1.2,
                                  frame.colour = "black", 
                                  ticks.colour = NA,
-                                 barwidth = 5,
+                                 barwidth = 8,
                                  barheight = 0.3)) +
-  theme_meta()
-  
+  theme_meta() +
+  theme(legend.position = "top")
+
+# what is the average error?
+mean(output_df$error_perc)
+sd(output_df$error_perc)
+
 
 # test 2: equations selected by expert
 
