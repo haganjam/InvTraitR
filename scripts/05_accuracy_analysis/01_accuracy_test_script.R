@@ -5,6 +5,7 @@
 library(here)
 library(dplyr)
 library(readr)
+library(mobsim)
 library(ggplot2)
 library(ggbeeswarm)
 library(ggpubr)
@@ -21,7 +22,7 @@ if(! dir.exists(here("figures"))){
 # path to where raw data is stored
 path_rd <- "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/"
 
-# test 1: actual body size data and actual length data from the literature
+# test 1a: actual body size data and actual length data from the literature
 
 # dataset1
 
@@ -36,7 +37,7 @@ names(test1.a)
 # equalise the names
 test1.a <- 
   test1.a %>%
-  select(Reference, Taxa, Life_stage, lat, lon, Length_mm, Dry_weight_mg)
+  select(Reference, order, Taxa, Life_stage, lat, lon, Length_mm, Dry_weight_mg)
 
 # dataset2
 test1.b <- read_csv(paste0(path_rd, "test_data_Gonzalez_2008.csv") )
@@ -49,7 +50,7 @@ names(test1.b)
 # equalise the names
 test1.b <- 
   test1.b %>%
-  select(author_year, taxon, life_stage, lat, lon, mean_length_mm, mean_mass_g)
+  select(author_year, order, taxon, life_stage, lat, lon, mean_length_mm, mean_mass_g)
 
 # dataset3
 test1.c <- read_csv(paste0(path_rd, "test_data_Rudolph_2014.csv") )
@@ -62,13 +63,13 @@ names(test1.c)
 # equalise the names
 test1.c <- 
   test1.c %>%
-  select(author_year, taxon, life_stage, lat, lon, average_body_length_mm, average_mass_mg)
+  select(author_year, order, taxon, life_stage, lat, lon, average_body_length_mm, average_mass_mg)
 
 test1.dat <- 
   
   lapply(list(test1.a, test1.b, test1.c), function(x) {
   
-  names(x) <- c("author_year", "taxon", "life_stage", "lat", "lon", "body_length_mm", "biomass_mg")
+  names(x) <- c("author_year", "order", "taxon", "life_stage", "lat", "lon", "body_length_mm", "biomass_mg")
   
   return(x)
   
@@ -88,7 +89,7 @@ test1.output <-
                        longitude_dd = "lon",
                        workflow = "workflow2",
                        trait = "equation", 
-                       max_tax_dist = 4,
+                       max_tax_dist = 3,
                        gen_sp_dist = 0.5
   )
 
@@ -107,48 +108,9 @@ test1.output <-
 length(unique(test1.output$taxon))
 nrow(test1.output)
 
-# null model i.e. randomly chosen equations
-
-# load the equation data
-equ.dat <- readRDS(file = paste0(here::here("database"), "/", "equation", "_database.rds"))
-head(equ.dat)
-
-equ.dat <- 
-  equ.dat %>%
-  select(equation_id, equation)
-
-equ.null <- 
-  lapply(1:1000, function(y) {
-  
-  sapply(test1.output$body_length_mm, function(x) {
-    
-    var1 <- x
-    equ <- equ.dat[sample(1:nrow(equ.dat), 1),][["equation"]]
-    
-    eval(parse(text = equ))
-    
-  })
-  
-})  
-
-# combine into a matrix
-equ.null.m <- do.call("rbind", equ.null)
-
-# calculate percentile intervals
-equ.null.m <- apply(equ.null.m, 2, function(x) quantile(x = x, c(0.025, 0.975)) )
-
-# add the percentile intervals to the test data
-test1.output$lower_PI <- apply(equ.null.m, 2, function(x) x[1] )
-test1.output$upper_PI <- apply(equ.null.m, 2, function(x) x[2] )
-
 # plot dry weight inferred versus actual dry weight
 p1 <- 
   ggplot() +
-  geom_ribbon(data = test1.output,
-              mapping = aes(x = log10(biomass_mg),
-                            ymin = log10(lower_PI),
-                            ymax = log10(upper_PI)),
-              alpha = 0.1) +
   geom_point(data = test1.output,
              mapping = aes(x = log10(biomass_mg), 
                            y = log10(dry_biomass_mg), colour = author_year),
@@ -165,79 +127,54 @@ plot(p1)
 # observed correlation
 cor.test((test1.output$biomass_mg), (test1.output$dry_biomass_mg))
 
-# null correlations
-null_cor <- sapply(equ.null, function(x) cor((test1.output$biomass_mg), (x) ) )
-quantile(null_cor, c(0.025, 0.975))
-
-# calculate percentage
+# calculate percentage for actual data
 test1.output <- 
   test1.output %>%
   mutate(error_perc = (abs(biomass_mg - dry_biomass_mg)/biomass_mg)*100 )
 
-# calculate the error for each randomisation
-equ.null.error <- 
+# null model i.e. order-level equations
+order.lev <- read_csv(paste0(path_rd, "test_data_Order_level_null_model.csv") )
+
+# create a data.frame to collect the null biomass estimations
+null_error <- tibble(tax_distance = ">4",
+                     biomass_mg = test1.output$biomass_mg)
+
+# calculate the order-level biomass from the input body lengths
+null_error$order_biomass_mg <- 
   
-  lapply(equ.null, function(x) {
-  
-  (abs(test1.output$biomass_mg - x)/test1.output$biomass_mg)*100
-  
-} )
+  mapply(function(x, y) {
+    
+    var1 <- y
+    equ <- parse(text = order.lev[order.lev[["order"]] == x,][["equation"]])
+    eval(equ)
+    
+  }, test1.output$order, test1.output$body_length_mm, USE.NAMES = FALSE)
 
-# unlist all randomisations
-equ.null.error <- unlist(equ.null.error)
+# calculate percentage for order-level equations
+null_error <- 
+  null_error %>%
+  mutate(error_perc = (abs(biomass_mg - order_biomass_mg)/biomass_mg)*100 ) %>%
+  select(tax_distance, error_perc)
 
-# plot the distributions of the true error and the randomised error
-error_hist <- bind_rows(tibble(Method = "FreshInvTraitR",
-                               error_perc = test1.output$error_perc),
-                        tibble(Method = "Random",
-                               error_perc = equ.null.error))
+# combine the null error with actual biomass data
+error_plot <- 
+  test1.output %>%
+  mutate(tax_distance = as.character(tax_distance)) %>%
+  select(tax_distance, error_perc) %>%
+  bind_rows(., null_error)
 
-# get the 90 % quantiles of the error for both
-p2 <- 
-  error_hist %>%
-  group_by(Method) %>%
-  mutate(low_PI = quantile(error_perc, 0.025),
-         upper_PI = quantile(error_perc, 0.975)) %>%
-  filter(error_perc > low_PI, error_perc < upper_PI) %>%
-  
-  ggplot(data = .,
-       mapping = aes(x = log( error_perc ), colour = Method, fill = Method)) +
-  geom_density(alpha = 0.6) +
-  scale_colour_manual(values = c("#0c1787", "#fadb25")) +
-  scale_fill_manual(values = c("#0c1787", "#fadb25")) +
-  xlab("Absolute deviation (%, loge)") +
-  ylab("Density") +
-  geom_vline(xintercept = mean( log( test1.output$error_perc) ), 
-             linetype = "dashed", size = 0.5,
-             colour = "#0c1787") +
-  geom_vline(xintercept = mean(log(equ.null.error) ), 
-             linetype = "dashed", size = 0.5,
-             colour = "#fadb25") +
-  theme_meta()
-plot(p2)
+# add a row with taxonomic distance of 2
+error_plot <- 
+  bind_rows(tibble(tax_distance = "2",
+                 error_perc = NA),
+            error_plot)
 
-p12 <- ggarrange(p1, p2, ncol = 2,nrow = 1,
-                 labels = c("a", "b"),
-                 widths = c(1, 1.3),
-                 font.label = list(size = 11, color = "black", face = "plain")
-                 )
-plot(p12)
-
-# export Fig. 4
-ggsave(filename = here("figures/fig_4.pdf"), plot = p12, 
-       units = "cm", width = 20, height = 10, dpi = 300)
-
-# what is this like on an absolute scale? Ten-fold difference in average error
-mean(test1.output$error_perc)
-sd(test1.output$error_perc)
-mean(equ.null.error)
-sd(equ.null.error)
-
-max(test1.output$error_perc)
+error_plot$tax_distance <- factor(error_plot$tax_distance,
+                                  levels = c("0", "0.5", "1", "1.5", "2", "2.5", "3", ">4"))
 
 # plot how the error changes with taxonomic distance
-test1.output.s <- 
-  test1.output %>%
+error_plot_sum <- 
+  error_plot %>%
   group_by(tax_distance) %>%
   summarise(mean_error = mean(error_perc, na.rm = TRUE),
             sd_error = sd(error_perc, na.rm = TRUE))
@@ -248,28 +185,141 @@ test1.output %>%
             sd_error = sd(error_perc), 
             n = length(unique(taxon)))
 
-p3 <- 
+p2 <- 
   ggplot() +
-  ylab("Absolute deviation (%)") +
+  geom_hline(yintercept = 50, linetype = "dashed") +
+  annotate(geom = "text", x = 8.35, y = 1800, label = "c", size = 5) +
+  ylab("Deviation (%)") +
   xlab("Taxonomic distance") +
-  geom_quasirandom(data = test1.output,
+  geom_vline(xintercept = 7.5) +
+  geom_quasirandom(data = error_plot,
               mapping = aes(x = tax_distance, y = error_perc), 
-              width = 0.15, alpha = 0.15) +
-  geom_point(data = test1.output.s,
+              width = 0.15, alpha = 0.1) +
+  geom_point(data = error_plot_sum,
              mapping = aes(x = tax_distance, y = mean_error),
-             size = 2.5) +
-  geom_errorbar(data = test1.output.s,
+             size = 2,
+             colour = "red") +
+  geom_errorbar(data = error_plot_sum,
                 mapping = aes(x = tax_distance, 
                               ymin = mean_error - sd_error,
                               ymax = mean_error + sd_error),
-                width = 0.1) +
+                width = 0.1,
+                colour = "red") +
+  scale_x_discrete(breaks = c("0", "1", "2", "3", ">4")) +
   theme_meta()
-plot(p3)
+plot(p2)
 
-# export Fig. 5
-ggsave(filename = here("figures/fig_5.pdf"), plot = p3, 
-       units = "cm", width = 10, height = 10, dpi = 300)
+# combine the figures
+p12 <- 
+  ggarrange(p1, p2, ncol = 2, nrow = 1, labels = c("a", "b"),
+            label.y = 0.975,
+            font.label = list(size = 12, color = "black", face = "plain"))
 
+# export Fig. 4
+ggsave(filename = here("figures/fig_4.pdf"), plot = p12, 
+       units = "cm", width = 20, height = 10, dpi = 300)
+
+
+# test 1b: community-level simulations
+Sim_regional <- function(nspec = 10, nind = 10000, cv_abun = 1, plot = TRUE) {
+  
+  # simulate a species pool
+  reg_vector <- sim_sad(s_pool = nspec, n_sim = nind, sad_type = "lnorm", sad_coef = list(cv_abund = cv_abun))
+  attr(reg_vector, "class") <- NULL
+  names(reg_vector) <- NULL
+  
+  # add species names to these species
+  specnames <- paste("sp", 1:length(reg_vector), sep = "")
+  names(reg_vector) <- specnames
+  
+  # plot a histogram of the regional species pool abundance distribution
+  if (plot) {
+    hist(reg_vector)
+  }
+  
+  # add a species number attribute to the reg_vector
+  attr(reg_vector, "specnumber") <- nspec
+  
+  return(reg_vector)
+  
+}
+
+# get a species list
+sp_list <- unique(test1.output$taxon)
+
+# set-up a parameter list
+par.space <- 
+  expand.grid(REP = 1:10,
+              SR = seq(6, 18, 3),
+              IND = seq(100, 500, 50) )
+
+nrow(par.space)
+
+for(i in 1:nrow(par.space)) {
+  
+  # generate a vector species abundances
+  sp_abun <- Sim_regional(nspec = par.space[i,][["SR"]], 
+                          nind = par.space[i,][["IND"]],
+                          cv_abun = runif(n = 1, 0.5, 1),
+                          plot = FALSE
+  )
+  
+  # remove species names from the vector of species abundances
+  names(reg_vector) <- NULL
+  
+  # get a set of n species from the species list
+  n_sp <- sample(sp_list, length(sp_abun), replace = FALSE)
+  
+  df_in <- 
+    test1.output %>%
+    filter(taxon %in% n_sp) %>%
+    group_by(taxon) %>%
+    sample_n(size = 1) %>%
+    ungroup() %>%
+    select(taxon, biomass_mg, dry_biomass_mg)
+  
+  # add the abundance data to the df_in vector
+  df_in$abun <- sp_abun
+  
+  # calculate the true and estimated biomasses
+  df_in <- 
+    df_in %>%
+    mutate(true_com_biomass = biomass_mg*abun,
+           est_com_biomass = dry_biomass_mg*abun)
+  
+  # generate an output table
+  output_df[[i]] <- tibble(total_abun = sum(sp_abun),
+                           SR = length(sp_abun),
+                           true_com_biomass = sum(df_in$true_com_biomass),
+                           est_com_biomass = sum(df_in$est_com_biomass))
+  
+}
+
+# bind output into a data.frame
+output_df <- as_tibble(do.call("rbind", output_df))
+
+# calculate the absolute deviation (%)
+output_df <- 
+  output_df %>%
+  mutate(error_perc = (abs(true_com_biomass - est_com_biomass)/true_com_biomass)*100 )
+
+ggplot(data = output_df,
+       mapping = aes(x = log(true_com_biomass), 
+                     y = log(est_com_biomass), colour = SR)) +
+  geom_point() +
+  ylab("Est. community dry biomass (mg, loge)") +
+  xlab("True community dry biomass (mg, loge)") +
+  geom_abline(intercept = 0, slope = 1, 
+              colour = "#ec7853", linetype = "dashed", size = 1) +
+  scale_colour_viridis_c(option = "C", begin = 0, end = 0.9) +
+  guides(color = guide_colourbar(title.position = "top", 
+                                 title.vjust = 1,
+                                 frame.colour = "black", 
+                                 ticks.colour = NA,
+                                 barwidth = 5,
+                                 barheight = 0.3)) +
+  theme_meta()
+  
 
 # test 2: equations selected by expert
 
@@ -365,7 +415,7 @@ length(unique(test2.output$taxon))
 # check how many data points there are
 nrow(test2.output)
 
-p4 <- 
+p1 <- 
   ggplot(data = test2.output,
        mapping = aes(x = log10(mass_mg), 
                      y = log10(dry_biomass_mg),
@@ -380,6 +430,12 @@ p4 <-
   theme(legend.position = "none")
 plot(p4)
 
+# which points are outliers?
+test2.output %>%
+  filter(error_perc > quantile(test2.output$error_perc, 0.95)) %>%
+  mutate(mass_mg = log10(mass_mg)) %>%
+  View()
+
 # summarise the error by taxonomic distance
 test2.output.s <- 
   test2.output %>%
@@ -387,33 +443,36 @@ test2.output.s <-
   summarise(mean_error = mean(error_perc, na.rm = TRUE),
             sd_error = sd(error_perc, na.rm = TRUE))
 
-p5 <- 
+p2 <- 
   ggplot() +
-  ylab("Absolute deviation (%)") +
+  ylab("Deviation (%)") +
   xlab("Taxonomic distance") +
+  geom_hline(yintercept = 50, linetype = "dashed") +
   geom_quasirandom(data = test2.output,
                    mapping = aes(x = tax_distance, y = error_perc), 
-                   width = 0.15, alpha = 0.15) +
+                   width = 0.15, alpha = 0.1) +
   geom_point(data = test2.output.s,
              mapping = aes(x = tax_distance, y = mean_error),
-             size = 2.5) +
+             size = 2,
+             colour = "red") +
   geom_errorbar(data = test2.output.s,
                 mapping = aes(x = tax_distance, 
                               ymin = mean_error - sd_error,
                               ymax = mean_error + sd_error),
-                width = 0.1) +
+                width = 0.1,
+                colour = "red") +
   theme_meta()
-plot(p5)
+plot(p2)
 
-p45 <- ggarrange(p4, p5, ncol = 2,nrow = 1,
+p12 <- ggarrange(p1, p2, ncol = 2,nrow = 1,
                  labels = c("a", "b"),
                  widths = c(1, 1),
                  font.label = list(size = 11, color = "black", face = "plain")
 )
-plot(p45)
+plot(p12)
 
 # check the outliers
-ggsave(filename = here("figures/fig_6.pdf"), plot = p45, 
+ggsave(filename = here("figures/fig_5.pdf"), plot = p12, 
        units = "cm", width = 20, height = 10, dpi = 300)
 
 cor.test((test2.output$mass_mg), (test2.output$dry_biomass_mg) )
@@ -427,6 +486,5 @@ test2.output %>%
   filter( error_perc < 200 ) %>%
   summarise(m = mean(error_perc),
             sd = sd(error_perc))
-
 
 ### END
