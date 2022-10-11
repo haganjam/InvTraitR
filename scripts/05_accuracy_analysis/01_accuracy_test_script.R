@@ -138,6 +138,8 @@ null_error$order_biomass_mg <-
     
   }, test1.output$order, test1.output$body_length_mm, USE.NAMES = FALSE)
 
+cor.test(null_error$biomass_mg, null_error$order_biomass_mg)
+
 # calculate percentage for order-level equations
 null_error <- 
   null_error %>%
@@ -160,15 +162,22 @@ error_plot <-
 error_plot$tax_distance <- factor(error_plot$tax_distance,
                                   levels = c("0", "0.5", "1", "1.5", "2", "2.5", "3", ">4"))
 
+# what about the average error?
+mean(test1.output$error_perc)
+sd(test1.output$error_perc)
+
 # plot how the error changes with taxonomic distance
 error_plot_sum <- 
   error_plot %>%
   group_by(tax_distance) %>%
   summarise(mean_error = mean(error_perc, na.rm = TRUE),
-            sd_error = sd(error_perc, na.rm = TRUE))
+            sd_error = sd(error_perc, na.rm = TRUE),
+            n = n())
+print(error_plot_sum)
 
 test1.output %>%
-  filter(tax_distance <= 1) %>%
+  filter(tax_distance != ">4") %>%
+  filter(as.numeric(tax_distance) <= 1) %>%
   summarise(mean_error = mean(error_perc),
             sd_error = sd(error_perc), 
             n = length(unique(taxon)))
@@ -298,10 +307,11 @@ output_df <-
   output_df %>%
   mutate(error_perc = (abs(true_com_biomass - est_com_biomass)/true_com_biomass)*100 )
 
-ggplot(data = output_df,
+p1 <- 
+  ggplot(data = output_df,
        mapping = aes(x = log10(true_com_biomass), 
                      y = log10(est_com_biomass), colour = SR)) +
-  geom_point() +
+  geom_point(alpha = 0.5) +
   ylab("Est. community dry biomass (mg, log10)") +
   xlab("True community dry biomass (mg, log10)") +
   geom_abline(intercept = 0, slope = 1, 
@@ -320,6 +330,12 @@ ggplot(data = output_df,
 mean(output_df$error_perc)
 sd(output_df$error_perc)
 
+# what's the correlation
+cor.test(log10(output_df$true_com_biomass), log10(output_df$est_com_biomass) )
+
+# export Fig. 5
+ggsave(filename = here("figures/fig_5.pdf"), plot = p1, 
+       units = "cm", width = 10, height = 10, dpi = 300)
 
 # test 2: equations selected by expert
 
@@ -428,7 +444,7 @@ p1 <-
   scale_colour_manual(values = c("#0c1787", "#fadb25")) +
   theme_meta() +
   theme(legend.position = "none")
-plot(p4)
+plot(p1)
 
 # which points are outliers?
 test2.output %>%
@@ -442,6 +458,7 @@ test2.output.s <-
   group_by(tax_distance) %>%
   summarise(mean_error = mean(error_perc, na.rm = TRUE),
             sd_error = sd(error_perc, na.rm = TRUE))
+print(test2.output.s)
 
 p2 <- 
   ggplot() +
@@ -472,10 +489,10 @@ p12 <- ggarrange(p1, p2, ncol = 2,nrow = 1,
 plot(p12)
 
 # check the outliers
-ggsave(filename = here("figures/fig_5.pdf"), plot = p12, 
+ggsave(filename = here("figures/fig_6.pdf"), plot = p12, 
        units = "cm", width = 20, height = 10, dpi = 300)
 
-cor.test((test2.output$mass_mg), (test2.output$dry_biomass_mg) )
+cor.test(log10(test2.output$mass_mg), log10(test2.output$dry_biomass_mg) )
 
 # what about the error?
 mean(test2.output$error_perc)
