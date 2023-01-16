@@ -639,39 +639,50 @@ Select_Traits_Tax_Dist <- function(data,
           
           mapply( function(db.name, id) {
             
-            # extract genus for species-level names
-            target.name2 <- Extract_Genus(target.name)
-            db.name2 <- Extract_Genus(db.name)
-            
-            tax.dist <- 
+            if(db.name == target.name) {
               
-              igraph::distances(htm, 
-                                v.x[which(attr(v.x, "names") == target.name2)],
-                                v.x[which(attr(v.x, "names") == db.name2)],
-                                mode = c("all"),
-                                algorithm = c("bellman-ford")
-                                
-              )
-            
-            # if length is zero then the distance is zero
-            if(length(tax.dist) == 0) {
-              
-              tax.dist <- NA
+              tax.dist <- 0
               
             } else {
               
-              tax.dist <- tax.dist[[1]]
+              # extract genus for species-level names
+              target.name2 <- Extract_Genus(target.name)
+              db.name2 <- Extract_Genus(db.name)
+              
+              tax.dist <- 
+                
+                igraph::distances(htm, 
+                                  v.x[which(attr(v.x, "names") == target.name2)],
+                                  v.x[which(attr(v.x, "names") == db.name2)],
+                                  mode = c("all"),
+                                  algorithm = c("bellman-ford")
+                                  
+                )
+              
+              # if length is zero then the distance is zero
+              if(length(tax.dist) == 0) {
+                
+                tax.dist <- NA
+                
+              } else {
+                
+                tax.dist <- tax.dist[[1]]
+                
+              }
+              
+              # extra distance for species level: gen_sp_dist argument
+              sp.l <- sum( ifelse( c(attr(target.name2, "n"), attr(db.name2, "n")) > 1,  gen_sp_dist, 0))
+              
+              # add extra distance
+              tax.dist <- tax.dist + sp.l
               
             }
-            
-            # extra distance for species level: gen_sp_dist argument
-            sp.l <- sum( ifelse( c(attr(target.name2, "n"), attr(db.name2, "n")) > 1,  gen_sp_dist, 0))
             
             dist.df <- 
               dplyr::tibble(db.scientificName = db.name,
                             trait_out = trait,
                             id = id,
-                            tax_distance = tax.dist + sp.l
+                            tax_distance = tax.dist
               )
             
             return(dist.df)

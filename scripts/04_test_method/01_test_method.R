@@ -321,12 +321,14 @@ error_string <- "Get_Trait_From_Taxon() function is not correctly outputting tra
 # generate some test data to test the function
 df.test1 <- 
   data.frame(taxon_name = c("Gammarus", "Gammarus", "Gammarus", "Daphnia", "Triops granitica", "Triops", 
-                            "Simocephalus vetulus", "Simocephalus vetulus", "Turbellaria", "Oligochaeta", "Oligochaeta"),
+                            "Simocephalus vetulus", "Simocephalus vetulus", "Turbellaria", "Oligochaeta", "Oligochaeta",
+                            "Daphnia gessneri"),
              Life_stage = c("adult", "adult", "adult", "adult", "adult", "adult",
-                            "adult", "adult", "none", "none", "none"),
-             lat = c( rep(50.5, 6), rep(47.5, 5) ) ,
-             lon = c( rep(4.98, 6), rep(-105.4, 5) ),
-             body_size_mm = rnorm(11, 10, 2))
+                            "adult", "adult", "none", "none", "none",
+                            "adult"),
+             lat = c( rep(50.5, 6), rep(47.5, 6) ) ,
+             lon = c( rep(4.98, 6), rep(-105.4, 6) ),
+             body_size_mm = rnorm(12, 10, 2))
 
 # add an NA to see how the functions react
 df.test1[9, ]$body_size_mm <- NA
