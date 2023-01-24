@@ -1,4 +1,3 @@
-
 # FW_invert_biomass_allometry
 
 Pipeline to assign body length-dry biomass allometry equations and other functional traits to a taxonomic name based on taxonomic hierarchy in freshwater invertebrates. However, the name-matching pipeline can technically be used for any taxonomic group.
@@ -54,3 +53,8 @@ This folder contains the script where we test the accuracy of our method for mat
 > 06_database_characteristics
 
 These scripts are used to examine the taxonomic and geographical coverage of the equations in our database.
+
+## Development
+
+There's a [devcontainer](https://containers.dev/) setup included. If you use
+VSC you should be prompted to open the project in a container automatically.
