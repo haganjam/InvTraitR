@@ -1,3 +1,7 @@
 \.Rproj
 \.Rproj\.user
 .devcontainer
+
+R/02_function_plotting_theme.R
+R/05_accuracy_analysis
+R/06_database_characteristics
