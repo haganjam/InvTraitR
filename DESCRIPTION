@@ -1,4 +1,4 @@
-Package: FreshInvTraitR
+Package: InvTraitR
 Title: Body length-dry biomass allometry equations and other functional traits for taxonomic names based on taxonomic hierarchy in freshwater invertebrates
 Version: 0.0.0.1
 Authors@R: 
@@ -7,7 +7,7 @@ Authors@R:
 Description: Given a taxonomic name, this package will try to find the "nearest" body length - dry biomass equation from the embedded database for freshwater invertebrates. 
 Depends:
 	R (>= 4.2.0)
-License: TODO
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
