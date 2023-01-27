@@ -38,7 +38,7 @@ View(tax.dat)
 names(tax.dat)
 tax.dat <- 
   tax.dat %>%
-  select(group1, group2, db_taxon, db_higher_rank_source, id, scientificName, family, db_taxon_higher_rank, db_taxon_higher)
+  dplyr::select(group1, group2, db_taxon, db_higher_rank_source, id, scientificName, family, db_taxon_higher_rank, db_taxon_higher)
 View(tax.dat)
 
 # summarise the taxon data
@@ -75,7 +75,7 @@ tax.dat %>%
 # describe the geographical coverage
 
 # load the habitat data
-hab.dat <- readxl::read_xlsx("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/habitat_database.xlsx")
+hab.dat <- readxl::read_xlsx("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver2/habitat_database.xlsx")
 head(hab.dat)
 
 # get the unique lat-lon coordinates
@@ -86,19 +86,32 @@ hab.dat <-
          latitude = as.numeric(lat_dd))
 
 # plot the points over the natural earth map
-ggplot() + 
-  geom_sf(data = spData::world, fill = "white", col = "black") +
-  coord_sf(ylim = c(-70,90)) +
-  geom_jitter(data = hab.dat,
-              mapping = aes(x = longitude, y = latitude),
+hab.sum <- 
+  hab.dat %>%
+  mutate(location = as.character(paste0(lat_dd, lon_dd )) ) %>%
+  group_by(database, location) %>%
+  summarise(N = length(unique(id)),
+            lat = mean(latitude),
+            lon = mean(longitude))
+p1 <- 
+  ggplot() + 
+  geom_sf(data = spData::world, fill = "white", col = "black", size = 0.35) +
+  coord_sf(ylim = c(-70,90), xlim = c(-170, 180)) +
+  geom_jitter(data = hab.sum,
+              mapping = aes(x = lon, y = lat, size = N),
               colour = "black",
-              fill = "#FF3300",
+              fill = "cornflowerblue",
               width = 0.05,
-              shape = 21
-              ) +
-  ylab("Latitude (dd)") +
-  xlab("Longitude (dd)") +
-  theme_meta() +
-  theme(panel.background = element_rect(fill = "grey90"))
+              shape = 21) +
+  ylab(NULL) +
+  xlab(NULL) +
+  theme_minimal() +
+  theme(axis.text = element_blank(),
+        panel.background = element_rect(fill = "white"),
+        legend.position = "bottom")
+p1
+
+ggsave(filename = "figures/map.png", dpi = 400,
+       units = "cm", width = 20, height = 12)
 
 ### END
