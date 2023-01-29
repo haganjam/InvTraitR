@@ -757,8 +757,7 @@ Select_Traits_Tax_Dist <- function(data,
 #' @param gen_sp_dist - taxonomic distance between a genus and a species (default = 0.5)
 #' 
 #' @return tibble with chosen traits or equations based on the input parameters
-#' 
-
+#' @export 
 Get_Trait_From_Taxon <- function(data, 
                                  target_taxon, life_stage, latitude_dd, longitude_dd, body_size,
                                  workflow = "workflow2",
