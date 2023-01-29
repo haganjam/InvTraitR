@@ -10,8 +10,8 @@ library(ggbeeswarm)
 library(ggpubr)
 
 # load the use-scripts
-source(here("R/02_function_plotting_theme.R"))
-source(here("R/03_use_database/01_search_database_ver2.R"))
+source(here("companion_scripts/02_function_plotting_theme.R"))
+source(here("companion_scripts/03_use_database/01_search_database_ver2.R"))
 
 # check if a figure folder exists
 if (!dir.exists(here("figures"))) {

@@ -18,13 +18,13 @@ library(Matrix)
 library(here)
 
 # load the special names function
-source(here("R/01_special_names_func.R"))
+source(here("R/special_names.R"))
 
 # check for the correct packages
-source(here("R/02_create_database/01_version_package_warnings.R"))
+source(here("companion_scripts/02_create_database/01_version_package_warnings.R"))
 
 # load the taxonomic distance matrix
-source(here("R/02_create_database/02_taxon_matrix_function.R"))
+source(here("companion_scripts/02_create_database/02_taxon_matrix_function.R"))
 
 # set-up a vector of taxonomic databases: "gbif", "itis", "col"
 database <- c("gbif", "itis", "col")

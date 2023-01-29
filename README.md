@@ -8,7 +8,7 @@ This folder contains all the scripts used to create access and analyse the datab
 
 There are two scripts that hold general functions:
 
-+ 01_special_names_func.R : Function to generate the so-called *special names* that the database uses.
++ special_names.R : Function to generate the so-called *special names* that the database uses.
 
 + 02_function_plotting_theme.R : Customised ggplot2 plotting function
 

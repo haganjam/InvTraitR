@@ -12,8 +12,13 @@
 #' @author James G. Hagan (james_hagan(at)outlook.com)
 #' @return vector of special taxon names
 special_taxon_names <- function() {
-  return(c(
-    "Rotifera", "Tardigrada", "Nematoda", "Platyhelminthes",
-    "Turbellaria", "Annelida", "Oligochaeta"
-  ))
+  c(
+    "Rotifera",
+    "Tardigrada",
+    "Nematoda",
+    "Platyhelminthes",
+    "Turbellaria",
+    "Annelida",
+    "Oligochaeta"
+  )
 }

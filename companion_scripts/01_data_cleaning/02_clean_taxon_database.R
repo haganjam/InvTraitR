@@ -6,7 +6,7 @@ library(here)
 library(stringdist)
 
 # load special names function
-source(here("R/01_special_names_func.R"))
+source(here("R/special_names.R"))
 
 # load the equation data
 t.dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/taxon_database.xlsx")
