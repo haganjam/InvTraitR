@@ -1,8 +1,12 @@
 \.Rproj
 \.Rproj\.user
+^LICENSE\.md$
+.gitignore
 .devcontainer
 
 R/02_function_plotting_theme.R
+R/01_data_cleaning/
+R/02_create_database
+R/04_test_method
 R/05_accuracy_analysis
 R/06_database_characteristics
-^LICENSE\.md$
