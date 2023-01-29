@@ -11,7 +11,7 @@ library(sf)
 library(raster)
 
 # load the function plotting theme
-source(here("R/02_function_plotting_theme.R"))
+source(here("companion_scripts/02_function_plotting_theme.R"))
 
 # describe the taxonomic coverage
 

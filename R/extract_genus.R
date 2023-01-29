@@ -82,6 +82,7 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   # set-up a vector of required packages
   pack_vec <- c("bdc", "dplyr", "taxadb", "curl")
 
+  # TODO: remove this - required packages belong into the metadata
   # make sure the correct packages are installed
   test_1 <- function(x) {
     all(pack_vec %in% installed.packages()[, 1])
@@ -193,7 +194,7 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
   data$db <- ifelse(is.na(data[[clean.col]]), NA, database)
 
   # subset out taxa with special names
-  source(here::here("R/01_special_names_func.R"))
+  source(here::here("R/special_names.R")) ## TODO: remove
   spec.names <- special_taxon_names()
   data.spec <- dplyr::filter(data, (eval(parse(text = clean.col)) %in% spec.names))
 
@@ -302,6 +303,7 @@ Get_Habitat_Data <- function(data, latitude_dd, longitude_dd) {
   # make a vector of packages
   pack_vec <- c("dplyr", "sp", "raster")
 
+  # TODO: remove this - required packages belong into metadata
   # make sure the correct packages are installed
   test_1 <- function(x) {
     all(pack_vec %in% installed.packages()[, 1])
@@ -443,6 +445,7 @@ Select_Traits_Tax_Dist <- function(data,
   # make a vector of packages
   pack_vec <- c("igraph", "dplyr")
 
+  # TODO: remove this - required packages belong into metadata
   # make sure the correct packages are installed
   test_1 <- function(x) {
     all(pack_vec %in% installed.packages()[, 1])
@@ -483,6 +486,7 @@ Select_Traits_Tax_Dist <- function(data,
 
   assertthat::assert_that(test_3(trait))
 
+  # TODO: library shouldn't be used in a package
   # load the igraph package so that igraph objects can be manipulated
   library(igraph)
 
