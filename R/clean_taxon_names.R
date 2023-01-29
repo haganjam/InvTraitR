@@ -57,6 +57,7 @@ clean_taxon_names <- function(
     )
 
     # check that the life-stage column is a character vector without NAs
+    # TODO: this doesn't seem correct, there's NA in the list
     data_life_stage <- data[[life_stage]]
     assert_that(
         (is.character(data_life_stage) & all(data_life_stage %in% c(
@@ -65,7 +66,7 @@ clean_taxon_names <- function(
         ))),
         msg = paste(
             data_life_stage,
-            "one or more entries do not have appropriate life-stage classes: see documentation"
+            "one or more entries do not have appropriate life-stage classes: see documentation" # TODO: not yet in the docs
         )
     )
 
