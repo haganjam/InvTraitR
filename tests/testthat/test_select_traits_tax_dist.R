@@ -53,3 +53,14 @@ test_that("given a number < 0 for dists,
     expect_error(select_traits_tax_dist(NULL, "", 1, "equation", 0))
     expect_error(select_traits_tax_dist(NULL, "", 1, "equation", -1))
 })
+
+test_that("given an unsupported trait,
+            when select_traits_tax_dist
+            then error", {
+    expect_error(
+        select_traits_tax_dist(data.frame(), "tax", 3, "nope"),
+        ".*trait.*"
+    )
+})
+
+# TODO: add happy path tests

@@ -58,3 +58,6 @@ These scripts are used to examine the taxonomic and geographical coverage of the
 
 There's a [devcontainer](https://containers.dev/) setup included. If you use
 VSC you should be prompted to open the project in a container automatically.
+
+`devtools` are bundled with the devcontainer. Load `library(devtools)` and you
+have `load_all()`, `test()` and `check()` ready at hand.

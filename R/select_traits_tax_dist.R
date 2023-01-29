@@ -12,33 +12,33 @@
 #' @return string with the genus name
 #' @import assertthat
 extract_genus <- function(binomial) {
-  # input validation: string w/ only letters
-  assert_that(
-    is.string(binomial),
-    msg = paste(binomial, "is not a string")
-  )
-  assert_that(
-    !grepl(pattern = "[[:punct:]]", binomial),
-    msg = paste(binomial, "contains special characters")
-  )
+    # input validation: string w/ only letters
+    assert_that(
+        is.string(binomial),
+        msg = paste(binomial, "is not a string")
+    )
+    assert_that(
+        !grepl(pattern = "[[:punct:]]", binomial),
+        msg = paste(binomial, "contains special characters")
+    )
 
-  # split the binomial into separate parts
-  binomial.1st <- unlist(strsplit(x = binomial, split = " ", fixed = TRUE))
+    # split the binomial into separate parts
+    binomial.1st <- unlist(strsplit(x = binomial, split = " ", fixed = TRUE))
 
-  # calculate the length of the split object
-  binomial.l <- length(binomial.1st)
+    # calculate the length of the split object
+    binomial.l <- length(binomial.1st)
 
-  # if the resulting object has a length of greater than 1, then extract
-  # first element
-  if (binomial.l > 1) {
-    binomial <- binomial.1st[1]
-  }
+    # if the resulting object has a length of greater than 1, then extract
+    # first element
+    if (binomial.l > 1) {
+        binomial <- binomial.1st[1]
+    }
 
-  # add a word count attribute
-  attr(binomial, "n") <- binomial.l
+    # add a word count attribute
+    attr(binomial, "n") <- binomial.l
 
-  # return the modified name
-  binomial
+    # return the modified name
+    binomial
 }
 
 #' @title select_traits_tax_dist()
@@ -72,16 +72,10 @@ select_traits_tax_dist <- function(data,
     assert_that(is.number(gen_sp_dist) & (gen_sp_dist >= 0))
 
     # make sure the trait chosen is supported
-    test_3 <- function(x) {
-        trait %in% c("equation", paste0("trait", 1:10))
-    }
-    assertthat::on_failure(test_3) <- function(call, env) {
-        paste0(
-            deparse(call$x),
-            " is not a valid trait or equation, see documentation"
-        )
-    }
-    assertthat::assert_that(test_3(trait))
+    assert_that(
+        trait %in% c("equation", paste0("trait", 1:10)),
+        msg = paste(trait, "is not a valid trait or equation, see documentation") # TODO: not yet in docs
+    )
 
     # load the trait data
     if (!exists(paste0(trait, "_db"))) {

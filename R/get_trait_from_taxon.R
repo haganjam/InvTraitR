@@ -679,6 +679,7 @@ Select_Traits_Tax_Dist <- function(data,
 #'  (default = 0.5)
 #' @return tibble with chosen traits or equations based on the input parameters
 #' @export
+#' @import assertthat
 get_trait_from_taxon <- function(data,
                                  target_taxon,
                                  life_stage,
@@ -690,19 +691,16 @@ get_trait_from_taxon <- function(data,
                                  trait = "equation",
                                  gen_sp_dist = 0.5) {
   # make sure the max_tax_dist argument is a number
-  test_1 <- function(x) {
-    is.character(x) & (x %in% c("workflow1", "workflow2"))
-  }
-  assertthat::on_failure(test_1) <- function(call, env) {
-    paste0(
-      deparse(call$x),
-      " must be a character string corresponding to: workflow1 or workflow2"
+  assert_that(
+    is.character(workflow) & (workflow %in% c("workflow1", "workflow2")),
+    msg = paste(
+      workflow,
+      "must be a character string corresponding to: workflow1 or workflow2"
     )
-  }
-  assertthat::assert_that(test_1(workflow))
+  )
 
   # make sure the max_tax_dist argument is a number
-  test_2 <- function(x, y) {
+  test_2 <- function(x, y) { # TODO: and if trait != equation? will yield nothing
     if (x == "equation") {
       !is.na(y) & is.character(y)
     }
@@ -731,10 +729,10 @@ get_trait_from_taxon <- function(data,
     # life-stage and latitude-longitude
 
     # get a formula to describe the grouping used for the calculation
-    form.agg <- reformulate(termlabels = c("group_id"), body_size)
+    form.agg <- stats::reformulate(termlabels = c("group_id"), body_size)
 
     # calculate the minimum body size per group
-    x.min <- aggregate(form.agg,
+    x.min <- stats::aggregate(form.agg,
       data = data.unique, FUN = function(x) {
         if (all(is.na(x))) {
           return(NA)
@@ -742,14 +740,14 @@ get_trait_from_taxon <- function(data,
           return(min(x, na.rm = TRUE))
         }
       },
-      na.action = na.pass
+      na.action = stats::na.pass
     )
 
     # rename the body_size variable to min_body_size_mm
     names(x.min)[names(x.min) == body_size] <- "min_body_size_mm"
 
     # calculate the maximum body size per group
-    x.max <- aggregate(form.agg,
+    x.max <- stats::aggregate(form.agg,
       data = data.unique, FUN = function(x) {
         if (all(is.na(x))) {
           return(NA)
@@ -757,7 +755,7 @@ get_trait_from_taxon <- function(data,
           return(max(x, na.rm = TRUE))
         }
       },
-      na.action = na.pass
+      na.action = stats::na.pass
     )
 
     # rename the body_size variable to max_body_size_mm

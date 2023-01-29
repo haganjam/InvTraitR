@@ -13,8 +13,57 @@
 #'  longitude in decimal degrees
 #' @return tibble of the input data with habitat data from Abell et al.s (2008)
 #'  ecoregion map attached as additional columns function to get habitat data
-#' @importFrom here here
+#' @import assertthat
 get_habitat_data <- function(data, latitude_dd, longitude_dd) {
+    # check if the data input is a data.frame or a tibble
+    assert_that(
+        is.data.frame(data) | dplyr::is.tbl(data),
+        msg = paste(data, "is not a data.frame or tibble object")
+    )
+
+    # check if the latitude and longitude columns are present in the data object
+    assert_that(
+        assertthat::is.string(latitude_dd) &
+            assertthat::is.string(longitude_dd) &
+            all(c(latitude_dd, longitude_dd) %in% names(data)),
+        msg = paste(
+            latitude_dd,
+            "or",
+            longitude_dd,
+            "are not strings and/or are not present in the data object"
+        )
+    )
+
+    # check if the data object has more than 0 rows
+    assert_that(
+        nrow(data) > 0,
+        msg = paste(data, "object has zero rows and therefore no data")
+    )
+
+    # check if all lat/lon rows are numeric or all NA
+    data_lat <- data[[latitude_dd]]
+    data_lon <- data[[longitude_dd]]
+    assert_that(
+        (is.numeric(data_lat) & is.numeric(data_lon)) |
+            (all(is.na(data_lat)) & all(is.na(data_lon))), # TODO: this is intended?
+        msg = paste(data_lat, "or", data_lon, "are not numeric variables")
+    )
+
+    # make sure the decimal degree variables are within the ranges of
+    # the variables
+    assert_that(
+        all(data_lat[!is.na(data_lat)] <= 90) &
+            all(data_lat[!is.na(data_lat)] >= -90) &
+            all(data_lon[!is.na(data_lon)] <= 180) &
+            all(data_lon[!is.na(data_lon)] >= -180),
+        msg = paste(
+            data_lat,
+            "or",
+            data_lon,
+            "are too big/small to be valid decimal degrees"
+        )
+    )
+
     # load the freshwater habitat map
     if (!exists("fw_map")) {
         fw_map <- readRDS(file = here::here("database/freshwater_ecoregion_map.rds"))
@@ -24,57 +73,6 @@ get_habitat_data <- function(data, latitude_dd, longitude_dd) {
     if (!exists("fw_meta")) {
         fw_meta <- readRDS(file = here::here("database/freshwater_ecoregion_metadata.rds"))
     }
-
-    # test if the data input is a data.frame or a tibble
-    test_2 <- function(x) {
-        (is.data.frame(x) | dplyr::is.tbl(x))
-    }
-    assertthat::on_failure(test_2) <- function(call, env) {
-        paste0(deparse(call$x), " is not a data.frame or tibble object")
-    }
-    assertthat::assert_that(test_2(data))
-
-    # test if the latitude and longitude columns are present in the data object
-    test_3 <- function(x, y, z) {
-        (assertthat::is.string(y) & assertthat::is.string(z)) & all(c(y, z) %in% names(x))
-    }
-    assertthat::on_failure(test_3) <- function(call, env) {
-        paste0(deparse(call$y), " or ", deparse(call$x), " are not strings and/or are not present in the data object")
-    }
-    assertthat::assert_that(test_3(x = data, y = latitude_dd, z = longitude_dd))
-
-    # test if the data object has more than 0 rows
-    test_4 <- function(x) {
-        (nrow(x) > 0)
-    }
-    assertthat::on_failure(test_4) <- function(call, env) {
-        paste0(deparse(call$x), " object has zero rows and therefore no data")
-    }
-    assertthat::assert_that(test_4(x = data))
-
-    # test if the data object has more than 0 rows
-    test_5 <- function(x, y) {
-        (is.numeric(x) & is.numeric(y)) | (all(is.na(x)) & all(is.na(x)))
-    }
-    assertthat::on_failure(test_5) <- function(call, env) {
-        paste0(deparse(call$x), " or ", deparse(call$y), " are not numeric variables")
-    }
-    assertthat::assert_that(test_5(x = data[[latitude_dd]], data[[longitude_dd]]))
-
-    # make sure the decimal degree variables are within the ranges of the variables
-    test_6 <- function(x, y) {
-        t1 <- all(x[!is.na(x)] <= 90)
-        t2 <- all(x[!is.na(x)] >= -90)
-
-        t3 <- all(y[!is.na(y)] <= 180)
-        t4 <- all(y[!is.na(y)] >= -180)
-
-        all(c(t1, t2, t3, t4))
-    }
-    assertthat::on_failure(test_6) <- function(call, env) {
-        paste0(deparse(call$x), " or ", deparse(call$x), " are too big/small to be valid decimal degrees")
-    }
-    assertthat::assert_that(test_6(x = data[[latitude_dd]], data[[longitude_dd]]))
 
     # make sure the latitude-longitude data are numeric variables
     data[[latitude_dd]] <- as.numeric(data[[latitude_dd]])
