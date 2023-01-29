@@ -648,10 +648,10 @@ Select_Traits_Tax_Dist <- function(data,
 #' @title Get_Trait_From_Taxon()
 #' @description Use taxonomic distance, life-stages, habitat data etc. to
 #'  select an appropriate trait/equation
-#' @details This function uses the Clean_Taxon_Names() function to clean and
+#' @details This function uses the [clean_taxon_names()] function to clean and
 #'  harmonise the names of a target dataset. The Get_Habitat_Data() function is
 #'  then used to get relevant habitat information. The
-#'  Select_Traits_Tax_Dist() function calculates taxonomic distance for each
+#'  [select_traits_tax_dist()] function calculates taxonomic distance for each
 #'  focal taxon and the relevant entries in the different higher-level taxon
 #'  graphs generated from the GBIF, ITIS and COL taxonomic backbones. This
 #'  information is combined to choose an appropriate trait or equation for each
@@ -679,22 +679,26 @@ Select_Traits_Tax_Dist <- function(data,
 #'  (default = 0.5)
 #' @return tibble with chosen traits or equations based on the input parameters
 #' @export
-Get_Trait_From_Taxon <- function(data,
-                                 target_taxon, life_stage, latitude_dd, longitude_dd, body_size,
+get_trait_from_taxon <- function(data,
+                                 target_taxon,
+                                 life_stage,
+                                 latitude_dd,
+                                 longitude_dd,
+                                 body_size,
                                  workflow = "workflow2",
-                                 max_tax_dist = 3, trait = "equation", gen_sp_dist = 0.5) {
+                                 max_tax_dist = 3,
+                                 trait = "equation",
+                                 gen_sp_dist = 0.5) {
   # make sure the max_tax_dist argument is a number
   test_1 <- function(x) {
     is.character(x) & (x %in% c("workflow1", "workflow2"))
   }
-
   assertthat::on_failure(test_1) <- function(call, env) {
     paste0(
       deparse(call$x),
       " must be a character string corresponding to: workflow1 or workflow2"
     )
   }
-
   assertthat::assert_that(test_1(workflow))
 
   # make sure the max_tax_dist argument is a number
@@ -703,11 +707,9 @@ Get_Trait_From_Taxon <- function(data,
       !is.na(y) & is.character(y)
     }
   }
-
   assertthat::on_failure(test_2) <- function(call, env) {
     paste0("if trait = equation then body size data must be provided")
   }
-
   assertthat::assert_that(test_2(trait, body_size))
 
   # if the trait is an equation then we calculate the maximum and minimum
@@ -719,7 +721,11 @@ Get_Trait_From_Taxon <- function(data,
     data.unique <- data
 
     # get a unique identifier
-    data.unique[["group_id"]] <- apply(data.unique[, c(target_taxon, life_stage, latitude_dd, longitude_dd)], 1, function(x) paste0(x, collapse = "_"))
+    data.unique[["group_id"]] <- apply(
+      data.unique[, c(target_taxon, life_stage, latitude_dd, longitude_dd)],
+      1,
+      function(x) paste0(x, collapse = "_")
+    )
 
     # get min and max of body size for each unique combination of name,
     # life-stage and latitude-longitude
@@ -785,8 +791,8 @@ Get_Trait_From_Taxon <- function(data,
     data.unique
   )
 
-  # run the Get_Habitat_Data() function
-  x1 <- Get_Habitat_Data(data = data.unique, latitude_dd = latitude_dd, longitude_dd = longitude_dd)
+  # run the get_habitat_data() function
+  x1 <- get_habitat_data(data = data.unique, latitude_dd = latitude_dd, longitude_dd = longitude_dd)
 
   # set-up a vector of taxonomic databases
   db_vec <- c("gbif", "itis", "col")
@@ -794,8 +800,7 @@ Get_Trait_From_Taxon <- function(data,
   # clean the taxon names for each of the three taxonomic databases
   y1 <-
     lapply(db_vec, function(database) {
-      # run the Clean_Taxon_Names() function
-      cl.tax <- Clean_Taxon_Names(
+      cl.tax <- clean_taxon_names(
         data = x1,
         target_taxon = target_taxon, life_stage = life_stage,
         database = database
@@ -814,7 +819,7 @@ Get_Trait_From_Taxon <- function(data,
   y1 <- dplyr::distinct(y1)
 
   # run the Select_Traits_Tax_Dist() function
-  z1 <- Select_Traits_Tax_Dist(data = y1, target_taxon = target_taxon)
+  z1 <- select_traits_tax_dist(data = y1, target_taxon = target_taxon)
 
   # bind the rows together
   z1 <- dplyr::bind_rows(z1)
@@ -1050,12 +1055,10 @@ Get_Trait_From_Taxon <- function(data,
   test_3 <- function(x, y) {
     all(unique(x[[target_taxon]]) == unique(y[[target_taxon]]))
   }
-
   assertthat::on_failure(test_3) <- function(call, env) {
     "number of unique taxa in input and output do not match"
   }
-
   assertthat::assert_that(test_3(x = data, y = z1.select))
 
-  return(z1.select)
+  z1.select
 }
