@@ -252,7 +252,7 @@ df.test3 <- df.test1[c(7, 8), ]
 head(df.test3)
 
 # run the function
-x <- Clean_Taxclean_taxon_nameson_Names(
+x <- clean_taxon_names(
   data = df.test3,
   target_taxon = "taxon_name",
   life_stage = "Life_stage", database = "gbif"
