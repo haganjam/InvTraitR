@@ -17,6 +17,7 @@
 #' @import dplyr
 #' @import taxadb
 #' @import curl
+#' @import assertthat
 clean_taxon_names <- function(
     data,
     target_taxon,
