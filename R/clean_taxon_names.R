@@ -137,17 +137,30 @@ clean_taxon_names <- function(
         data.harm$row_id <- data$row_id
 
         # higher taxon rank
-        data.harm <- dplyr::mutate(data.harm,
-            db_taxon_higher_rank = ifelse(is.na(order) & is.na(family), NA,
-                ifelse(is.na(order) & !is.na(family), "family", "order")
+        data.harm[["db_taxon_higher_rank"]] <-
+            ifelse(is.na(data.harm[["order"]]) & is.na(data.harm[["family"]]), NA,
+                ifelse(is.na(data.harm[["order"]]) & !is.na(data.harm[["family"]]), "family", "order")
             )
-        )
-        # higher taxon name
-        data.harm <- dplyr::mutate(data.harm,
-            db_taxon_higher = ifelse(is.na(order) & is.na(family), NA,
-                ifelse(is.na(order), family, order)
-            )
-        )
+
+        # create a new column" (db_taxon_higher)
+        data.harm[["db_taxon_higher"]] <- "A"
+
+        # add either NA, family name or order name based on rows
+
+        # add NA
+        data.harm[which(is.na(x.rows)), ][["db_taxon_higher"]] <- NA
+
+        # add family name
+        x.rows.f <- which(x.rows == "family")
+        if (length(x.rows.f) > 0) {
+            data.harm[x.rows.f, ][["db_taxon_higher"]] <- data.harm[x.rows.f, ][["family"]]
+        }
+
+        # add order name
+        x.rows.o <- which(x.rows == "order")
+        if (length(x.rows.o) > 0) {
+            data.harm[x.rows.o, ][["db_taxon_higher"]] <- data.harm[x.rows.o, ][["order"]]
+        }
 
         # select the relevant columns
         data.harm <- data.harm[, c(
