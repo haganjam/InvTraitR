@@ -80,9 +80,6 @@ clean_taxon_names <- function(
         save_outputs = FALSE
     )
 
-    # write some code to remove the output file
-    unlink("Output", recursive = TRUE)
-
     # add the clean names to the data.frame
     clean.col <- paste("clean_", target_taxon, sep = "")
     data[[clean.col]] <- clean.names$names_clean
@@ -119,16 +116,17 @@ clean_taxon_names <- function(
     # remove the special names from the data
     data <- dplyr::filter(data, !(row_id %in% data.spec[["row_id"]]))
 
-    # if the are data points that are not special names, then we clean those names
+    # if the are data points that are not special names
+    # then we clean those names
     if (nrow(data) > 0) {
         # harmonise the names to the chosen data.base
-        data.harm <-
-            bdc::bdc_query_names_taxadb(
-                sci_name = data[[clean.col]],
-                db = database,
-                rank_name = "Animalia",
-                rank = "kingdom"
-            )
+        data.harm <- bdc::bdc_query_names_taxadb(
+            sci_name = data[[clean.col]],
+            db = database,
+            rank_name = "Animalia",
+            rank = "kingdom",
+            export_accepted = FALSE
+        )
 
         # write some code to remove the output file
         unlink("Output", recursive = TRUE)

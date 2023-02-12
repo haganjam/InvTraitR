@@ -9,4 +9,5 @@
 library(testthat)
 library(InvTraitR)
 
+set.seed(347854)
 test_check("InvTraitR")
