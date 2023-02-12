@@ -226,18 +226,18 @@ Clean_Taxon_Names <- function(data, target_taxon, life_stage, database = "gbif")
     # higher taxon rank
     data.harm[["db_taxon_higher_rank"]] <- 
       ifelse(is.na(data.harm[["order"]]) & is.na(data.harm[[family]] ), NA,
-             ifelse(is.na(data.harm[["order"]]) & !is.na(data.harm[["family"]]), "family", "order")
+             ifelse(is.na(data.harm[["order"]]) & !is.na(data.harm[["family"]]), "family", "order"))
     
     # higher taxon name
-    # 1. determine which rows need NA, family name or order name
-    x <- ifelse(is.na(data.harm[["order"]]) & is.na(data.harm[["family"]]), NA,
-                ifelse(is.na(data.harm[["order"]]), "family", "order"))
-    # 2. create a new column" (db_taxon_higher)
+    # determine which rows need NA, family name or order name
+    x.rows <- ifelse(is.na(data.harm[["order"]]) & is.na(data.harm[["family"]]), NA,
+                     ifelse(is.na(data.harm[["order"]]), "family", "order"))
+    # create a new column" (db_taxon_higher)
     data.harm[["db_taxon_higher"]] <- 0
-    # 3. add either NA, family name or order name based on rows
-    data.harm[which(is.na(x)), ][["db_taxon_higher"]] <- NA
-    data.harm[which(x == "family"), ][["db_taxon_higher"]] <- data.harm[which(x == "family"), ][["family"]]
-    data.harm[which(x == "order"), ][["db_taxon_higher"]] <- data.harm[which(x == "order"), ][["order"]]
+    # add either NA, family name or order name based on rows
+    data.harm[which(is.na(x.rows)), ][["db_taxon_higher"]] <- NA
+    data.harm[which(x.rows == "family"), ][["db_taxon_higher"]] <- data.harm[which(x.rows == "family"), ][["family"]]
+    data.harm[which(x.rows == "order"), ][["db_taxon_higher"]] <- data.harm[which(x.rows == "order"), ][["order"]]
 
     # select the relevant columns
     data.harm <- data.harm[, c(
