@@ -2,7 +2,7 @@
 set.seed(347854)
 
 # load the search functions for testing
-source(here::here("companion_scripts/03_use_database/01_search_database_ver2.R"))
+source(here::here("R/extract_genus.R"))
 
 # Get_Habitat_Data tests
 
