@@ -3,6 +3,7 @@
 ^LICENSE\.md$
 .gitignore
 .devcontainer
+.github
 cran-comments.md
-
+.gitattributes
 companion_scripts
