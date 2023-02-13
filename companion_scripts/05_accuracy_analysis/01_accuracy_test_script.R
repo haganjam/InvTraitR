@@ -73,7 +73,7 @@ View(test1.dat)
 
 # use method to get biomass data
 test1.output <-
-  Get_Trait_From_Taxon(
+  get_trait_from_taxon(
     data = test1.dat,
     target_taxon = "taxon",
     life_stage = "life_stage",
@@ -449,7 +449,7 @@ View(test2.dat)
 
 # test the method
 test2.output <-
-  Get_Trait_From_Taxon(
+  get_trait_from_taxon(
     data = test2.dat,
     target_taxon = "taxon",
     life_stage = "life_stage",
