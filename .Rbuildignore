@@ -5,3 +5,5 @@
 .devcontainer
 
 companion_scripts
+^.*\.Rproj$
+^\.Rproj\.user$
