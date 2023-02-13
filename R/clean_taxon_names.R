@@ -139,6 +139,10 @@ clean_taxon_names <- function(
             ifelse(is.na(data.harm[["order"]]) & is.na(data.harm[["family"]]), NA,
                 ifelse(is.na(data.harm[["order"]]) & !is.na(data.harm[["family"]]), "family", "order")
             )
+        
+        # higher taxon names
+        x.rows <- ifelse(is.na(data.harm[["order"]]) & is.na(data.harm[["family"]]), NA,
+                         ifelse(is.na(data.harm[["order"]]), "family", "order"))
 
         # create a new column" (db_taxon_higher)
         data.harm[["db_taxon_higher"]] <- "A"
