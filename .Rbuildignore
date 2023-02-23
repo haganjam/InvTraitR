@@ -3,4 +3,7 @@
 ^LICENSE\.md$
 .gitignore
 .devcontainer
-
+.github
+database
+companion_scripts
+cran-comments.md
