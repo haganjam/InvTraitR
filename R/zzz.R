@@ -1,9 +1,14 @@
 # check and load DB files from GH for the installed version
 .onLoad <- function(libname, pkgname) {
     pkg_version <- utils::packageVersion(pkgname)
-    local_db_dir <- paste0(file.path("database"), .Platform$file.sep)
+    local_db_dir <- file.path(
+        fs::path_package(pkgname),
+        .Platform$file.sep,
+        file.path("database"),
+        .Platform$file.sep
+    )
     remote_db_dir <- "database"
-    dir.create(file.path(local_db_dir), showWarnings = FALSE)
+    dir.create(local_db_dir, showWarnings = FALSE)
     base_url <- "https://github.com/haganjam/FW_invert_biomass_allometry"
 
     db_files <- list(
@@ -22,7 +27,7 @@
 
     versioned_base_url <- NULL
     for (file in db_files) {
-        file_path <- paste0(local_db_dir, file)
+        file_path <- file.path(local_db_dir, file)
         if (!file.exists(file_path)) {
             # check if versioned files are available
             # - pull mainline otherwise
@@ -64,7 +69,7 @@
 }
 
 .onAttach <- function(libname, pkgname) {
-    # shalle we print the version on load?
+    # let's greet our users :)
     pkg_version <- utils::packageVersion(pkgname)
     packageStartupMessage(sprintf(
         "Welcome to %s in version %s",
