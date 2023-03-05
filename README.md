@@ -83,3 +83,7 @@ VSC you should be prompted to open the project in a container automatically.
 
 `devtools` are bundled with the devcontainer. Load `library(devtools)` and you
 have `load_all()`, `test()` and `check()` ready at hand.
+
+We use `renv` to provide reproducibility as far as it gets with R.
+Use `renv::snapshot()` after changing dependencies, `renv::install()` to install declared versions
+of the dependencies and `renv::update()` to update to latest CRAN versions (before pushin to CRAN).
