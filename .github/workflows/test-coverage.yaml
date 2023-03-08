@@ -39,8 +39,10 @@ jobs:
           path: ${{ env.RENV_PATHS_ROOT }}
           key: ${{ steps.get-version.outputs.os-version }}-${{ steps.get-version.outputs.r-version }}-${{ inputs.cache-version }}-${{ hashFiles('renv.lock') }}
           restore-keys: ${{ steps.get-version.outputs.os-version }}-${{ steps.get-version.outputs.r-version }}-${{inputs.cache-version }}-
-      - name: Install packages
+      - name: Restore packages
+        shell: Rscript {0}
         run: |
+          if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
           renv::restore()
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
