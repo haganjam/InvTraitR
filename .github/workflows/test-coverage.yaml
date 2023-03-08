@@ -20,7 +20,7 @@ jobs:
           use-public-rspm: true
       - name: Install OS packages
         run:   |
-          apt install -y libgdal-dev libudunits2-dev
+          sudo apt install -y libgdal-dev libudunits2-dev
       - name: Set RENV_PATHS_ROOT
         shell: bash
         run: |

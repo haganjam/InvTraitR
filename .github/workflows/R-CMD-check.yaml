@@ -35,7 +35,7 @@ jobs:
       - name: Install OS packages
         run:   |
               if [ "$RUNNER_OS" == "Linux" ]; then
-                    apt install -y libgdal-dev libudunits2-dev
+                    sudo apt install -y libgdal-dev libudunits2-dev
               elif [ "$RUNNER_OS" == "Windows" ]; then
                     echo "$RUNNER_OS not yet supported"
                     exit 1
