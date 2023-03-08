@@ -1281,7 +1281,7 @@
     },
     "raster": {
       "Package": "raster",
-      "Version": "3.6-14",
+      "Version": "3.6-20",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1291,7 +1291,7 @@
         "sp",
         "terra"
       ],
-      "Hash": "2406e2380237f4dcf84e83260419895a"
+      "Hash": "ebebd9f0f203a129eb2da96470191b82"
     },
     "readr": {
       "Package": "readr",
