@@ -54,7 +54,7 @@ test_that("given a dataframe and a column not found within,
     expect_error(clean_taxon_names(df, 1, "larva", "gbif"))
 })
 
-test_that("given a dataframe without string values in taxon col,
+test_that("given a dataframe without string values in target_taxon col,
             when clean_taxon_names,
             then error", {
     a <- c(1, 2)
@@ -70,7 +70,7 @@ test_that("given an unsupported life stage,
             when clean_taxon_names,
             then error", {
     expect_error(
-        clean_taxon_names(make_valid_df(), "a", "unsup", "gbif"),
+        clean_taxon_names(make_valid_df(), "a", "unsup", "gbif"), # unsup should be "b"
         regexp = ".*not.*appropriate life-stage.*"
     )
 })
@@ -190,5 +190,5 @@ test_that("Does the clean_taxon_names() function work
     )
 
     # test if the output is correct
-    exptect_true(all(x$db == "gbif" | is.na(x$db)))
+    expect_true(all(x$db == "gbif" | is.na(x$db)))
 })
