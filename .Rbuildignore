@@ -4,3 +4,5 @@
 .gitignore
 .devcontainer
 
+^.*\.Rproj$
+^\.Rproj\.user$
