@@ -3,6 +3,13 @@
 ^LICENSE\.md$
 .gitignore
 .devcontainer
+<<<<<<< HEAD
 
 ^.*\.Rproj$
 ^\.Rproj\.user$
+=======
+.github
+database
+companion_scripts
+cran-comments.md
+>>>>>>> ce6808feb36013a446b6eef81df9cb172c878884
