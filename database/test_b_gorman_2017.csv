@@ -1,0 +1,84 @@
+IS,species,life_stage,lat_dd,lon_dd,length,reference,group,formula,min,max,ok,mass
+13,Clinocera stagnalis,larva,64.05,-21.3,0.957,benke,Empididae,0.0066*BL^2.436,1.6,8,1,0.005929873
+13,Clinocera stagnalis,larva,64.05,-21.3,1.807,benke,Empididae,0.0066*BL^2.436,1.6,8,0,0.027892921
+13,Clinocera stagnalis,larva,64.05,-21.3,1.212,benke,Empididae,0.0066*BL^2.436,1.6,8,1,0.010542808
+13,Clinocera stagnalis,larva,64.05,-21.3,1.057,benke,Empididae,0.0066*BL^2.436,1.6,8,1,0.007554237
+13,Clinocera stagnalis,larva,64.05,-21.3,1.258,benke,Empididae,0.0066*BL^2.436,1.6,8,1,0.011544257
+16,Clinocera stagnalis,larva,64.05,-21.3,2.941,benke,Empididae,0.0066*BL^2.436,1.6,8,0,0.091368778
+4,Clinocera stagnalis,larva,64.05,-21.3,2.3528,benke,Empididae,0.0066*BL^2.436,1.6,8,0,0.053054842
+7,Clinocera stagnalis,larva,64.05,-21.3,2.984,benke,Empididae,0.0066*BL^2.436,1.6,8,0,0.094657245
+7,Clinocera stagnalis,larva,64.05,-21.3,1.494,benke,Empididae,0.0066*BL^2.436,1.6,8,1,0.017549389
+11,Clinocera stagnalis,larva,64.05,-21.3,3.808,benke,Empididae,0.0066*BL^2.436,1.6,8,0,0.171443759
+11,Clinocera stagnalis,larva,64.05,-21.3,3.742,benke,Empididae,0.0066*BL^2.436,1.6,8,0,0.164295153
+11,Dicranota exclusa,larva,64.05,-21.3,2.332,benke,Dicranota exclusa,0.0027*BL^2.637,1.2,9.2,0,0.025180476
+13,Dicranota exclusa,larva,64.05,-21.3,7.862,benke,Dicranota exclusa,0.0027*BL^2.637,1.2,9.2,0,0.620703779
+13,Dicranota exclusa,larva,64.05,-21.3,5.442,benke,Dicranota exclusa,0.0027*BL^2.637,1.2,9.2,0,0.235265923
+11,Dicranota exclusa,larva,64.05,-21.3,1.74,benke,Dicranota exclusa,0.0027*BL^2.637,1.2,9.2,0,0.011633011
+11,Dicranota exclusa,larva,64.05,-21.3,7.661,benke,Dicranota exclusa,0.0027*BL^2.637,1.2,9.2,0,0.579728336
+13,Dicranota exclusa,larva,64.05,-21.3,9.15,benke,Dicranota exclusa,0.0027*BL^2.637,1.2,9.2,0,0.926043077
+13,Dicranota exclusa,larva,64.05,-21.3,7.494,benke,Dicranota exclusa,0.0027*BL^2.637,1.2,9.2,0,0.54699551
+11,Dicranota exclusa,larva,64.05,-21.3,2.451,benke,Dicranota exclusa,0.0027*BL^2.637,1.2,9.2,0,0.028711909
+10,Dicranota exclusa,larva,64.05,-21.3,8.263125,benke,Dicranota exclusa,0.0027*BL^2.637,1.2,9.2,0,0.70773935
+11,Dicranota exclusa,larva,64.05,-21.3,10.029,benke,Dicranota exclusa,0.0027*BL^2.637,1.2,9.2,1,1.179451638
+11,Dicranota exclusa,larva,64.05,-21.3,6.909,benke,Dicranota exclusa,0.0027*BL^2.637,1.2,9.2,0,0.441470438
+13,Dicranota exclusa,larva,64.05,-21.3,9.853,benke,Dicranota exclusa,0.0027*BL^2.637,1.2,9.2,1,1.125651238
+1,Helobdella stagnalis,none,64.05,-21.3,3,Edwards,Helobdella stagnalis,0.0646*BL^2.12,3.3,7.2,1,0.663329906
+5,Hydrellia,larva,64.05,-21.3,1.794,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.282817012
+9,Limnophora riparia,larva,64.05,-21.3,5.9,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.138759936
+1,Limnophora riparia,larva,64.05,-21.3,2.601,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.031767505
+14,Limnophora riparia,larva,64.05,-21.3,4.0144,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.06938213
+6,Limnophora riparia,larva,64.05,-21.3,9.3,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.314774669
+8,Limnophora riparia,larva,64.05,-21.3,6.13,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.148648087
+9,Limnophora riparia,larva,64.05,-21.3,5.62,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.12713228
+8,Limnophora riparia,larva,64.05,-21.3,8.514,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.268516533
+8,Limnophora riparia,larva,64.05,-21.3,9.648,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.336292824
+1,Limnophora riparia,larva,64.05,-21.3,6.578,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.168771626
+8,Limnophora riparia,larva,64.05,-21.3,4.049,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.070462244
+1,Limnophora riparia,larva,64.05,-21.3,5.961,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.141352954
+5,Limnophora riparia,larva,64.05,-21.3,7.376,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.20739969
+9,Limnophora riparia,larva,64.05,-21.3,4.001,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.068965813
+9,Limnophora riparia,larva,64.05,-21.3,5.99,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.142593178
+6,Limoniinae,larva,64.05,-21.3,8.5,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.267722293
+10,Limoniinae,larva,64.05,-21.3,4.7,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.092152392
+12,Oligochaeta,none,64.05,-21.3,1.192212257,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,1,0.003351043
+7,Oligochaeta,none,64.05,-21.3,2.202,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.010587648
+5,Oligochaeta,none,64.05,-21.3,1.855,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.007676476
+5,Oligochaeta,none,64.05,-21.3,5.105,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.051228197
+6,Oligochaeta,none,64.05,-21.3,5.759360987,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.06422718
+5,Oligochaeta,none,64.05,-21.3,1.501,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,1,0.005160964
+14,Oligochaeta,none,64.05,-21.3,3.796726457,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.029404209
+10,Oligochaeta,none,64.05,-21.3,3.01441704,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.019077581
+7,Oligochaeta,none,64.05,-21.3,4.697,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.043820829
+3,Oligochaeta,none,64.05,-21.3,7.209147982,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.097847432
+5,Oligochaeta,none,64.05,-21.3,2.166,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.010265418
+12,Oligochaeta,none,64.05,-21.3,3.050687593,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.019510248
+4,Oligochaeta,none,64.05,-21.3,6.101076233,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.071557332
+6,Oligochaeta,none,64.05,-21.3,14.71246637,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.372758301
+14,Oligochaeta,none,64.05,-21.3,5.701898356,stoffels,Oligochaeta,0.00241*BL^1.875,1.7,22,0,0.063030906
+13,Prionocera turcica,larva,64.05,-21.3,4.3,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.078518806
+12,Prionocera turcica,larva,64.05,-21.3,5.6,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.126319069
+3,Radix balthica,none,64.05,-21.3,0.723419283,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.042383504
+5,Radix balthica,none,64.05,-21.3,0.669,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.034430048
+5,Radix balthica,none,64.05,-21.3,1.005,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.101536931
+8,Radix balthica,none,64.05,-21.3,1.167,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.151045754
+5,Radix balthica,none,64.05,-21.3,0.791,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.053736791
+5,Radix balthica,none,64.05,-21.3,1.149,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.144933306
+6,Radix balthica,none,64.05,-21.3,1.407387892,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.248471981
+9,Radix balthica,none,64.05,-21.3,1.834,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.502170787
+8,Radix balthica,none,64.05,-21.3,1.262,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.185965746
+12,Radix balthica,none,64.05,-21.3,1.1632287,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.14975204
+12,Radix balthica,none,64.05,-21.3,0.69019432,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.037405388
+5,Radix balthica,none,64.05,-21.3,2.39,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,1.014986214
+3,Radix balthica,none,64.05,-21.3,1.363957399,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.228612969
+6,Radix balthica,none,64.05,-21.3,1.218217489,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.169309551
+5,Radix balthica,none,64.05,-21.3,1.673,Lisa,Radix balthica,0.1002*SL^2.6575,NA,NA,NA,0.393376294
+7,Scatella,larva,64.05,-21.3,7.743,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.282817012
+4,Scatella,larva,64.05,-21.3,4.7115,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.282817012
+7,Scatella,larva,64.05,-21.3,10.213,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.282817012
+7,Scatella,larva,64.05,-21.3,3.603,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.282817012
+11,Scatella,larva,64.05,-21.3,5.235,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.282817012
+7,Scatella,larva,64.05,-21.3,7.27,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.282817012
+7,Scatella,larva,64.05,-21.3,7.978,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.282817012
+7,Scatella,larva,64.05,-21.3,3.245,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.282817012
+7,Scatella,larva,64.05,-21.3,6.001,baumgartner,Ephydridae,0.005685*BL^1.8,NA,NA,NA,0.282817012
+5,Turbellaria,none,64.05,-21.3,3.3,benke,Turbellaria,0.0082*BL^2.168,2.2,4.7,1,0.10913199
