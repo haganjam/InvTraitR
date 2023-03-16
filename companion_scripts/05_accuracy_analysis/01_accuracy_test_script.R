@@ -45,34 +45,34 @@ lapply(list(dat1, dat2, dat3, dat4, dat5), head)
 # dat1
 dat1 <- 
   dat1 %>%
-  select(Reference, Taxa, lat, lon, Life_stage, Length_mm, Dry_weight_mg)
+  select(Reference, order, Taxa, lat, lon, Life_stage, Length_mm, Dry_weight_mg)
 
 # dat2
 dat2 <- 
   dat2 %>%
-  select(Reference, Taxa, lat, lon, Life_stage, Length_mm, Dry_weight_mg)
+  select(Reference, order, Taxa, lat, lon, Life_stage, Length_mm, Dry_weight_mg)
 
 # dat3
 dat3 <-
   dat3 %>%
-  select(author_year, taxon, lat, lon, life_stage, mean_length_mm, mean_mass_g)
+  select(author_year, order, taxon, lat, lon, life_stage, mean_length_mm, mean_mass_g)
 
 # dat4
 dat4 <- 
   dat4 %>%
-  select(reference, taxa, lat, lon, life_stage, length_mm, dry_weight_mg)
+  select(reference, order, taxa, lat, lon, life_stage, length_mm, dry_weight_mg)
 
 # dat5
 dat5 <- 
   dat5 %>%
-  select(author_year, taxon, lat, lon, life_stage, average_body_length_mm, average_mass_mg)
+  select(author_year, order, taxon, lat, lon, life_stage, average_body_length_mm, average_mass_mg)
 
 # standardise the column names in these data
 dat <- 
   
   lapply(list(dat1, dat2, dat3, dat4, dat5), function(x) {
   
-  names(x) <- c("author_year", "taxon", "lat", "lon", "life_stage", "length_mm", "dry_biomass_mg")
+  names(x) <- c("author_year", "order", "taxon", "lat", "lon", "life_stage", "length_mm", "obs_dry_biomass_mg")
   return(x)
   
 })
@@ -83,66 +83,28 @@ dat <- bind_rows(dat)
 # how many species do we have here
 length(unique(dat$taxon))
 
-# add life-stage information to the mahrlein data...
-
-
-# test 1a: actual body size data and actual length data from the literature
-
-# dataset1
-
-# load the literature test data
-test1.a <- read_csv(paste0(path_rd, "test_data_Eklof_2016_Dumont_1975.csv"))
-str(test1.a)
-
 # remove cases where life-stages are NA
-test1.a <- dplyr::filter(test1.a, !is.na(Life_stage), Life_stage != "NA")
-names(test1.a)
+dat <- dplyr::filter(dat, !is.na(life_stage), life_stage != "NA")
 
-# equalise the names
-test1.a <-
-  test1.a %>%
-  select(Reference, order, Taxa, Life_stage, lat, lon, Length_mm, Dry_weight_mg)
+# check the summary statistics
+summary(dat)
 
-# dataset2
-test1.b <- read_csv(paste0(path_rd, "test_data_Gonzalez_2008.csv"))
-str(test1.b)
+# check why there are negative obs dry biomass values
+dat %>%
+  filter(obs_dry_biomass_mg < 0 | obs_dry_biomass_mg == 0)
 
-# remove cases where life-stages are NA
-test1.b <- dplyr::filter(test1.b, !is.na(life_stage), life_stage != "NA")
-names(test1.b)
-
-# equalise the names
-test1.b <-
-  test1.b %>%
-  select(
-    author_year, order, taxon, life_stage,
-    lat, lon, mean_length_mm, mean_mass_g
-  )
-
-# equalise the names
-test1.dat <-
-  lapply(list(test1.a, test1.b), function(x) {
-    names(x) <- c(
-      "author_year", "order",
-      "taxon", "life_stage",
-      "lat", "lon",
-      "body_length_mm", "biomass_mg"
-    )
-
-    return(x)
-  })
-
-# bind the rows
-test1.dat <- bind_rows(test1.dat)
-View(test1.dat)
+# filter these negative values
+dat <- 
+  dat %>%
+  filter( !(obs_dry_biomass_mg < 0) )
 
 # use method to get biomass data
-test1.output <-
+output <-
   get_trait_from_taxon(
-    data = test1.dat,
+    data = dat,
     target_taxon = "taxon",
     life_stage = "life_stage",
-    body_size = "body_length_mm",
+    body_size = "length_mm",
     latitude_dd = "lat",
     longitude_dd = "lon",
     workflow = "workflow2",
@@ -152,31 +114,30 @@ test1.output <-
   )
 
 # get names that were not found
-test1.output %>%
+output %>%
   filter(is.na(id)) %>%
   pull(taxon) %>%
   unique()
 
 # remove rows where the dry-biomass is not there
-test1.output <-
-  test1.output %>%
+output <-
+  output %>%
   filter(!is.na(dry_biomass_mg))
 
 # check how many unique taxa are left
-length(unique(test1.output$taxon))
-nrow(test1.output)
+length(unique(output$taxon))
+nrow(output)
 
 # plot dry weight inferred versus actual dry weight
 p1 <-
   ggplot() +
   geom_point(
-    data = test1.output,
+    data = output,
     mapping = aes(
-      x = log10(biomass_mg),
+      x = log10(obs_dry_biomass_mg),
       y = log10(dry_biomass_mg), colour = author_year
     ),
-    alpha = 0.5
-  ) +
+    alpha = 0.5) +
   ylab("Estimated dry biomass (mg, log10)") +
   xlab("Measured dry biomass (mg, log10)") +
   geom_abline(
@@ -189,41 +150,43 @@ p1 <-
 plot(p1)
 
 # observed correlation
-cor.test((test1.output$biomass_mg), (test1.output$dry_biomass_mg))
+cor.test((output$obs_dry_biomass_mg), (output$dry_biomass_mg))
 
 # calculate percentage for actual data
-test1.output <-
-  test1.output %>%
-  mutate(error_perc = (abs(biomass_mg - dry_biomass_mg) / biomass_mg) * 100)
+output <-
+  output %>%
+  mutate(error_perc = (abs(obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100)
 
 # null model i.e. order-level equations
-order.lev <- read_csv(paste0(path_rd, "test_data_Order_level_null_model.csv"))
+order_null <- read_csv("database/test_order_level_null_model.csv")
 
 # create a data.frame to collect the null biomass estimations
 null_error <- tibble(
   tax_distance = ">4",
-  biomass_mg = test1.output$biomass_mg
+  obs_dry_biomass_mg = output$obs_dry_biomass_mg
 )
 
 # calculate the order-level biomass from the input body lengths
 null_error$order_biomass_mg <-
   mapply(function(x, y) {
+    
     var1 <- y
-    equ <- parse(text = order.lev[order.lev[["order"]] == x, ][["equation"]])
+    equ <- parse(text = order_null[order_null[["order"]] == x, ][["equation"]])
     eval(equ)
-  }, test1.output$order, test1.output$body_length_mm, USE.NAMES = FALSE)
+    
+  }, output$order, output$length_mm, USE.NAMES = FALSE)
 
-cor.test(null_error$biomass_mg, null_error$order_biomass_mg)
+cor.test(null_error$obs_dry_biomass_mg, null_error$order_biomass_mg)
 
 # calculate percentage for order-level equations
 null_error <-
   null_error %>%
-  mutate(error_perc = (abs(biomass_mg - order_biomass_mg) / biomass_mg) * 100) %>%
+  mutate(error_perc = (abs(obs_dry_biomass_mg - order_biomass_mg) / obs_dry_biomass_mg) * 100) %>%
   select(tax_distance, error_perc)
 
 # combine the null error with actual biomass data
 error_plot <-
-  test1.output %>%
+  output %>%
   mutate(tax_distance = as.character(tax_distance)) %>%
   select(tax_distance, error_perc) %>%
   bind_rows(., null_error)
@@ -243,8 +206,8 @@ error_plot$tax_distance <- factor(error_plot$tax_distance,
 )
 
 # what about the average error?
-mean(test1.output$error_perc)
-sd(test1.output$error_perc)
+mean(output$error_perc)
+sd(output$error_perc)
 
 # plot how the error changes with taxonomic distance
 error_plot_sum <-
@@ -257,7 +220,7 @@ error_plot_sum <-
   )
 print(error_plot_sum)
 
-test1.output %>%
+output %>%
   filter(tax_distance != ">4") %>%
   filter(as.numeric(tax_distance) <= 1) %>%
   summarise(
@@ -311,6 +274,62 @@ ggsave(
   filename = here("figures/fig_4.pdf"), plot = p12,
   units = "cm", width = 20, height = 10, dpi = 300
 )
+
+
+# can we use the metadata information to improve estimates
+names(output)
+
+mod <- 
+  output %>%
+  select(order, 
+         dry_biomass_mg, tax_distance,
+         life_stage_match, r2_match, body_size_range_match, realm_match,
+         major_habitat_type_match,
+         obs_dry_biomass_mg)
+
+# make an odonata versus no odonata variable
+mod$odonata <- ifelse(mod$order == "Odonata", 1, 0)
+
+# get the complete cases
+mod <- mod[complete.cases(mod),]
+
+# predict the observed dry biomass using these factors
+View(mod)
+
+# fit a linear model
+lm.1 <- lm(log10(obs_dry_biomass_mg) ~ log10(dry_biomass_mg)*odonata*tax_distance*r2_match*body_size_range_match, 
+           data = mod)
+summary(lm.1)
+
+# get the predictions
+pred <- 10^(predict(lm.1))
+obs <- mod$obs_dry_biomass_mg
+
+# plot the predictions without model corrections
+plot((mod$dry_biomass_mg), (obs))
+abline(0, 1, col = "red")
+
+# plot the predictions with model corrections
+plot((pred), (obs))
+abline(0, 1, col = "red")
+
+# calculate absolute error without model correction
+abs_nomod <- abs(mod$dry_biomass_mg - mod$obs_dry_biomass_mg)
+mean(abs_nomod)
+hist(abs_nomod)
+range(abs_nomod)
+
+mean((abs_nomod/mod$obs_dry_biomass_mg)*100)
+
+# calculate absolute error with model correction
+abs_mod <- (abs(pred - mod$obs_dry_biomass_mg))
+mean(abs_mod)
+hist(abs_mod)
+range(abs_mod)
+
+mean((abs_mod/mod$obs_dry_biomass_mg)*100)
+
+
 
 
 # test 1b: community-level simulations
