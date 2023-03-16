@@ -128,9 +128,6 @@ clean_taxon_names <- function(
             export_accepted = FALSE
         )
 
-        # write some code to remove the output file
-        unlink("Output", recursive = TRUE)
-
         # add a row_id to this harm.tax object
         data.harm$row_id <- data$row_id
 
