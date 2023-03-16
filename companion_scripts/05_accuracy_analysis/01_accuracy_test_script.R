@@ -1,25 +1,90 @@
 # Test the method for calculating species biomasses
 
 # load the relevant libraries
-library(here)
 library(dplyr)
 library(readr)
 library(mobsim)
 library(ggplot2)
 library(ggbeeswarm)
 library(ggpubr)
+library(igraph)
+library(assertthat)
 
 # load the use-scripts
-source(here("companion_scripts/02_function_plotting_theme.R"))
-source(here("companion_scripts/03_use_database/01_search_database_ver2.R"))
+source("companion_scripts/02_function_plotting_theme.R")
+
+# load the required functions
+source("R/clean_taxon_names.R")
+source("R/get_habitat_data.R")
+source("R/select_traits_tax_dist.R")
+source("R/special_names.R")
+source("R/get_trait_from_taxon.R")
 
 # check if a figure folder exists
-if (!dir.exists(here("figures"))) {
-  dir.create(here("figures"))
+if (!dir.exists("figures")) {
+  dir.create("figures")
 }
 
-# path to where raw data is stored
-path_rd <- "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/"
+# load datasets compiled from the literature
+test_names <- list.files("database/")
+test_names <- test_names[grepl(pattern = "test_a_", x = test_names)]
+
+# load the datasets and name them dat1 ... datN 
+for(i in 1:length(test_names)) {
+  
+  x <- read_csv(paste0("database/", test_names[i]))
+  assign(x = paste0("dat", i), value = x)
+  
+}
+
+# check the datasets
+lapply(list(dat1, dat2, dat3, dat4, dat5), head)
+
+# extract the relevant columns from each dataset
+
+# dat1
+dat1 <- 
+  dat1 %>%
+  select(Reference, Taxa, lat, lon, Life_stage, Length_mm, Dry_weight_mg)
+
+# dat2
+dat2 <- 
+  dat2 %>%
+  select(Reference, Taxa, lat, lon, Life_stage, Length_mm, Dry_weight_mg)
+
+# dat3
+dat3 <-
+  dat3 %>%
+  select(author_year, taxon, lat, lon, life_stage, mean_length_mm, mean_mass_g)
+
+# dat4
+dat4 <- 
+  dat4 %>%
+  select(reference, taxa, lat, lon, life_stage, length_mm, dry_weight_mg)
+
+# dat5
+dat5 <- 
+  dat5 %>%
+  select(author_year, taxon, lat, lon, life_stage, average_body_length_mm, average_mass_mg)
+
+# standardise the column names in these data
+dat <- 
+  
+  lapply(list(dat1, dat2, dat3, dat4, dat5), function(x) {
+  
+  names(x) <- c("author_year", "taxon", "lat", "lon", "life_stage", "length_mm", "dry_biomass_mg")
+  return(x)
+  
+})
+
+# bind into a single large data.frame
+dat <- bind_rows(dat)
+
+# how many species do we have here
+length(unique(dat$taxon))
+
+# add life-stage information to the mahrlein data...
+
 
 # test 1a: actual body size data and actual length data from the literature
 
