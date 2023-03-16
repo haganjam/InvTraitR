@@ -13,7 +13,8 @@
 #'  longitude in decimal degrees
 #' @return tibble of the input data with habitat data from Abell et al.s (2008)
 #'  ecoregion map attached as additional columns function to get habitat data
-#' @import assertthat
+#' @importFrom assertthat assert_that
+#' @importFrom assertthat is.string
 get_habitat_data <- function(data, latitude_dd, longitude_dd) {
     # check if the data input is a data.frame or a tibble
     assert_that(
@@ -23,8 +24,8 @@ get_habitat_data <- function(data, latitude_dd, longitude_dd) {
 
     # check if the latitude and longitude columns are present in the data object
     assert_that(
-        assertthat::is.string(latitude_dd) &
-            assertthat::is.string(longitude_dd) &
+        is.string(latitude_dd) &
+            is.string(longitude_dd) &
             all(c(latitude_dd, longitude_dd) %in% names(data)),
         msg = paste(
             latitude_dd,
