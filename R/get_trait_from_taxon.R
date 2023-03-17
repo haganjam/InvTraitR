@@ -32,7 +32,7 @@
 #'  (default = 0.5)
 #' @return tibble with chosen traits or equations based on the input parameters
 #' @export
-#' @import assertthat
+#' @importFrom assertthat assert_that
 get_trait_from_taxon <- function(data,
                                  target_taxon,
                                  life_stage,
