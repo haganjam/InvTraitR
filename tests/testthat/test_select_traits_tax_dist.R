@@ -9,7 +9,54 @@ make_test_input <- function() {
             "adult", "none", "none"
         ),
         lat = rep(50.55, 7),
-        lon = rep(4.98, 7)
+        lon = rep(4.98, 7),
+        clean_taxon_name = c(
+          "Gammarus", "Daphnia", "Triops granitica", "Triops",
+          "Simocephalus vetulus", "Turbellaria", "Oligochaeta"
+        ),
+        db = c(
+          "gbif", "gbif", "gbif", "gbif", 
+          "gbif", "special", "special"
+          ),
+        scientificName = c(
+          "Gammarus", "Daphnia", NA, "Triops",
+          "Simocephalus vetulus", NA, NA
+        ),
+        acceptedNameUsageID = c(
+          "GBIF:2218440", "GBIF:2234785", NA,
+          "GBIF:2235057", "GBIF:2234807", NA, NA
+        ),
+        db_taxon_higher_rank = c(
+          "order", "order", NA, "order", "order",
+          NA, NA
+        ),
+        db_taxon_higher = c(
+          "Amphipoda", "Diplostraca", NA, "Notostraca",
+          "Diplostraca", NA, NA
+        ),
+        habitat_id = c(
+          404, 404, 404, 404, 404, 404, 404
+        ),
+        realm = c(
+          "Palearctic", "Palearctic", "Palearctic", 
+          "Palearctic", "Palearctic", "Palearctic",
+          "Palearctic"),
+        major_habitat_type = c(
+          "Temperate floodplain rivers and wetlands",
+          "Temperate floodplain rivers and wetlands",
+          "Temperate floodplain rivers and wetlands",
+          "Temperate floodplain rivers and wetlands",
+          "Temperate floodplain rivers and wetlands",
+          "Temperate floodplain rivers and wetlands",
+          "Temperate floodplain rivers and wetlands"),
+        ecoregion = c(
+          "Central & Western Europe",
+          "Central & Western Europe",
+          "Central & Western Europe",
+          "Central & Western Europe",
+          "Central & Western Europe",
+          "Central & Western Europe",
+          "Central & Western Europe" )
     )
 }
 
@@ -81,20 +128,12 @@ test_that("given an unsupported trait,
 
 test_that("test if select_traits_tax_dist() the column
             names that are outputted are correct", {
-    # TODO: this should be static and not rely on other units (functions)
-    x1 <- clean_taxon_names(
-        data = make_test_input(),
-        target_taxon = "taxon_name", life_stage = "Life_stage",
-        database = "gbif"
-    )
-
-    # TODO: this should be static and not rely on other units (functions)
-    y1 <- get_habitat_data(data = x1, latitude_dd = "lat", longitude_dd = "lon")
 
     # when
-    z1 <- select_traits_tax_dist(data = y1, target_taxon = "taxon_name")
+    output <- select_traits_tax_dist(data = make_test_input(), target_taxon = "taxon_name")
 
-    t1 <- lapply(z1, function(input) {
+    # extract names from each element of the output list
+    x <- lapply(output, function(input) {
         all(names(input) == c(
             "taxon_name", "Life_stage", "lat", "lon", "clean_taxon_name",
             "db", "scientificName", "acceptedNameUsageID",
@@ -104,26 +143,20 @@ test_that("test if select_traits_tax_dist() the column
         ))
     })
 
-    expect_true(all(unlist(t1)))
+    # test if names in all the different list elements were correct
+    expect_true(all(unlist(x)))
+    
 })
 
 test_that("test if select_traits_tax_dist() outputs entries that should
             have scientific names do have a non-missing
             scientificName column", {
-    # TODO: this should be static and not rely on other units (functions)
-    x1 <- clean_taxon_names(
-        data = make_test_input(),
-        target_taxon = "taxon_name", life_stage = "Life_stage",
-        database = "gbif"
-    )
-
-    # TODO: this should be static and not rely on other units (functions)
-    y1 <- get_habitat_data(data = x1, latitude_dd = "lat", longitude_dd = "lon")
 
     # when
-    z1 <- select_traits_tax_dist(data = y1, target_taxon = "taxon_name")
+    output <- select_traits_tax_dist(data = make_test_input(), target_taxon = "taxon_name")
 
-    t2 <- sapply(z1, function(input) unique(input[["scientificName"]])) == c(
+    # make sure the outputted scientific names are correct
+    x <- sapply(output, function(input) unique(input[["scientificName"]])) == c(
         "Gammarus",
         "Daphnia",
         NA,
@@ -132,80 +165,66 @@ test_that("test if select_traits_tax_dist() outputs entries that should
         NA,
         NA
     )
-    expect_true(all(is.na(t2) | (t2 == TRUE)))
+    
+    # all should be true or NA
+    expect_true(all(is.na(x) | (x == TRUE)))
 })
 
 test_that("test if select_traits_tax_dist() outputs
             the taxonomic distances properly", {
-    # TODO: this should be static and not rely on other units (functions)
-    x1 <- clean_taxon_names(
-        data = make_test_input(),
-        target_taxon = "taxon_name", life_stage = "Life_stage",
-        database = "gbif"
-    )
-
-    # TODO: this should be static and not rely on other units (functions)
-    y1 <- get_habitat_data(data = x1, latitude_dd = "lat", longitude_dd = "lon")
-
+   
     # when
-    z1 <- select_traits_tax_dist(data = y1, target_taxon = "taxon_name")
+    output <- select_traits_tax_dist(data = make_test_input(), target_taxon = "taxon_name")
 
-    t3 <- sapply(z1, function(input) {
+    # get the taxonomic distance values for all names
+    x <- sapply(output, function(input) {
         all(is.numeric(input[["tax_distance"]]) | is.na(input[["tax_distance"]]))
     })
+    
+    # all taxonomic distances should be numeric or NA
     expect_true(all(t3))
+    
 })
 
 test_that("test if select_traits_tax_dist() works
             correctly with only special names", {
-    # get the special names from the make_test_input() data.frame
-    df.test2 <- make_test_input()[c(6, 7), ]
 
-    # TODO: this should be static and not rely on other units (functions)
-    x2 <- clean_taxon_names(
-        data = df.test2,
-        target_taxon = "taxon_name", life_stage = "Life_stage",
-        database = "gbif"
-    )
-
-    # TODO: this should be static and not rely on other units (functions)
-    y2 <- get_habitat_data(data = x2, latitude_dd = "lat", longitude_dd = "lon")
-
-    # run the select_traits_tax_dist() function
-    z2 <- select_traits_tax_dist(data = y2, target_taxon = "taxon_name")
-
-    t4 <- mapply(function(spec, all) {
-        spec <- spec[, names(spec) != "row_id"]
-        all <- all[, names(all) != "row_id"]
-        x <- (spec == all)
-        all(is.na(x) | (x == TRUE))
-    }, z2, z1[c(6, 7)])
-    expect_true(all(t4))
+    # run the select_traits_tax_dist() function with only special names
+    output1 <- select_traits_tax_dist(data = make_test_input()[c(6, 7), ], target_taxon = "taxon_name")
+    
+    # run the select_traits_tax_dist() function with all names
+    output2 <- select_traits_tax_dist(data = make_test_input(), target_taxon = "taxon_name")
+    
+    # make sure output is correct
+    x <- mapply(function(spec, all) {
+      
+      spec <- spec[, names(spec) != "row_id"]
+      all <- all[, names(all) != "row_id"]
+      x <- (spec == all)
+      all(is.na(x) | (x == TRUE))
+      
+      }, output1, output2[c(6, 7)])
+    
+    expect_true(all(x))
 })
 
 test_that("test if select_traits_tax_dist() works
             correctly without any special names", {
-    # get the special names from the make_test_input() data.frame
-    df.test3 <- make_test_input()[-c(6, 7), ]
 
-    # TODO: this should be static and not rely on other units (functions)
-    x3 <- clean_taxon_names(
-        data = df.test3,
-        target_taxon = "taxon_name", life_stage = "Life_stage",
-        database = "gbif"
-    )
-
-    # TODO: this should be static and not rely on other units (functions)
-    y3 <- get_habitat_data(data = x3, latitude_dd = "lat", longitude_dd = "lon")
-
-    # run the select_traits_tax_dist() function
-    z3 <- select_traits_tax_dist(data = y3, target_taxon = "taxon_name")
-
-    t5 <- mapply(function(spec, all) {
+    # run the select_traits_tax_dist() function without special names
+    output1 <- select_traits_tax_dist(data = make_test_input()[-c(6, 7), ], target_taxon = "taxon_name")
+    
+    # run the select_traits_tax_dist() function with all names
+    output2 <- select_traits_tax_dist(data = make_test_input(), target_taxon = "taxon_name")
+    
+    x <- mapply(function(spec, all) {
+      
         spec <- spec[, names(spec) != "row_id"]
         all <- all[, names(all) != "row_id"]
         x <- (spec == all)
         all(is.na(x) | (x == TRUE))
-    }, z3, z1[-c(6, 7)])
-    expect_true(all(t4))
+    }, 
+    output1, output2[-c(6, 7)])
+    
+    expect_true(all(x))
 })
