@@ -10,7 +10,8 @@
 #' @param binomial - binomial character string separated by a space (e.g.
 #'  "Loxodonta loxodonta")
 #' @return string with the genus name
-#' @import assertthat
+#' @importFrom assertthat assert_that
+#' @importFrom assertthat is.string
 extract_genus <- function(binomial) {
     # input validation: string w/ only letters
     assert_that(
@@ -60,8 +61,8 @@ extract_genus <- function(binomial) {
 #'  (default = 0.5)
 #' @return tibble of the input data with traits or equations within the maximum
 #'  taxonomic distance
-#' @import igraph
-#' @import assertthat
+#' @importFrom assertthat assert_that
+#' @importFrom assertthat is.number
 select_traits_tax_dist <- function(data,
                                    target_taxon,
                                    max_tax_dist = 3,
@@ -120,7 +121,7 @@ select_traits_tax_dist <- function(data,
                 htm <- htm_db[(names(htm_db) == input[["db_taxon_higher"]])][[1]]
 
                 # extract vertices
-                v.x <- V(htm)
+                v.x <- igraph::V(htm)
 
                 # extract the equation entries from the taxon database
                 td <- td_db[td_db$database == trait, ]

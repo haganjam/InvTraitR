@@ -13,11 +13,9 @@
 #' @param database - taxonomic database to use: gbif (default), itis, col
 #' @return data.frame with target taxon names and cleaned names for the chosen
 #'  taxonomic backbone
-#' @import bdc
-#' @import dplyr
-#' @import taxadb
-#' @import curl
-#' @import assertthat
+#' @importFrom assertthat assert_that
+#' @importFrom assertthat are_equal
+#' @importFrom assertthat is.string
 clean_taxon_names <- function(
     data,
     target_taxon,
@@ -25,9 +23,9 @@ clean_taxon_names <- function(
     database = "gbif") {
     # check that the database input is a supported taxonomic backbone
     assert_that(
-        assertthat::are_equal(database, "gbif") |
-            assertthat::are_equal(database, "itis") |
-            assertthat::are_equal(database, "col"),
+        are_equal(database, "gbif") |
+            are_equal(database, "itis") |
+            are_equal(database, "col"),
         msg = paste(
             database,
             "is not a valid taxonomic backbone, pick: gbif, itis or col"
@@ -42,7 +40,7 @@ clean_taxon_names <- function(
 
     # check that the target_taxon column is in the data object
     assert_that(
-        assertthat::is.string(target_taxon) & (target_taxon %in% names(data)),
+        is.string(target_taxon) & (target_taxon %in% names(data)),
         msg = paste(target_taxon, "is not a column in the supplied data object")
     )
 
@@ -127,9 +125,6 @@ clean_taxon_names <- function(
             rank = "kingdom",
             export_accepted = FALSE
         )
-
-        # write some code to remove the output file
-        unlink("Output", recursive = TRUE)
 
         # add a row_id to this harm.tax object
         data.harm$row_id <- data$row_id

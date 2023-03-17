@@ -43,6 +43,3 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
-
-# some package creates this (bdc?)
-Output
