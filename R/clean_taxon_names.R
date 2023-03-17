@@ -56,17 +56,13 @@ clean_taxon_names <- function(
     )
 
     # check that the life-stage column is a character vector without NAs
-    # TODO: this doesn't seem correct, there's NA in the list
     data_life_stage <- data[[life_stage]]
     assert_that(
         (is.character(data_life_stage) & all(data_life_stage %in% c(
             NA, "none", "larva", "pupa", "nymph",
             "adult", "nauplius", "copepodite", "tadpole"
         ))),
-        msg = paste(
-            data_life_stage,
-            "one or more entries do not have appropriate life-stage classes: see documentation" # TODO: not yet in the docs
-        )
+        msg = "one or more entries do not have appropriate life-stage classes: see documentation" # TODO: not yet in the docs
     )
 
     # add a targ_no column to the data input
@@ -91,8 +87,7 @@ clean_taxon_names <- function(
     # update the database if there is a valid internet connection
     if (curl::has_internet()) {
         taxadb::td_create(
-            provider = database,
-            overwrite = FALSE
+            provider = database
         )
     }
 
