@@ -70,7 +70,7 @@ test_that("given an unsupported life stage,
             when clean_taxon_names,
             then error", {
     expect_error(
-        clean_taxon_names(make_valid_df(), "a", "unsup", "gbif"), # unsup should be "b"
+        clean_taxon_names(make_valid_df(), "a", "b", "gbif"), # unsup should be "b"
         regexp = ".*not.*appropriate life-stage.*"
     )
 })
