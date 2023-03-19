@@ -87,3 +87,7 @@ have `load_all()`, `test()` and `check()` ready at hand.
 We use `renv` to provide reproducibility as far as it gets with R.
 Use `renv::snapshot()` after changing dependencies, `renv::install()` to install declared versions
 of the dependencies and `renv::update()` to update to latest CRAN versions (before pushin to CRAN).
+
+The database files will be put into an appdata dir (given by `rappdirs`) when executing
+tests or when people load the actual package. If you made changes to the DB files and need
+to update the files in the appdata dir there's the utility function `update_user_db()`.

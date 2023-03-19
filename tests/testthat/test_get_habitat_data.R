@@ -137,7 +137,8 @@ test_that("count how many NAs there should be in each row after running
     # get_habitat_data() on the df.test1 data.frame
     test1_na_output <- c(0, 0, 0, 4, 0, 5, 5, 6)
 
-    # test1: Does the get_habitat_data() function obtain the correct information?
+    # test1: Does the get_habitat_data() function
+    # obtain the correct information?
 
     # run the function on the test data
     x <- get_habitat_data(
@@ -147,7 +148,10 @@ test_that("count how many NAs there should be in each row after running
     )
 
     # test whether all derived entries are correct
-    y <- unlist(x[, names(df_test1_out)], use.names = FALSE) == unlist(df_test1_out, use.names = FALSE)
+    y <- unlist(
+        x[, names(df_test1_out)],
+        use.names = FALSE
+    ) == unlist(df_test1_out, use.names = FALSE)
 
     # all should either be true or NA
     expect_true(all(y == TRUE | is.na(y)))

@@ -175,7 +175,7 @@ get_trait_from_taxon <- function(data,
   if (!exists(paste0(trait, "_db"))) {
     assign(
       paste0(trait, "_db"),
-      readRDS(file = paste0(here::here("database"), "/", trait, "_database.rds"))
+      readRDS(file = get_db_file_path(paste0(trait, "_database.rds")))
     )
   }
 
@@ -183,14 +183,13 @@ get_trait_from_taxon <- function(data,
   trait_db <- get(paste0(trait, "_db"))
 
   # life_stage match
-  life_stage_match <-
-    mapply(function(x, y) {
-      if (!is.na(x)) {
-        return((trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["db_life_stage"]] == y))
-      } else {
-        return(NA)
-      }
-    }, z1[["id"]], z1[[life_stage]])
+  life_stage_match <- mapply(function(x, y) {
+    if (!is.na(x)) {
+      return((trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["db_life_stage"]] == y))
+    } else {
+      return(NA)
+    }
+  }, z1[["id"]], z1[[life_stage]])
 
   # add life-stage match column
   z1[["life_stage_match"]] <- life_stage_match
@@ -198,30 +197,28 @@ get_trait_from_taxon <- function(data,
   # additional matches that are only relevant for the equation trait
   if (trait == "equation") {
     # life_stage match
-    r2_match <-
-      sapply(z1[["id"]], function(x) {
-        if (!is.na(x)) {
-          return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["r2"]])
-        } else {
-          return(NA)
-        }
-      })
+    r2_match <- sapply(z1[["id"]], function(x) {
+      if (!is.na(x)) {
+        return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["r2"]])
+      } else {
+        return(NA)
+      }
+    })
 
     z1[["r2_match"]] <- r2_match
 
     # body size range match
-    body_size_range_match <-
-      mapply(function(x, y, z) {
-        if (!is.na(x)) {
-          trait_db_sel <- trait_db[trait_db[[paste0(trait, "_id")]] == x, ]
+    body_size_range_match <- mapply(function(x, y, z) {
+      if (!is.na(x)) {
+        trait_db_sel <- trait_db[trait_db[[paste0(trait, "_id")]] == x, ]
 
-          t1 <- (trait_db_sel[["body_size_min"]] <= y) & (trait_db_sel[["body_size_max"]] >= z)
+        t1 <- (trait_db_sel[["body_size_min"]] <= y) & (trait_db_sel[["body_size_max"]] >= z)
 
-          return(t1)
-        } else {
-          return(NA)
-        }
-      }, z1[["id"]], z1[["min_body_size_mm"]], z1[["max_body_size_mm"]])
+        return(t1)
+      } else {
+        return(NA)
+      }
+    }, z1[["id"]], z1[["min_body_size_mm"]], z1[["max_body_size_mm"]])
 
     z1[["body_size_range_match"]] <- body_size_range_match
   }
@@ -230,7 +227,7 @@ get_trait_from_taxon <- function(data,
 
   # load the habitat database
   if (!exists("hab_db")) {
-    hab_db <- readRDS(file = here::here("database/freshwater_ecoregion_data.rds"))
+    hab_db <- readRDS(file = get_db_file_path("freshwater_ecoregion_data.rds"))
   }
 
   # select the correct trait from the habitat database
@@ -320,7 +317,7 @@ get_trait_from_taxon <- function(data,
 
       # get the minimum taxonomic distance as long as the
       # difference is greater than 0.5
-      if (all(!is.na(input[["tax_distance"]])) & (sum(!is.na(input[["tax_distance"]])) >= 1)) {
+      if (all(!is.na(input[["tax_distance"]])) && (sum(!is.na(input[["tax_distance"]])) >= 1)) {
         input <- input[input[["tax_distance"]] <= (min(input[["tax_distance"]], na.rm = FALSE) + 0.5), ]
       }
 
@@ -391,7 +388,7 @@ get_trait_from_taxon <- function(data,
         if (any(is.na(c(x, y)))) {
           return(NA)
         } else {
-          var1 <- x
+          var1 <- x # TODO: unused
           eval(parse(text = y))
         }
       }, z1.select[[body_size]], z1.select[[trait]])

@@ -57,9 +57,10 @@ test_that("if all taxon_names are not present in output,
   expect_true(all(output[["taxon_name"]] == input[["taxon_name"]]))
 })
 
-test_that("if any individual body size is not within the taxon's minimum and maximum body size,
+test_that("given some individual body size is not within
+            the taxon's minimum and maximum body size,
            when get_trait_from_taxon,
-           then error", {
+           then error", { # TODO: description ain't accurate, is it?
   input <- make_test_input()
 
   # when
@@ -76,13 +77,14 @@ test_that("if any individual body size is not within the taxon's minimum and max
   )
 
   # test if individual body sizes are within the min and max body size values
-  x <- (output[["body_size_mm"]] >= output[["min_body_size_mm"]]) & (output[["body_size_mm"]] <= output[["max_body_size_mm"]])
+  x <- (output[["body_size_mm"]] >= output[["min_body_size_mm"]]) &
+    (output[["body_size_mm"]] <= output[["max_body_size_mm"]])
   expect_true(all(x | is.na(x)))
 })
 
-test_that("if the equation, body_size_mm or id columns are NA then dry_biomass_mg should be NA,
+test_that("given the equation, body_size_mm or id columns are NA,
            when get_trait_from_taxon,
-           then error", {
+           then dry_biomass_mg should be NA", {
   input <- make_test_input()
 
   # when
@@ -98,7 +100,8 @@ test_that("if the equation, body_size_mm or id columns are NA then dry_biomass_m
     gen_sp_dist = 0.5
   )
 
-  # if the equation and body_size_mm or id colums are NA, then dry_biomass_mg should be NA
+  # if the equation and body_size_mm or id colums are NA,
+  # then dry_biomass_mg should be NA
 
   # equation column
   expect_true(all(is.na(output[["equation"]]) == is.na(output[["dry_biomass_mg"]])))
@@ -112,7 +115,8 @@ test_that("if the equation, body_size_mm or id columns are NA then dry_biomass_m
   expect_true(all(is.na(c(output[["dry_biomass_mg"]][y]))))
 })
 
-test_that("if any of the outputted taxonomic distance values are greater than the max_tax_distance argument,
+test_that("given some of the outputted taxonomic distance values
+             are greater than the max_tax_distance argument,
            when get_trait_from_taxon,
            then error", {
   input <- make_test_input()

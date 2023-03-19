@@ -23,12 +23,12 @@ Imports:
     dplyr,
     taxadb,
     curl,
-    here,
     raster,
     sp,
-    doParallel,
     utils,
-    fs
+    httr,
+    rappdirs,
+    doParallel
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

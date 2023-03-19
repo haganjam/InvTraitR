@@ -70,7 +70,7 @@ test_that("given an unsupported life stage,
             when clean_taxon_names,
             then error", {
     expect_error(
-        clean_taxon_names(make_valid_df(), "a", "b", "gbif"), # unsup should be "b"
+        clean_taxon_names(make_valid_df(), "a", "b", "gbif"),
         regexp = ".*not.*appropriate life-stage.*"
     )
 })
@@ -86,7 +86,7 @@ test_that("Does the clean_taxon_names() function
         "gbif", "gbif", "gbif", "gbif", "gbif",
         NA, NA, "special", "special"
     )
-    acceptedNameUsageID <- c(
+    accepted_name_usage_id <- c(
         "GBIF:2218440", "GBIF:2234785", NA, "GBIF:2235057",
         "GBIF:2234807", NA, NA, NA, NA
     )
@@ -106,7 +106,7 @@ test_that("Does the clean_taxon_names() function
     # then
     expect_equal(clean_taxon_name, x$clean_taxon_name)
     expect_equal(db, x$db)
-    expect_equal(acceptedNameUsageID, x$acceptedNameUsageID)
+    expect_equal(accepted_name_usage_id, x$acceptedNameUsageID)
     expect_equal(db_taxon_higher, x$db_taxon_higher)
 })
 
