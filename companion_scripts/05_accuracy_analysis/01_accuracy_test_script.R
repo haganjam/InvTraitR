@@ -104,7 +104,8 @@ head(dat)
 dat <- 
   dat %>%
   group_by(author_year, taxon) %>%
-  sample_n(size = ifelse(min(n()) < 5, min(n()), 5), replace = FALSE)
+  sample_n(size = ifelse(min(n()) < 5, min(n()), 5), replace = FALSE) %>%
+  ungroup()
 
 # use method to get biomass data
 output <-
@@ -136,22 +137,29 @@ output <-
 length(unique(output$taxon))
 nrow(output)
 
+# make a author_year - taxon combination column
+output$group <- paste(output$author_year, output$taxon, sep = "_")
+
 # plot dry weight inferred versus actual dry weight
 p1 <-
-  ggplot() +
+  ggplot()+
+  geom_smooth(
+    data = output,
+    mapping = aes(
+      x = log10(obs_dry_biomass_mg),
+      y = log10(dry_biomass_mg), group = group, colour = author_year),
+    alpha = 1, linewidth = 0.25, method = "lm", se = FALSE) +
   geom_point(
     data = output,
     mapping = aes(
       x = log10(obs_dry_biomass_mg),
-      y = log10(dry_biomass_mg), colour = author_year
-    ),
-    alpha = 0.5) +
+      y = log10(dry_biomass_mg), colour = author_year),
+    alpha = 1, shape = 1, size = 2) +
   ylab("Estimated dry biomass (mg, log10)") +
   xlab("Measured dry biomass (mg, log10)") +
   geom_abline(
     intercept = 0, slope = 1,
-    colour = "#ec7853", linetype = "dashed", linewidth = 1
-  ) +
+    colour = "#ec7853", linetype = "dashed", linewidth = 1) +
   scale_colour_viridis_d(option = "C", begin = 0, end = 0.9) +
   theme_meta() +
   theme(legend.position = "none")
@@ -294,18 +302,20 @@ mod <-
          life_stage_match, r2_match, body_size_range_match, realm_match,
          major_habitat_type_match,
          obs_dry_biomass_mg)
+head(mod)
 
-# make an odonata versus no odonata variable
-mod$odonata <- ifelse(mod$order == "Odonata", 1, 0)
+# check the order levels
+unique(mod$order)
 
 # get the complete cases
 mod <- mod[complete.cases(mod),]
+nrow(mod)
 
 # predict the observed dry biomass using these factors
 View(mod)
 
 # fit a linear model
-lm.1 <- lm(log10(obs_dry_biomass_mg) ~ log10(dry_biomass_mg)*odonata*tax_distance*r2_match*body_size_range_match, 
+lm.1 <- lm(log10(obs_dry_biomass_mg) ~ log10(dry_biomass_mg), 
            data = mod)
 summary(lm.1)
 
