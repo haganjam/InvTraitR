@@ -19,6 +19,7 @@ source("R/get_habitat_data.R")
 source("R/select_traits_tax_dist.R")
 source("R/special_names.R")
 source("R/get_trait_from_taxon.R")
+source("R/helpers.R")
 
 # check if a figure folder exists
 if (!dir.exists("figures")) {
@@ -98,6 +99,13 @@ dat <-
   dat %>%
   filter( !(obs_dry_biomass_mg < 0) )
 
+# sample from these data to make sure we don't pseudoreplicate too much
+head(dat)
+dat <- 
+  dat %>%
+  group_by(author_year, taxon) %>%
+  sample_n(size = ifelse(min(n()) < 5, min(n()), 5), replace = FALSE)
+
 # use method to get biomass data
 output <-
   get_trait_from_taxon(
@@ -142,7 +150,7 @@ p1 <-
   xlab("Measured dry biomass (mg, log10)") +
   geom_abline(
     intercept = 0, slope = 1,
-    colour = "#ec7853", linetype = "dashed", size = 1
+    colour = "#ec7853", linetype = "dashed", linewidth = 1
   ) +
   scale_colour_viridis_d(option = "C", begin = 0, end = 0.9) +
   theme_meta() +
