@@ -1,4 +1,4 @@
-# Test the method for calculating species biomasses
+# test the method for calculating species biomasses
 
 # load the relevant libraries
 library(dplyr)
@@ -139,6 +139,11 @@ nrow(output)
 
 # make a author_year - taxon combination column
 output$group <- paste(output$author_year, output$taxon, sep = "_")
+
+# what's the minimum number in the output author_year column
+output %>%
+  group_by(group) %>%
+  summarise(n = n())
 
 # plot dry weight inferred versus actual dry weight
 p1 <-
@@ -292,6 +297,9 @@ ggsave(
 )
 
 
+# check the quality of the equations and the r2 value
+plot(output$r2_match, output$error_perc)
+
 # can we use the metadata information to improve estimates
 names(output)
 
@@ -308,34 +316,93 @@ head(mod)
 unique(mod$order)
 
 # get the complete cases
-mod <- mod[complete.cases(mod),]
+mod <- mod[complete.cases(mod), ]
 nrow(mod)
 
 # predict the observed dry biomass using these factors
 View(mod)
 
-# fit a linear model
-lm.1 <- lm(log10(obs_dry_biomass_mg) ~ log10(dry_biomass_mg), 
-           data = mod)
-summary(lm.1)
+# remove the Odonates because they seem extreme
+mod <- 
+  mod %>%
+  filter(order != "Odonata")
 
-# get the predictions
-pred <- 10^(predict(lm.1))
-obs <- mod$obs_dry_biomass_mg
+# fit a linear model
+
+# null model
+lm_null <- lm(log10(obs_dry_biomass_mg) ~ log10(dry_biomass_mg), data = mod)
+summary(lm_null)
+AIC(lm_null)
+
+# fit a series of linear models with different predictors
+
+# the simplest model can be an interaction between order and estimated dry biomass
+# this can then give us an error distribution for each outputted value
+
+# but including body-size range match, r2 match, tax_distance and habitat match
+# I think this will considerably improve our predictions
+
+# order
+lm1 <- lm(log10(obs_dry_biomass_mg) ~ log10(dry_biomass_mg)*order, data = mod)
+summary(lm1)
+AIC(lm1)
+
+# r2 of equation
+lm2 <- lm(log10(obs_dry_biomass_mg) ~ log10(dry_biomass_mg) + r2_match, data = mod)
+summary(lm2)
+AIC(lm2)
+
+# taxonomic distance
+lm3 <- lm(log10(obs_dry_biomass_mg) ~ log10(dry_biomass_mg) + tax_distance, data = mod)
+summary(lm3)
+AIC(lm3)
+
+# habitat match
+lm4 <- lm(log10(obs_dry_biomass_mg) ~ log10(dry_biomass_mg) + realm_match + major_habitat_type_match,
+          data = mod)
+summary(lm4)
+AIC(lm4)
+
+# body size range
+lm5 <- lm(log10(obs_dry_biomass_mg) ~ log10(dry_biomass_mg) + body_size_range_match,
+          data = mod)
+summary(lm5)
+AIC(lm5)
+
+# combine the best variables
+
+# tax distance and r2 match
+lm5 <- lm(log10(obs_dry_biomass_mg) ~ log10(dry_biomass_mg) + r2_match*tax_distance*order,
+          data = mod)
+summary(lm5)
+AIC(lm5)
+
+# tax distance and r2 match plus body size range match
+lm6 <- lm(log10(obs_dry_biomass_mg) ~ log10(dry_biomass_mg) + r2_match*tax_distance*order + body_size_range_match,
+          data = mod)
+summary(lm6)
+AIC(lm6)
+
+# plot these model predictions
+lmx <- lm5
+pred <- 10^(predict(lmx))
 
 # plot the predictions without model corrections
-plot((mod$dry_biomass_mg), (obs))
+plot(mod$dry_biomass_mg, mod$obs_dry_biomass_mg)
 abline(0, 1, col = "red")
 
 # plot the predictions with model corrections
-plot((pred), (obs))
+plot((pred), mod$obs_dry_biomass_mg)
+abline(0, 1, col = "red")
+
+plot(pred[pred<0.05], mod$obs_dry_biomass_mg[pred<0.05] )
 abline(0, 1, col = "red")
 
 # calculate absolute error without model correction
 abs_nomod <- abs(mod$dry_biomass_mg - mod$obs_dry_biomass_mg)
 mean(abs_nomod)
 hist(abs_nomod)
-range(abs_nomod)
+round(range(abs_nomod), 2)
 
 mean((abs_nomod/mod$obs_dry_biomass_mg)*100)
 
@@ -343,7 +410,7 @@ mean((abs_nomod/mod$obs_dry_biomass_mg)*100)
 abs_mod <- (abs(pred - mod$obs_dry_biomass_mg))
 mean(abs_mod)
 hist(abs_mod)
-range(abs_mod)
+round(range(abs_mod), 2)
 
 mean((abs_mod/mod$obs_dry_biomass_mg)*100)
 
