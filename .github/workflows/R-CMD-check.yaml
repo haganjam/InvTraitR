@@ -31,7 +31,7 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
-          use-public-rspm: true
+          use-public-rspm: false
       - name: Install OS packages
         run:   |
               if [ "$RUNNER_OS" == "Linux" ]; then
