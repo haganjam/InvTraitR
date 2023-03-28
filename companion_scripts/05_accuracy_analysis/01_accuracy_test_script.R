@@ -1,5 +1,8 @@
 # test the method for calculating species biomasses
 
+# maybe specific equations generalise very poorly when taxonomic distance is large
+# this is something I should check out
+
 # load the relevant libraries
 library(dplyr)
 library(readr)
@@ -39,7 +42,7 @@ for(i in 1:length(test_names)) {
 }
 
 # check the datasets
-lapply(list(dat1, dat2, dat3, dat4, dat5), head)
+lapply(list(dat1, dat2, dat3, dat4), head)
 
 # extract the relevant columns from each dataset
 
@@ -49,29 +52,24 @@ dat1 <-
   select(Reference, order, Taxa, lat, lon, Life_stage, Length_mm, Dry_weight_mg)
 
 # dat2
-dat2 <- 
+dat2 <-
   dat2 %>%
-  select(Reference, order, Taxa, lat, lon, Life_stage, Length_mm, Dry_weight_mg)
+  select(author_year, order, taxon, lat, lon, life_stage, mean_length_mm, mean_mass_g)
 
 # dat3
-dat3 <-
+dat3 <- 
   dat3 %>%
-  select(author_year, order, taxon, lat, lon, life_stage, mean_length_mm, mean_mass_g)
+  select(reference, order, taxa, lat, lon, life_stage, length_mm, dry_weight_mg)
 
 # dat4
 dat4 <- 
   dat4 %>%
-  select(reference, order, taxa, lat, lon, life_stage, length_mm, dry_weight_mg)
-
-# dat5
-dat5 <- 
-  dat5 %>%
   select(author_year, order, taxon, lat, lon, life_stage, average_body_length_mm, average_mass_mg)
 
 # standardise the column names in these data
 dat <- 
   
-  lapply(list(dat1, dat2, dat3, dat4, dat5), function(x) {
+  lapply(list(dat1, dat2, dat3, dat4), function(x) {
   
   names(x) <- c("author_year", "order", "taxon", "lat", "lon", "life_stage", "length_mm", "obs_dry_biomass_mg")
   return(x)
@@ -104,7 +102,8 @@ head(dat)
 dat <- 
   dat %>%
   group_by(author_year, taxon) %>%
-  sample_n(size = ifelse(min(n()) < 5, min(n()), 5), replace = FALSE) %>%
+  # sample_n(size = ifelse(min(n()) < 5, min(n()), 5), replace = FALSE) %>%
+  sample_n(size = 1, replace = FALSE) %>%
   ungroup()
 
 # use method to get biomass data
@@ -171,24 +170,22 @@ p1 <-
 plot(p1)
 
 # observed correlation
-cor.test((output$obs_dry_biomass_mg), (output$dry_biomass_mg))
+cor.test(log10(output$obs_dry_biomass_mg), log10(output$dry_biomass_mg))
 
 # calculate percentage for actual data
 output <-
   output %>%
   mutate(error_perc = (abs(obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100)
 
+# check the distribution of error_perc
+hist(output$error_perc)
+
 # null model i.e. order-level equations
 order_null <- read_csv("database/test_order_level_null_model.csv")
 
-# create a data.frame to collect the null biomass estimations
-null_error <- tibble(
-  tax_distance = ">4",
-  obs_dry_biomass_mg = output$obs_dry_biomass_mg
-)
-
 # calculate the order-level biomass from the input body lengths
-null_error$order_biomass_mg <-
+output$order_dry_biomass_mg <- 
+  
   mapply(function(x, y) {
     
     var1 <- y
@@ -197,7 +194,156 @@ null_error$order_biomass_mg <-
     
   }, output$order, output$length_mm, USE.NAMES = FALSE)
 
-cor.test(null_error$obs_dry_biomass_mg, null_error$order_biomass_mg)
+# calculate order-level absolute error
+output <- 
+  output %>%
+  mutate(error_perc_order = (abs(obs_dry_biomass_mg - order_dry_biomass_mg) / obs_dry_biomass_mg) * 100)
+
+# compare error percentages
+x <- 
+  tibble(method = c(rep("FreshInvTraitR", nrow(output)), rep("Order", nrow(output))),
+         error_perc = c(output$error_perc, output$error_perc_order))
+
+ggplot(data = x,
+       mapping = aes(x = error_perc, fill = method)) +
+  geom_density(alpha = 0.2) +
+  theme_test()
+
+# what is causing the FreshInvTraitR predictions to be so bad?
+
+# is it specific equations?
+unique(output$id)
+
+ggplot(data = output,
+       mapping = aes(x = as.character(id), y = (error_perc), colour = error_perc_order )) +
+  geom_point() +
+  geom_hline(yintercept = 100, colour = "red")
+
+# equation 24 has high error but not ubiquitously
+output %>%
+  filter(id == 24) %>%
+  pull(body_size_range_match)
+
+output %>%
+  filter(id == 24) %>%
+  filter(error_perc == min(error_perc)) %>%
+  View()
+
+# the equation works well when the taxonomic distance was low
+output %>%
+  filter(id == 24) %>%
+  ggplot(data = .,
+         mapping = aes(x = tax_distance, error_perc)) +
+  geom_point()
+
+# maybe specific equations generalise very poorly when taxonomic distance is large
+
+# make a column specifying whether an equation is a species level equation
+output$species_equ <- ifelse(grepl(" ", output$scientificName), TRUE, FALSE)
+
+ggplot(data = output,
+       mapping = aes(x = tax_distance, y = error_perc, colour = species_equ)) +
+  geom_jitter()
+
+output %>%
+  filter(error_perc > 400) %>%
+  View()
+
+# all taxonomic distances are from equation 24 which is not great
+output %>%
+  filter(tax_distance > 2.5) %>%
+  View()
+
+
+
+output %>%
+  select(author_year, taxon, db.scientificName, id,
+         tax_distance, r2_match, body_size_range_match,
+         length_mm, obs_dry_biomass_mg, dry_biomass_mg, order_dry_biomass_mg,
+         error_perc, error_perc_order) %>%
+  mutate(obs_dry_biomass_mg = round(obs_dry_biomass_mg, 4),
+         dry_biomass_mg = round(dry_biomass_mg, 4),
+         order_dry_biomass_mg = round(order_dry_biomass_mg, 4)) %>%
+  View()
+
+output %>%
+  filter(!is.na(body_size_range_match)) %>%
+  filter(r2_match < 0.6) %>%
+  group_by(body_size_range_match) %>%
+  summarise(error_m = mean(error_perc),
+            error_m2 = mean(error_perc_order),
+            n =n())
+
+ggplot(data = output,
+       mapping = aes(x = error_perc)) +
+  geom_density() +
+  theme_test()
+
+# does the error percentage change with r2
+plot(output$r2_match, output$error_perc)
+
+# does it change with body-size range match
+ggplot(data = output  %>% filter(id != 24),
+       mapping = aes(x = r2_match, y = error_perc, colour = body_size_range_match)) +
+  geom_point() +
+  theme_test()
+
+ggplot(data = output  %>% filter(id != 24),
+       mapping = aes(x = tax_distance, y = error_perc, colour = body_size_range_match)) +
+  geom_point() +
+  theme_test()
+
+output  %>% 
+  filter(id != 24) %>%
+  filter(tax_distance <= 1) %>%
+  filter(error_perc > 100) %>%
+  View()
+
+output %>%
+  filter(id != 24) %>%
+  group_by(author_year) %>%
+  summarise(error_m = mean(error_perc),
+            error_m2 = mean(error_perc_order),
+            n = n())
+
+output %>%
+  filter(body_size_range_match == TRUE) %>%
+  group_by(order) %>%
+  summarise(error_m = mean(error_perc),
+            error_m2 = mean(error_perc_order),
+            n = n())
+
+output %>%
+  select(author_year, body_size_range_match) %>%
+  View()
+
+output$error_perc_scale <- 
+  with(output, (error_perc - min(error_perc))/max(error_perc)-min(error_perc))
+
+lm_x <- lm(error_perc_scale ~ r2_match + body_size_range_match + tax_distance, 
+           data = output)
+summary(lm_x)
+plot(lm_x)
+
+output %>%
+  filter(r2_match > 0.9, tax_distance < 1.5) %>%
+  summarise(error_m = mean(error_perc),
+            error_m2 = mean(error_perc_order),
+            n = n())
+
+plot(output$r2_match, (output$dry_biomass_mg - output$obs_dry_biomass_mg)/output$obs_dry_biomass_mg)
+x <- (output$dry_biomass_mg - output$obs_dry_biomass_mg)
+sum(x>0)/length(x)
+mean(x[x>0])
+mean(x[x<0])
+
+# do non-body size range match equations over or under estimate?
+plot(output$length_mm, output$error_perc)
+
+
+
+# check the correlation
+cor.test(log10(null_error$obs_dry_biomass_mg), log10(null_error$order_biomass_mg))
 
 # calculate percentage for order-level equations
 null_error <-
