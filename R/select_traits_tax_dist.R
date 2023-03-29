@@ -172,7 +172,7 @@ select_traits_tax_dist <- function(data,
 
                     dist.df <-
                         dplyr::tibble(
-                            db.scientificName = db.name,
+                            db.scientificName = db.name, # TODO: change to db_scientificName
                             trait_out = trait,
                             id = id,
                             tax_distance = tax.dist

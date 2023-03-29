@@ -158,6 +158,7 @@ clean_taxon_names <- function(
         data.harm <- data.harm[, c(
             "row_id",
             "scientificName",
+            "taxonRank",
             "acceptedNameUsageID",
             "db_taxon_higher_rank",
             "db_taxon_higher"
@@ -179,6 +180,7 @@ clean_taxon_names <- function(
         # add additional columns for consistency
         data <- data.spec
         data[["scientificName"]] <- NA
+        data[["taxonRank"]] <- NA
         data[["acceptedNameUsageID"]] <- NA
         data[["db_taxon_higher_rank"]] <- NA
         data[["db_taxon_higher"]] <- NA

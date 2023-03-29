@@ -3,6 +3,9 @@
 # maybe specific equations generalise very poorly when taxonomic distance is large
 # this is something I should check out
 
+# add equation taxonomic level
+# sample size add to output
+
 # load the relevant libraries
 library(dplyr)
 library(readr)
@@ -102,8 +105,8 @@ head(dat)
 dat <- 
   dat %>%
   group_by(author_year, taxon) %>%
-  # sample_n(size = ifelse(min(n()) < 5, min(n()), 5), replace = FALSE) %>%
-  sample_n(size = 1, replace = FALSE) %>%
+  sample_n(size = ifelse(min(n()) < 8, min(n()), 8), replace = FALSE) %>%
+  # sample_n(size = 1, replace = FALSE) %>%
   ungroup()
 
 # use method to get biomass data
@@ -118,7 +121,7 @@ output <-
     workflow = "workflow2",
     trait = "equation",
     max_tax_dist = 3,
-    gen_sp_dist = 0.5
+    gen_sp_dist = 1
   )
 
 # get names that were not found
@@ -209,32 +212,64 @@ ggplot(data = x,
   geom_density(alpha = 0.2) +
   theme_test()
 
+
 # what is causing the FreshInvTraitR predictions to be so bad?
 
 # is it specific equations?
 unique(output$id)
 
+# most equations give errors of less than 100 except a few and these do have low r2 values
 ggplot(data = output,
-       mapping = aes(x = as.character(id), y = (error_perc), colour = error_perc_order )) +
+       mapping = aes(x = as.character(id), y = (error_perc), colour = r2_match )) +
   geom_point() +
-  geom_hline(yintercept = 100, colour = "red")
+  scale_colour_viridis_c() +
+  geom_hline(yintercept = 100, colour = "red") +
+  theme_test()
+
+# is there a link between maximum error and r2?
+x <- 
+  output %>%
+  # mutate(r2_group = cut(r2_match, 8)) %>%
+  group_by(author_year, taxon, r2_match) %>%
+  summarise(max_error_perc = max(error_perc))
+
+# there is some relationship between the r2 match the maximum error percentage
+ggplot(data = output,
+       mapping = aes(x = r2_match, y = error_perc)) +
+  geom_point() +
+  geom_hline(yintercept = 100, linetype = "dashed", colour = "red") +
+  theme_test()
+
+# is this simply due to the equations from reference 2?
+# no, not necessarily: The general pattern seems to hold
+ggplot(data = output %>% filter(id < 23 | id > 37),
+       mapping = aes(x = r2_match, y = error_perc)) +
+  geom_point() +
+  geom_hline(yintercept = 100, linetype = "dashed", colour = "red") +
+  theme_test()
 
 # equation 24 has high error but not ubiquitously
+# seems that the equation is not predicting well for smaller lengths
 output %>%
   filter(id == 24) %>%
-  pull(body_size_range_match)
+  select(author_year, taxon, length_mm, db.scientificName, taxonRank,
+         tax_distance, r2_match, error_perc)
 
+# equation 25 also has high error
 output %>%
-  filter(id == 24) %>%
-  filter(error_perc == min(error_perc)) %>%
+  filter(id == 25) %>%
+  select(author_year, taxon, length_mm, db.scientificName, taxonRank,
+         tax_distance, r2_match, error_perc) %>%
   View()
 
-# the equation works well when the taxonomic distance was low
-output %>%
-  filter(id == 24) %>%
-  ggplot(data = .,
-         mapping = aes(x = tax_distance, error_perc)) +
-  geom_point()
+# is there a relationship between length and error within a taxon
+ggplot(data = output,
+       mapping = aes(x = length_mm, y = error_perc)) +
+  geom_point() +
+  facet_wrap(~ group, scales = "free") +
+  theme_test()
+
+
 
 # maybe specific equations generalise very poorly when taxonomic distance is large
 
@@ -242,7 +277,11 @@ output %>%
 output$species_equ <- ifelse(grepl(" ", output$scientificName), TRUE, FALSE)
 
 ggplot(data = output,
-       mapping = aes(x = tax_distance, y = error_perc, colour = species_equ)) +
+       mapping = aes(x = species_equ, y = error_perc)) +
+  geom_jitter()
+
+ggplot(data = output,
+       mapping = aes(x = species_equ, y = error_perc_order, colour = species_equ)) +
   geom_jitter()
 
 output %>%
@@ -254,7 +293,20 @@ output %>%
   filter(tax_distance > 2.5) %>%
   View()
 
+x <- 
+  output %>%
+  group_by(author_year, taxon, body_size_range_match) %>%
+  summarise(error_perc = mean(error_perc), .groups = "drop")
 
+y <- 
+  output %>% 
+  select(author_year, taxon, db.scientificName, tax_distance,
+         body_size_range_match, r2_match) %>%
+  distinct()
+y
+
+z <- full_join(x, y, by = c("author_year", "taxon", "body_size_range_match"))
+View(z)
 
 output %>%
   select(author_year, taxon, db.scientificName, id,
@@ -283,9 +335,11 @@ ggplot(data = output,
 plot(output$r2_match, output$error_perc)
 
 # does it change with body-size range match
-ggplot(data = output  %>% filter(id != 24),
-       mapping = aes(x = r2_match, y = error_perc, colour = body_size_range_match)) +
-  geom_point() +
+ggplot(data = output %>% filter(id != 24),
+       mapping = aes(x = r2_match, y = error_perc, colour = tax_distance)) +
+  geom_jitter() +
+  scale_colour_viridis_c(option = "C") +
+  facet_wrap(~body_size_range_match) +
   theme_test()
 
 ggplot(data = output  %>% filter(id != 24),

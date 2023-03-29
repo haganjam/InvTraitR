@@ -164,7 +164,10 @@ get_trait_from_taxon <- function(data,
   y1 <- dplyr::distinct(y1)
 
   # run the Select_Traits_Tax_Dist() function
-  z1 <- select_traits_tax_dist(data = y1, target_taxon = target_taxon)
+  z1 <- select_traits_tax_dist(data = y1, target_taxon = target_taxon,
+                               max_tax_dist = max_tax_dist,
+                               trait = trait,
+                               gen_sp_dist = gen_sp_dist)
 
   # bind the rows together
   z1 <- dplyr::bind_rows(z1)
@@ -196,7 +199,7 @@ get_trait_from_taxon <- function(data,
 
   # additional matches that are only relevant for the equation trait
   if (trait == "equation") {
-    # life_stage match
+    # r2 value match
     r2_match <- sapply(z1[["id"]], function(x) {
       if (!is.na(x)) {
         return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["r2"]])
@@ -206,6 +209,17 @@ get_trait_from_taxon <- function(data,
     })
 
     z1[["r2_match"]] <- r2_match
+    
+    # sample size match
+    N <- sapply(z1[["id"]], function(x) {
+      if (!is.na(x)) {
+        return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["n"]])
+      } else {
+        return(NA)
+      }
+    })
+    
+    z1[["N"]] <- N
 
     # body size range match
     body_size_range_match <- mapply(function(x, y, z) {
@@ -222,6 +236,29 @@ get_trait_from_taxon <- function(data,
 
     z1[["body_size_range_match"]] <- body_size_range_match
   }
+  
+  # add equation min body size
+  min_BS <- sapply(z1[["id"]], function(x) {
+    if (!is.na(x)) {
+      return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["body_size_min"]])
+    } else {
+      return(NA)
+    }
+  })
+  
+  z1[["db_min_body_size_mm"]] <- min_BS
+  
+  # add equation max body size
+  max_BS <- sapply(z1[["id"]], function(x) {
+    if (!is.na(x)) {
+      return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["body_size_max"]])
+    } else {
+      return(NA)
+    }
+  })
+  
+  z1[["db_max_body_size_mm"]] <- max_BS
+  
 
   # get habitat match data
 
