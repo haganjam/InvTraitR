@@ -175,7 +175,7 @@ plot(p1)
 # observed correlation
 cor.test(log10(output$obs_dry_biomass_mg), log10(output$dry_biomass_mg))
 
-# calculate percentage for actual data
+# calculate percentage error for actual data
 output <-
   output %>%
   mutate(error_perc = (abs(obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100)
@@ -214,6 +214,29 @@ ggplot(data = x,
 
 
 # what is causing the FreshInvTraitR predictions to be so bad?
+
+# Q1: is it distance to the margins of the equation?
+
+# we expect error to decrease with distance from the ends of the equation
+output <- 
+  output %>%
+  mutate(dist_min = (length_mm-db_min_body_size_mm),
+         dist_max = (db_max_body_size_mm - length_mm),
+         dist = ifelse(dist_min < dist_max, dist_min, dist_max),
+         dist_stand = dist/(db_max_body_size_mm - db_min_body_size_mm) )
+
+# plot for each group
+ggplot(data = output %>% group_by(group) %>% mutate(n = n()) %>% filter(n > 1),
+       mapping = aes(x = dist_min, y = error_perc, colour = group)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_test() +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "red") +
+  facet_wrap(~group) +
+  theme(legend.position = "none")
+
+
+
 
 # is it specific equations?
 unique(output$id)
