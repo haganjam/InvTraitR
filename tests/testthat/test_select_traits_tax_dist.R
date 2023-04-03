@@ -10,7 +10,7 @@ make_test_input <- function() {
     ),
     lat = rep(50.55, 7),
     lon = rep(4.98, 7),
-    clean_taxon_name = c(
+    clean_taxon = c(
       "Gammarus", "Daphnia", "Triops granitica", "Triops",
       "Simocephalus vetulus", "Turbellaria", "Oligochaeta"
     ),
@@ -22,6 +22,8 @@ make_test_input <- function() {
       "Gammarus", "Daphnia", NA, "Triops",
       "Simocephalus vetulus", NA, NA
     ),
+    taxonRank = c("Genus", "Genus", NA, "Genus", 
+                  "Species", NA, NA),
     acceptedNameUsageID = c(
       "GBIF:2218440", "GBIF:2234785", NA,
       "GBIF:2235057", "GBIF:2234807", NA, NA
@@ -139,7 +141,7 @@ test_that("test if select_traits_tax_dist() the column
   # extract names from each element of the output list
   x <- lapply(output, function(input) {
     all(names(input) == c(
-      "taxon_name", "Life_stage", "lat", "lon", "clean_taxon_name",
+      "taxon_name", "Life_stage", "lat", "lon", "clean_taxon",
       "db", "scientificName", "taxonRank", "acceptedNameUsageID",
       "db_taxon_higher_rank", "db_taxon_higher", "habitat_id",
       "realm", "major_habitat_type", "ecoregion",

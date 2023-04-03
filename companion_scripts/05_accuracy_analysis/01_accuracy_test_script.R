@@ -212,6 +212,11 @@ ggplot(data = x,
   geom_density(alpha = 0.2) +
   theme_test()
 
+# what is the average error?
+x %>%
+  group_by(method) %>%
+  summarise(mean_error = mean(error_perc))
+
 
 # what is causing the FreshInvTraitR predictions to be so bad?
 
@@ -220,19 +225,47 @@ ggplot(data = x,
 # we expect error to decrease with distance from the ends of the equation
 output <- 
   output %>%
-  mutate(dist_min = (length_mm-db_min_body_size_mm),
-         dist_max = (db_max_body_size_mm - length_mm),
-         dist = ifelse(dist_min < dist_max, dist_min, dist_max),
-         dist_stand = dist/(db_max_body_size_mm - db_min_body_size_mm) )
+  mutate(h = (max_body_size_mm - min_body_size_mm)/2 )
+
+y <- output
+
+# remove cases with NA body size
+y <- 
+  y %>%
+  filter(!is.na(body_size_range_match))
+
+y <- 
+  y %>%
+  mutate(L = (length_mm - min_body_size_mm)/(max_body_size_mm - min_body_size_mm) ) %>%
+  mutate(MP = 0.5,
+         k = 1,
+         a = 0.25,
+         xlow = (-sqrt(a)*k) + MP,
+         xhigh = (+sqrt(a)*k) + MP) %>%
+  mutate(L_dist = (( (L-MP)^2 )/(-a)) + k)
+
+# check the output
+y %>%
+  select(length_mm, min_body_size_mm, max_body_size_mm, L, L_dist) %>%
+  View()
+
+# plot out the predictions from this function
+L <- seq(0, 1, length.out = 40)
+
+d <- with(y[1,],
+     (( (L-MP)^2 )/(-a)) + k )
+
+plot(L, d)
+abline(a = 0, b = 0)
 
 # plot for each group
 ggplot(data = output %>% group_by(group) %>% mutate(n = n()) %>% filter(n > 1),
-       mapping = aes(x = dist_min, y = error_perc, colour = group)) +
+       mapping = aes(x = dist_stand, y = error_perc, colour = group)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
   theme_test() +
   geom_vline(xintercept = 0, linetype = "dashed", colour = "red") +
-  facet_wrap(~group) +
+  facet_wrap(~group, scales = "free") +
   theme(legend.position = "none")
 
 
