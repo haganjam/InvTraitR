@@ -139,6 +139,7 @@ test_that("Does the clean_taxon_names() function output
         "clean_taxon_name",
         "db",
         "scientificName",
+        "taxonRank",
         "acceptedNameUsageID",
         "db_taxon_higher_rank",
         "db_taxon_higher"
