@@ -51,7 +51,7 @@ extract_genus <- function(binomial) {
 #'  taxonomic distance life-stage match and habitat match
 #' @author James G. Hagan (james_hagan(at)outlook.com)
 #' @param data - input data.frame exported from [get_habitat_data()] and
-#'  clean_taxon_names() function
+#'  [clean_taxon_names()] function
 #' @param target_taxon - character string with the column name containing the
 #'  taxon names
 #' @param max_tax_dist - maximum taxonomic distance acceptable between the

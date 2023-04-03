@@ -140,7 +140,7 @@ test_that("test if select_traits_tax_dist() the column
   x <- lapply(output, function(input) {
     all(names(input) == c(
       "taxon_name", "Life_stage", "lat", "lon", "clean_taxon_name",
-      "db", "scientificName", "acceptedNameUsageID",
+      "db", "scientificName", "taxonRank", "acceptedNameUsageID",
       "db_taxon_higher_rank", "db_taxon_higher", "habitat_id",
       "realm", "major_habitat_type", "ecoregion",
       "db.scientificName", "trait_out", "id", "tax_distance"
