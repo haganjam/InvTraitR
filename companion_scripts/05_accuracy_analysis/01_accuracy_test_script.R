@@ -223,44 +223,36 @@ x %>%
 # Q1: is it distance to the margins of the equation?
 
 # we expect error to decrease with distance from the ends of the equation
+
+# use piecewise linear model functions to do this calculation
+# values closer to 1 are close to the middle point
+# negative values are beyond the range of the equations
 output <- 
   output %>%
-  mutate(h = (max_body_size_mm - min_body_size_mm)/2 )
+  group_by(group) %>%
+  mutate(MP = ((max_body_size_mm - min_body_size_mm)/2) + min_body_size_mm ) %>%
+  mutate(m_low = (1-0)/(MP - min_body_size_mm),
+         c_low = 1 - (MP*m_low)) %>%
+  mutate(m_high = (1-0)/(MP-max_body_size_mm),
+         c_high = 1 - (MP*m_high))
 
-y <- output
-
-# remove cases with NA body size
-y <- 
-  y %>%
-  filter(!is.na(body_size_range_match))
-
-y <- 
-  y %>%
-  mutate(L = (length_mm - min_body_size_mm)/(max_body_size_mm - min_body_size_mm) ) %>%
-  mutate(MP = 0.5,
-         k = 1,
-         a = 0.25,
-         xlow = (-sqrt(a)*k) + MP,
-         xhigh = (+sqrt(a)*k) + MP) %>%
-  mutate(L_dist = (( (L-MP)^2 )/(-a)) + k)
+# calculate the scores
+output <- 
+  output %>%
+  mutate(score = ifelse(length_mm < MP, (m_low*length_mm) + c_low,  (m_high*length_mm) + c_high)) %>%
+  mutate(score = round(score, 2)) %>%
+  ungroup() %>%
+  select(-MP, -m_low, -m_high, -m_high, -c_high)
 
 # check the output
-y %>%
-  select(length_mm, min_body_size_mm, max_body_size_mm, L, L_dist) %>%
+output %>%
+  select(length_mm, min_body_size_mm, max_body_size_mm, score) %>%
   View()
 
-# plot out the predictions from this function
-L <- seq(0, 1, length.out = 40)
-
-d <- with(y[1,],
-     (( (L-MP)^2 )/(-a)) + k )
-
-plot(L, d)
-abline(a = 0, b = 0)
-
 # plot for each group
+# negative relationship expected between score and error
 ggplot(data = output %>% group_by(group) %>% mutate(n = n()) %>% filter(n > 1),
-       mapping = aes(x = dist_stand, y = error_perc, colour = group)) +
+       mapping = aes(x = score, y = error_perc, colour = group)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
   theme_test() +
