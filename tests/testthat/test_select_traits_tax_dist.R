@@ -245,3 +245,4 @@ test_that("test if select_traits_tax_dist() works
 
   expect_true(all(x))
 })
+

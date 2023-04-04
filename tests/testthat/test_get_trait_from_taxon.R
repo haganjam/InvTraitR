@@ -158,7 +158,7 @@ test_that("does the get_trait_from_taxon() function output the correct
     gen_sp_dist = 0.5
   )
 
-  # test if the outputted taxonomic distances are less than the max tax distance
+  # test if the sex column is in the output
   expect_true("sex" %in% names(output))
 })
 
