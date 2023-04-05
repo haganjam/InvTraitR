@@ -1,0 +1,107 @@
+---
+title: "Correction factors for log-log models"
+output: html_notebook
+---
+
+The problems with using log-linear models for prediction on the original scale of the response variable are well known (e.g. Marhrlein et al. 2016). Models of the form:
+
++ Y = a * X^b
+
+Are typically transformed onto the log-scale as follows:
+
++ log(Y) = log(a) + b*log(X)
+
+The problem with this transformation is that the errors become multiplicative and not additive on the log-scale. Thus, predictions of the expected value of Y become the geometric mean rather than the arithmetric which is always an underestimation. This means that predictions on the original-scale tend to be biased in such models.
+
+Fortunately, there are various correction factors that are used to deal with this bias. The vast majority, however, rely on knowing the standard deviation of the model residuals (Neyman and Scott 1960). However, when researchers compile equations from the literature, usually they do not have access to the standard deviation of the residuals. This means that the typical correction factors do not work in these cases.
+
+Strimbu et al. (2018) recently proposed a set of correction factors that work when access to the residuals of the model are not available. For FreshInvTraitR, we generally only have information on the equation, the range of X values that were used to fit the equation and the coefficient of determination (i.e. the r2 value). Using Strimbu et al.'s (2018) correction factors, this information tends to be sufficient.
+
+Specifically, Strimbu et al. (2018) propose two correction factors that we may be able to use on log-linear equations in our database:
+
++ BC3 = exp( (0.5* (1 - r2)) * ( (1/log(a)) * (( log(ymax, b=a)-log(ymin, b=a) )/6))^2)
+
+a - base of the logarithm
+ymax - maximum y value
+ymin - minimum y value
+r2 - coefficient of determination of the log-linear model
+
+The other correction factor that does not require r2 is:
+
++ BC4 = exp( (1/(log(a)^2)) * (( log(ymax, b=a)-log(ymin, b=a) )^2/72) )
+
+Using these correction factors, we can calculate the unbiased expected Y value as:
+
++ unbiased Y(pred) = biased Y(pred) * ( BC3 | BC4 )
+
+```{r}
+
+# let's test these correction factors
+
+e <- exp(1)
+
+# simulate some lengths
+x <- runif(50, 2.3, 5.5)
+
+# simulate a y-variable from one of these equations
+y <- 0.021*(x^2.315) + rnorm(n = 50, mean = 0, sd = 0.15)
+plot(x, y)
+
+# remove anything less than zero
+rem <- y>0
+x <- x[rem]
+y <- y[rem]
+
+# check the relationship
+plot(x, y)
+
+# lit a log-linear model
+lm_log <- lm(log(y) ~ log(x))
+summary(lm_log)
+
+# get the r2
+r2 <- summary(lm_log)$r.squared
+print(r2)
+
+# get the predictions
+pred_log <- e^(predict(lm_log))
+
+# plot the observed versus predicted values
+plot(y, pred_log)
+abline(a = 0, b = 1, col = "red")
+
+# try this with the correction factors
+a <- e
+ymax <- max(y)
+ymin <- min(y)
+BC <- exp( (0.5* (1 - r2)) * ( (1/(log(a))) * (( log(ymax, b=a)-log(ymin, b=a) )/6))^2)
+print(BC)
+
+# try this with the true correction factor
+BC <- exp(var(residuals(lm_log))/2)
+print(BC)
+
+# do the bias correction and check the prediction
+# pred_cor <- (10^(predict(lm_log))) * BC
+pred_cor <- (e^predict(lm_log))*BC
+
+# plot the observed versus corrected predicted values
+plot(y, pred_cor)
+abline(a = 0, b = 1, col = "red")
+
+# calculate the mean squared error
+round(mean((y - pred_cor)^2), 6)
+round(mean((y - pred_log)^2), 6)
+
+# mean absolute error
+round(mean(abs(y-pred_cor)), 6)
+round(mean(abs(y-pred_log)), 6)
+
+# mean percentage error
+mean((abs(y - pred_cor)/y)*100)
+mean((abs(y - pred_log)/y)*100)
+```
+
+
+
+
