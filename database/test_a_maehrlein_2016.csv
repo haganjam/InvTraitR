@@ -1,0 +1,729 @@
+reference,url,order,taxon,lat,lon,preservation,percentage,sex,gravid,life_stage,length_type,length_n,length_mm,dry_weight_type,dry_weight_n,dry_weight_mg,notes
+,10.1007/s10750-015-2526-24,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,7.122,raw,NA,2.635,NA
+,10.1007/s10750-015-2526-25,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,8.133,raw,NA,2.423,NA
+,10.1007/s10750-015-2526-26,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,8.822,raw,NA,3.163,NA
+,10.1007/s10750-015-2526-27,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,9.089,raw,NA,3.481,NA
+,10.1007/s10750-015-2526-28,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,9.533,raw,NA,3.433,NA
+,10.1007/s10750-015-2526-29,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,10.111,raw,NA,2.558,NA
+,10.1007/s10750-015-2526-30,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,8.767,raw,NA,1.654,NA
+,10.1007/s10750-015-2526-31,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,9.244,raw,NA,1.115,NA
+,10.1007/s10750-015-2526-32,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,11.878,raw,NA,4.452,NA
+,10.1007/s10750-015-2526-33,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,7.089,raw,NA,0.817,NA
+,10.1007/s10750-015-2526-34,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,7.022,raw,NA,0.74,NA
+,10.1007/s10750-015-2526-35,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,6.122,raw,NA,0.798,NA
+,10.1007/s10750-015-2526-36,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,5.8,raw,NA,0.548,NA
+,10.1007/s10750-015-2526-37,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,5.433,raw,NA,0.433,NA
+,10.1007/s10750-015-2526-38,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,5.022,raw,NA,0.269,NA
+,10.1007/s10750-015-2526-39,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,4.022,raw,NA,0.202,NA
+,10.1007/s10750-015-2526-40,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.878,raw,NA,0.404,NA
+Maehrlein_2016,10.1007/s10750-015-2526-41,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.578,raw,NA,0.481,NA
+Maehrlein_2016,10.1007/s10750-015-2526-42,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.011,raw,NA,0.135,NA
+Maehrlein_2016,10.1007/s10750-015-2526-43,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.633,raw,NA,0.048,NA
+Maehrlein_2016,10.1007/s10750-015-2526-44,Amphipoda,Asellus aquaticus,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,1.578,raw,NA,0.077,NA
+Maehrlein_2016,10.1007/s10750-015-2526-45,Amphipoda,Asellus aquaticus,53.201753,13.951959,ethanol,70,NA,NA,adult,raw,NA,1.389,raw,NA,0.019,NA
+Maehrlein_2016,10.1007/s10750-015-2526-46,Amphipoda,Asellus aquaticus,53.201753,13.951959,ethanol,70,NA,NA,adult,raw,NA,1.6,raw,NA,0.019,NA
+Maehrlein_2016,10.1007/s10750-015-2526-47,Amphipoda,Asellus aquaticus,53.201753,13.951959,ethanol,70,NA,NA,adult,raw,NA,1.989,raw,NA,0.019,NA
+Maehrlein_2016,10.1007/s10750-015-2526-48,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,2.344,raw,NA,0.058,NA
+Maehrlein_2016,10.1007/s10750-015-2526-49,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,3.4,raw,NA,0.173,NA
+Maehrlein_2016,10.1007/s10750-015-2526-50,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,4.489,raw,NA,0.356,NA
+Maehrlein_2016,10.1007/s10750-015-2526-51,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,5.3,raw,NA,0.538,NA
+Maehrlein_2016,10.1007/s10750-015-2526-52,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,6.422,raw,NA,0.837,NA
+Maehrlein_2016,10.1007/s10750-015-2526-53,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,7.544,raw,NA,1.654,NA
+Maehrlein_2016,10.1007/s10750-015-2526-54,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,8.722,raw,NA,2.356,NA
+Maehrlein_2016,10.1007/s10750-015-2526-55,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,9.6,raw,NA,4.442,NA
+Maehrlein_2016,10.1007/s10750-015-2526-56,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,10.522,raw,NA,5.673,NA
+Maehrlein_2016,10.1007/s10750-015-2526-57,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,12.122,raw,NA,6.279,NA
+Maehrlein_2016,10.1007/s10750-015-2526-58,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,13.111,raw,NA,7.308,NA
+Maehrlein_2016,10.1007/s10750-015-2526-59,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,15.233,raw,NA,7.596,NA
+Maehrlein_2016,10.1007/s10750-015-2526-60,Amphipoda,Asellus aquaticus,53.247254,13.274586,ethanol,70,NA,NA,adult,raw,NA,13.778,raw,NA,11.144,NA
+Maehrlein_2016,10.1007/s10750-015-2526-61,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,1.435,raw,NA,0.041,NA
+Maehrlein_2016,10.1007/s10750-015-2526-62,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,1.502,raw,NA,0.071,NA
+Maehrlein_2016,10.1007/s10750-015-2526-63,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,1.73,raw,NA,0.081,NA
+Maehrlein_2016,10.1007/s10750-015-2526-64,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,1.96,raw,NA,0.031,NA
+Maehrlein_2016,10.1007/s10750-015-2526-65,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.01,raw,NA,0.081,NA
+Maehrlein_2016,10.1007/s10750-015-2526-66,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.062,raw,NA,0.101,NA
+Maehrlein_2016,10.1007/s10750-015-2526-67,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.2,raw,NA,0.031,NA
+Maehrlein_2016,10.1007/s10750-015-2526-68,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.232,raw,NA,0.081,NA
+Maehrlein_2016,10.1007/s10750-015-2526-69,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.293,raw,NA,0.101,NA
+Maehrlein_2016,10.1007/s10750-015-2526-70,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.232,raw,NA,0.111,NA
+Maehrlein_2016,10.1007/s10750-015-2526-71,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.343,raw,NA,0.151,NA
+Maehrlein_2016,10.1007/s10750-015-2526-72,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.682,raw,NA,0.091,NA
+Maehrlein_2016,10.1007/s10750-015-2526-73,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.781,raw,NA,0.131,NA
+Maehrlein_2016,10.1007/s10750-015-2526-74,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.842,raw,NA,0.121,NA
+Maehrlein_2016,10.1007/s10750-015-2526-75,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.736,raw,NA,0.2,NA
+Maehrlein_2016,10.1007/s10750-015-2526-76,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.102,raw,NA,0.141,NA
+Maehrlein_2016,10.1007/s10750-015-2526-77,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.382,raw,NA,0.161,NA
+Maehrlein_2016,10.1007/s10750-015-2526-78,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.742,raw,NA,0.121,NA
+Maehrlein_2016,10.1007/s10750-015-2526-79,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.655,raw,NA,0.29,NA
+Maehrlein_2016,10.1007/s10750-015-2526-80,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.456,raw,NA,0.329,NA
+Maehrlein_2016,10.1007/s10750-015-2526-81,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.883,raw,NA,0.32,NA
+Maehrlein_2016,10.1007/s10750-015-2526-82,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,4.042,raw,NA,0.329,NA
+Maehrlein_2016,10.1007/s10750-015-2526-83,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,4.124,raw,NA,0.37,NA
+Maehrlein_2016,10.1007/s10750-015-2526-84,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,4.197,raw,NA,0.449,NA
+Maehrlein_2016,10.1007/s10750-015-2526-85,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,5.086,raw,NA,0.469,NA
+Maehrlein_2016,10.1007/s10750-015-2526-86,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,4.326,raw,NA,0.579,NA
+Maehrlein_2016,10.1007/s10750-015-2526-87,Amphipoda,Chelicorophium curvsipinum,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,4.407,raw,NA,0.579,NA
+Maehrlein_2016,10.1007/s10750-015-2526-88,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.212,raw,NA,0.092,NA
+Maehrlein_2016,10.1007/s10750-015-2526-89,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.404,raw,NA,0.074,NA
+Maehrlein_2016,10.1007/s10750-015-2526-90,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.308,raw,NA,0.11,NA
+Maehrlein_2016,10.1007/s10750-015-2526-91,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.74,raw,NA,0.074,NA
+Maehrlein_2016,10.1007/s10750-015-2526-92,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,2.776,raw,NA,0.074,NA
+Maehrlein_2016,10.1007/s10750-015-2526-93,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.113,raw,NA,0.11,NA
+Maehrlein_2016,10.1007/s10750-015-2526-94,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.377,raw,NA,0.129,NA
+Maehrlein_2016,10.1007/s10750-015-2526-95,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.594,raw,NA,0.221,NA
+Maehrlein_2016,10.1007/s10750-015-2526-96,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,3.966,raw,NA,0.331,NA
+Maehrlein_2016,10.1007/s10750-015-2526-97,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,4.399,raw,NA,0.239,NA
+Maehrlein_2016,10.1007/s10750-015-2526-98,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,4.988,raw,NA,0.516,NA
+Maehrlein_2016,10.1007/s10750-015-2526-99,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,5.216,raw,NA,0.203,NA
+Maehrlein_2016,10.1007/s10750-015-2526-100,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,5.397,raw,NA,0.313,NA
+Maehrlein_2016,10.1007/s10750-015-2526-101,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,5.445,raw,NA,0.681,NA
+Maehrlein_2016,10.1007/s10750-015-2526-102,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,5.661,raw,NA,1.289,NA
+Maehrlein_2016,10.1007/s10750-015-2526-103,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,5.841,raw,NA,0.773,NA
+Maehrlein_2016,10.1007/s10750-015-2526-104,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,6.166,raw,NA,0.663,NA
+Maehrlein_2016,10.1007/s10750-015-2526-105,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,6.286,raw,NA,0.737,NA
+Maehrlein_2016,10.1007/s10750-015-2526-106,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,6.767,raw,NA,0.792,NA
+Maehrlein_2016,10.1007/s10750-015-2526-107,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,6.695,raw,NA,1.344,NA
+Maehrlein_2016,10.1007/s10750-015-2526-108,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,7.2,raw,NA,1.289,NA
+Maehrlein_2016,10.1007/s10750-015-2526-109,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,6.899,raw,NA,1.971,NA
+Maehrlein_2016,10.1007/s10750-015-2526-110,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,7.115,raw,NA,2.376,NA
+Maehrlein_2016,10.1007/s10750-015-2526-111,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,7.091,raw,NA,2.836,NA
+Maehrlein_2016,10.1007/s10750-015-2526-112,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,7.488,raw,NA,2.505,NA
+Maehrlein_2016,10.1007/s10750-015-2526-113,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,7.608,raw,NA,1.952,NA
+Maehrlein_2016,10.1007/s10750-015-2526-114,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,7.68,raw,NA,1.234,NA
+Maehrlein_2016,10.1007/s10750-015-2526-115,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,8.065,raw,NA,2.265,NA
+Maehrlein_2016,10.1007/s10750-015-2526-116,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,8.257,raw,NA,1.676,NA
+Maehrlein_2016,10.1007/s10750-015-2526-117,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,8.486,raw,NA,2.136,NA
+Maehrlein_2016,10.1007/s10750-015-2526-118,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,8.606,raw,NA,2.173,NA
+Maehrlein_2016,10.1007/s10750-015-2526-119,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,8.702,raw,NA,1.897,NA
+Maehrlein_2016,10.1007/s10750-015-2526-120,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,8.654,raw,NA,2.91,NA
+Maehrlein_2016,10.1007/s10750-015-2526-121,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,9.026,raw,NA,3.057,NA
+Maehrlein_2016,10.1007/s10750-015-2526-122,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,9.135,raw,NA,3.076,NA
+Maehrlein_2016,10.1007/s10750-015-2526-123,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,9.675,raw,NA,3.204,NA
+Maehrlein_2016,10.1007/s10750-015-2526-124,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,10.036,raw,NA,2.707,NA
+Maehrlein_2016,10.1007/s10750-015-2526-125,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,9.964,raw,NA,3.407,NA
+Maehrlein_2016,10.1007/s10750-015-2526-126,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,9.772,raw,NA,3.886,NA
+Maehrlein_2016,10.1007/s10750-015-2526-127,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,9.267,raw,NA,4.217,NA
+Maehrlein_2016,10.1007/s10750-015-2526-128,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,9.88,raw,NA,5.12,NA
+Maehrlein_2016,10.1007/s10750-015-2526-129,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,10.096,raw,NA,4.659,NA
+Maehrlein_2016,10.1007/s10750-015-2526-130,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,9.964,raw,NA,4.825,NA
+Maehrlein_2016,10.1007/s10750-015-2526-131,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,10.048,raw,NA,6.335,NA
+Maehrlein_2016,10.1007/s10750-015-2526-132,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,10.829,raw,NA,2.284,NA
+Maehrlein_2016,10.1007/s10750-015-2526-133,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,10.228,raw,NA,3.536,NA
+Maehrlein_2016,10.1007/s10750-015-2526-134,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,10.517,raw,NA,4.346,NA
+Maehrlein_2016,10.1007/s10750-015-2526-135,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,10.661,raw,NA,3.683,NA
+Maehrlein_2016,10.1007/s10750-015-2526-136,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,10.913,raw,NA,3.646,NA
+Maehrlein_2016,10.1007/s10750-015-2526-137,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,11.022,raw,NA,5.046,NA
+Maehrlein_2016,10.1007/s10750-015-2526-138,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,11.214,raw,NA,6.225,NA
+Maehrlein_2016,10.1007/s10750-015-2526-139,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,11.671,raw,NA,4.862,NA
+Maehrlein_2016,10.1007/s10750-015-2526-140,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,11.659,raw,NA,3.554,NA
+Maehrlein_2016,10.1007/s10750-015-2526-141,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,12.224,raw,NA,5.93,NA
+Maehrlein_2016,10.1007/s10750-015-2526-142,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,12.608,raw,NA,6.464,NA
+Maehrlein_2016,10.1007/s10750-015-2526-143,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,11.406,raw,NA,7.348,NA
+Maehrlein_2016,10.1007/s10750-015-2526-144,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,11.31,raw,NA,6.648,NA
+Maehrlein_2016,10.1007/s10750-015-2526-145,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,11.442,raw,NA,6.335,NA
+Maehrlein_2016,10.1007/s10750-015-2526-146,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,11.707,raw,NA,6.464,NA
+Maehrlein_2016,10.1007/s10750-015-2526-147,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,11.899,raw,NA,7.33,NA
+Maehrlein_2016,10.1007/s10750-015-2526-148,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,12.055,raw,NA,7.403,NA
+Maehrlein_2016,10.1007/s10750-015-2526-149,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,11.178,raw,NA,8.637,NA
+Maehrlein_2016,10.1007/s10750-015-2526-150,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,11.238,raw,NA,8.895,NA
+Maehrlein_2016,10.1007/s10750-015-2526-151,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,12.127,raw,NA,9.963,NA
+Maehrlein_2016,10.1007/s10750-015-2526-152,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,12.248,raw,NA,9.245,NA
+Maehrlein_2016,10.1007/s10750-015-2526-153,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,12.752,raw,NA,8.269,NA
+Maehrlein_2016,10.1007/s10750-015-2526-154,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,12.752,raw,NA,7.827,NA
+Maehrlein_2016,10.1007/s10750-015-2526-155,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,13.546,raw,NA,7.753,NA
+Maehrlein_2016,10.1007/s10750-015-2526-156,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,13.594,raw,NA,8.177,NA
+Maehrlein_2016,10.1007/s10750-015-2526-157,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,13.425,raw,NA,8.84,NA
+Maehrlein_2016,10.1007/s10750-015-2526-158,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,13.101,raw,NA,9.263,NA
+Maehrlein_2016,10.1007/s10750-015-2526-159,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,12.993,raw,NA,9.724,NA
+Maehrlein_2016,10.1007/s10750-015-2526-160,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,13.51,raw,NA,9.908,NA
+Maehrlein_2016,10.1007/s10750-015-2526-161,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,13.161,raw,NA,10.976,NA
+Maehrlein_2016,10.1007/s10750-015-2526-162,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,13.882,raw,NA,11.326,NA
+Maehrlein_2016,10.1007/s10750-015-2526-163,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,14.555,raw,NA,9.006,NA
+Maehrlein_2016,10.1007/s10750-015-2526-164,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,15.853,raw,NA,8.674,NA
+Maehrlein_2016,10.1007/s10750-015-2526-165,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,16.418,raw,NA,13.002,NA
+Maehrlein_2016,10.1007/s10750-015-2526-166,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,15.337,raw,NA,17.385,NA
+Maehrlein_2016,10.1007/s10750-015-2526-167,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,15.385,raw,NA,17.551,NA
+Maehrlein_2016,10.1007/s10750-015-2526-168,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,15.613,raw,NA,19.724,NA
+Maehrlein_2016,10.1007/s10750-015-2526-169,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,16.142,raw,NA,21.639,NA
+Maehrlein_2016,10.1007/s10750-015-2526-170,Amphipoda,Pontogammaridae,52.245774,14.054017,ethanol,70,NA,NA,adult,raw,NA,17.344,raw,NA,23.223,NA
+Maehrlein_2016,10.1007/s10750-015-2526-171,Diptera,Ceratopogoninae,53.201753,13.951959,ethanol,70,NA,NA,larva,raw,NA,7.339,raw,NA,0.081,NA
+Maehrlein_2016,10.1007/s10750-015-2526-172,Diptera,Ceratopogoninae,53.201753,13.951959,ethanol,70,NA,NA,larva,raw,NA,9.304,raw,NA,0.161,NA
+Maehrlein_2016,10.1007/s10750-015-2526-173,Diptera,Ceratopogoninae,53.201753,13.951959,ethanol,70,NA,NA,larva,raw,NA,10.833,raw,NA,0.231,NA
+Maehrlein_2016,10.1007/s10750-015-2526-174,Diptera,Ceratopogoninae,53.201753,13.951959,ethanol,70,NA,NA,larva,raw,NA,12.362,raw,NA,0.361,NA
+Maehrlein_2016,10.1007/s10750-015-2526-175,Diptera,Ceratopogoninae,53.201753,13.951959,ethanol,70,NA,NA,larva,raw,NA,13.693,raw,NA,0.401,NA
+Maehrlein_2016,10.1007/s10750-015-2526-176,Diptera,Ceratopogoninae,53.201753,13.951959,ethanol,70,NA,NA,larva,raw,NA,16.957,raw,NA,0.821,NA
+Maehrlein_2016,10.1007/s10750-015-2526-177,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,13.266,raw,NA,1.149,NA
+Maehrlein_2016,10.1007/s10750-015-2526-178,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,14.385,raw,NA,1.279,NA
+Maehrlein_2016,10.1007/s10750-015-2526-179,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,14.367,raw,NA,1.41,NA
+Maehrlein_2016,10.1007/s10750-015-2526-180,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,15.394,raw,NA,0.967,NA
+Maehrlein_2016,10.1007/s10750-015-2526-181,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,14.899,raw,NA,0.857,NA
+Maehrlein_2016,10.1007/s10750-015-2526-182,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,14.404,raw,NA,1.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-183,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,16.037,raw,NA,0.573,NA
+Maehrlein_2016,10.1007/s10750-015-2526-184,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,15.651,raw,NA,0.434,NA
+Maehrlein_2016,10.1007/s10750-015-2526-185,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,17.083,raw,NA,0.762,NA
+Maehrlein_2016,10.1007/s10750-015-2526-186,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,17.321,raw,NA,0.655,NA
+Maehrlein_2016,10.1007/s10750-015-2526-187,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,17.78,raw,NA,0.727,NA
+Maehrlein_2016,10.1007/s10750-015-2526-188,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,18.349,raw,NA,0.798,NA
+Maehrlein_2016,10.1007/s10750-015-2526-189,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,18.734,raw,NA,0.825,NA
+Maehrlein_2016,10.1007/s10750-015-2526-190,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,18.073,raw,NA,1.038,NA
+Maehrlein_2016,10.1007/s10750-015-2526-191,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,19.725,raw,NA,0.833,NA
+Maehrlein_2016,10.1007/s10750-015-2526-192,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,19.725,raw,NA,0.983,NA
+Maehrlein_2016,10.1007/s10750-015-2526-193,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,20.128,raw,NA,1.114,NA
+Maehrlein_2016,10.1007/s10750-015-2526-194,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,17.945,raw,NA,1.619,NA
+Maehrlein_2016,10.1007/s10750-015-2526-195,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,20.037,raw,NA,1.607,NA
+Maehrlein_2016,10.1007/s10750-015-2526-196,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,20,raw,NA,1.69,NA
+Maehrlein_2016,10.1007/s10750-015-2526-197,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,20.294,raw,NA,1.623,NA
+Maehrlein_2016,10.1007/s10750-015-2526-198,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.44,raw,NA,1.84,NA
+Maehrlein_2016,10.1007/s10750-015-2526-199,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.257,raw,NA,2.113,NA
+Maehrlein_2016,10.1007/s10750-015-2526-200,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,24.514,raw,NA,1.88,NA
+Maehrlein_2016,10.1007/s10750-015-2526-201,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.239,raw,NA,2.46,NA
+Maehrlein_2016,10.1007/s10750-015-2526-202,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,23.028,raw,NA,2.756,NA
+Maehrlein_2016,10.1007/s10750-015-2526-203,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.954,raw,NA,2.894,NA
+Maehrlein_2016,10.1007/s10750-015-2526-204,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,24.11,raw,NA,2.958,NA
+Maehrlein_2016,10.1007/s10750-015-2526-205,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,25.174,raw,NA,2.689,NA
+Maehrlein_2016,10.1007/s10750-015-2526-206,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,25.596,raw,NA,2.223,NA
+Maehrlein_2016,10.1007/s10750-015-2526-207,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,26,raw,NA,2.093,NA
+Maehrlein_2016,10.1007/s10750-015-2526-208,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.789,raw,NA,3.092,NA
+Maehrlein_2016,10.1007/s10750-015-2526-209,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,20.404,raw,NA,3.029,NA
+Maehrlein_2016,10.1007/s10750-015-2526-210,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,19.67,raw,NA,2.673,NA
+Maehrlein_2016,10.1007/s10750-015-2526-211,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,17.229,raw,NA,3.767,NA
+Maehrlein_2016,10.1007/s10750-015-2526-212,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,16.606,raw,NA,5.054,NA
+Maehrlein_2016,10.1007/s10750-015-2526-213,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.495,raw,NA,3.467,NA
+Maehrlein_2016,10.1007/s10750-015-2526-214,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.862,raw,NA,3.451,NA
+Maehrlein_2016,10.1007/s10750-015-2526-215,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,23.119,raw,NA,3.55,NA
+Maehrlein_2016,10.1007/s10750-015-2526-216,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,23.835,raw,NA,4.071,NA
+Maehrlein_2016,10.1007/s10750-015-2526-217,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,24.11,raw,NA,4.351,NA
+Maehrlein_2016,10.1007/s10750-015-2526-218,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,26.587,raw,NA,4.438,NA
+Maehrlein_2016,10.1007/s10750-015-2526-219,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,26,raw,NA,5.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-220,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,26.44,raw,NA,5.058,NA
+Maehrlein_2016,10.1007/s10750-015-2526-221,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,15.78,raw,NA,2.148,NA
+Maehrlein_2016,10.1007/s10750-015-2526-222,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,16.073,raw,NA,1.196,NA
+Maehrlein_2016,10.1007/s10750-015-2526-223,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,13.67,raw,NA,0.679,NA
+Maehrlein_2016,10.1007/s10750-015-2526-224,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,13.248,raw,NA,0.569,NA
+Maehrlein_2016,10.1007/s10750-015-2526-225,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,13.009,raw,NA,0.509,NA
+Maehrlein_2016,10.1007/s10750-015-2526-226,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,12.532,raw,NA,0.509,NA
+Maehrlein_2016,10.1007/s10750-015-2526-227,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,12.349,raw,NA,0.399,NA
+Maehrlein_2016,10.1007/s10750-015-2526-228,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,12.147,raw,NA,0.34,NA
+Maehrlein_2016,10.1007/s10750-015-2526-229,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,12.899,raw,NA,0.308,NA
+Maehrlein_2016,10.1007/s10750-015-2526-230,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,13.67,raw,NA,0.367,NA
+Maehrlein_2016,10.1007/s10750-015-2526-231,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,11.725,raw,NA,0.391,NA
+Maehrlein_2016,10.1007/s10750-015-2526-232,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,11.688,raw,NA,0.64,NA
+Maehrlein_2016,10.1007/s10750-015-2526-233,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,10.789,raw,NA,0.525,NA
+Maehrlein_2016,10.1007/s10750-015-2526-234,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,11.248,raw,NA,0.426,NA
+Maehrlein_2016,10.1007/s10750-015-2526-235,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,10.789,raw,NA,0.359,NA
+Maehrlein_2016,10.1007/s10750-015-2526-236,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,10.459,raw,NA,0.411,NA
+Maehrlein_2016,10.1007/s10750-015-2526-237,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.578,raw,NA,0.379,NA
+Maehrlein_2016,10.1007/s10750-015-2526-238,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,10.165,raw,NA,0.316,NA
+Maehrlein_2016,10.1007/s10750-015-2526-239,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.633,raw,NA,0.193,NA
+Maehrlein_2016,10.1007/s10750-015-2526-240,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.266,raw,NA,0.19,NA
+Maehrlein_2016,10.1007/s10750-015-2526-241,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.78,raw,NA,0.383,NA
+Maehrlein_2016,10.1007/s10750-015-2526-242,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.064,raw,NA,0.241,NA
+Maehrlein_2016,10.1007/s10750-015-2526-243,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.908,raw,NA,0.146,NA
+Maehrlein_2016,10.1007/s10750-015-2526-244,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.798,raw,NA,0.012,NA
+Maehrlein_2016,10.1007/s10750-015-2526-245,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.789,raw,NA,0.095,NA
+Maehrlein_2016,10.1007/s10750-015-2526-246,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.624,raw,NA,0.079,NA
+Maehrlein_2016,10.1007/s10750-015-2526-247,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.165,raw,NA,0.083,NA
+Maehrlein_2016,10.1007/s10750-015-2526-248,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.725,raw,NA,-0.004,NA
+Maehrlein_2016,10.1007/s10750-015-2526-249,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.046,raw,NA,0.016,NA
+Maehrlein_2016,10.1007/s10750-015-2526-250,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.266,raw,NA,-0.004,NA
+Maehrlein_2016,10.1007/s10750-015-2526-251,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.229,raw,NA,0.059,NA
+Maehrlein_2016,10.1007/s10750-015-2526-252,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.743,raw,NA,0.091,NA
+Maehrlein_2016,10.1007/s10750-015-2526-253,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.716,raw,NA,0.012,NA
+Maehrlein_2016,10.1007/s10750-015-2526-254,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.367,raw,NA,0.186,NA
+Maehrlein_2016,10.1007/s10750-015-2526-255,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.22,raw,NA,0.036,NA
+Maehrlein_2016,10.1007/s10750-015-2526-256,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.413,raw,NA,0.296,NA
+Maehrlein_2016,10.1007/s10750-015-2526-257,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,11.138,raw,NA,0.498,NA
+Maehrlein_2016,10.1007/s10750-015-2526-258,Diptera,Chironomidae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,8.716,raw,NA,0.284,NA
+Maehrlein_2016,10.1007/s10750-015-2526-259,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,19.431,raw,NA,4.063,NA
+Maehrlein_2016,10.1007/s10750-015-2526-260,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,19.101,raw,NA,3.558,NA
+Maehrlein_2016,10.1007/s10750-015-2526-261,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,17.394,raw,NA,3.451,NA
+Maehrlein_2016,10.1007/s10750-015-2526-262,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,18.128,raw,NA,3.309,NA
+Maehrlein_2016,10.1007/s10750-015-2526-263,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,18.661,raw,NA,3.258,NA
+Maehrlein_2016,10.1007/s10750-015-2526-264,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,17.596,raw,NA,2.776,NA
+Maehrlein_2016,10.1007/s10750-015-2526-265,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,17.541,raw,NA,2.725,NA
+Maehrlein_2016,10.1007/s10750-015-2526-266,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,17.651,raw,NA,2.705,NA
+Maehrlein_2016,10.1007/s10750-015-2526-267,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,18.11,raw,NA,2.61,NA
+Maehrlein_2016,10.1007/s10750-015-2526-268,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,17.486,raw,NA,2.507,NA
+Maehrlein_2016,10.1007/s10750-015-2526-269,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,17.67,raw,NA,2.346,NA
+Maehrlein_2016,10.1007/s10750-015-2526-270,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,17.303,raw,NA,2.346,NA
+Maehrlein_2016,10.1007/s10750-015-2526-271,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,16.55,raw,NA,2.298,NA
+Maehrlein_2016,10.1007/s10750-015-2526-272,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,17.064,raw,NA,2.113,NA
+Maehrlein_2016,10.1007/s10750-015-2526-273,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,16.844,raw,NA,2.022,NA
+Maehrlein_2016,10.1007/s10750-015-2526-274,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,16.752,raw,NA,1.986,NA
+Maehrlein_2016,10.1007/s10750-015-2526-275,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,16.257,raw,NA,2.034,NA
+Maehrlein_2016,10.1007/s10750-015-2526-276,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,16.092,raw,NA,1.97,NA
+Maehrlein_2016,10.1007/s10750-015-2526-277,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,16.147,raw,NA,1.911,NA
+Maehrlein_2016,10.1007/s10750-015-2526-278,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,16.495,raw,NA,1.915,NA
+Maehrlein_2016,10.1007/s10750-015-2526-279,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,16.587,raw,NA,1.856,NA
+Maehrlein_2016,10.1007/s10750-015-2526-280,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,17.211,raw,NA,1.856,NA
+Maehrlein_2016,10.1007/s10750-015-2526-281,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,16.385,raw,NA,1.722,NA
+Maehrlein_2016,10.1007/s10750-015-2526-282,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.468,raw,NA,1.911,NA
+Maehrlein_2016,10.1007/s10750-015-2526-283,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.376,raw,NA,2.109,NA
+Maehrlein_2016,10.1007/s10750-015-2526-284,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.651,raw,NA,2.144,NA
+Maehrlein_2016,10.1007/s10750-015-2526-285,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,14.239,raw,NA,2.31,NA
+Maehrlein_2016,10.1007/s10750-015-2526-286,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.486,raw,NA,1.757,NA
+Maehrlein_2016,10.1007/s10750-015-2526-287,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.358,raw,NA,1.643,NA
+Maehrlein_2016,10.1007/s10750-015-2526-288,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.761,raw,NA,1.686,NA
+Maehrlein_2016,10.1007/s10750-015-2526-289,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.872,raw,NA,1.611,NA
+Maehrlein_2016,10.1007/s10750-015-2526-290,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,16,raw,NA,1.568,NA
+Maehrlein_2016,10.1007/s10750-015-2526-291,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.872,raw,NA,1.5,NA
+Maehrlein_2016,10.1007/s10750-015-2526-292,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.505,raw,NA,1.481,NA
+Maehrlein_2016,10.1007/s10750-015-2526-293,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.468,raw,NA,1.512,NA
+Maehrlein_2016,10.1007/s10750-015-2526-294,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.174,raw,NA,1.39,NA
+Maehrlein_2016,10.1007/s10750-015-2526-295,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.119,raw,NA,1.283,NA
+Maehrlein_2016,10.1007/s10750-015-2526-296,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.835,raw,NA,1.228,NA
+Maehrlein_2016,10.1007/s10750-015-2526-297,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,14.624,raw,NA,1.386,NA
+Maehrlein_2016,10.1007/s10750-015-2526-298,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,14.44,raw,NA,1.406,NA
+Maehrlein_2016,10.1007/s10750-015-2526-299,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,14.661,raw,NA,1.153,NA
+Maehrlein_2016,10.1007/s10750-015-2526-300,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,15.083,raw,NA,1.062,NA
+Maehrlein_2016,10.1007/s10750-015-2526-301,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,14.514,raw,NA,1.102,NA
+Maehrlein_2016,10.1007/s10750-015-2526-302,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,13.468,raw,NA,1.031,NA
+Maehrlein_2016,10.1007/s10750-015-2526-303,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,14.239,raw,NA,0.991,NA
+Maehrlein_2016,10.1007/s10750-015-2526-304,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,14.367,raw,NA,0.971,NA
+Maehrlein_2016,10.1007/s10750-015-2526-305,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,14.752,raw,NA,0.904,NA
+Maehrlein_2016,10.1007/s10750-015-2526-306,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,14.624,raw,NA,0.817,NA
+Maehrlein_2016,10.1007/s10750-015-2526-307,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,13.982,raw,NA,0.383,NA
+Maehrlein_2016,10.1007/s10750-015-2526-308,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,13.284,raw,NA,0.533,NA
+Maehrlein_2016,10.1007/s10750-015-2526-309,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,12.165,raw,NA,0.817,NA
+Maehrlein_2016,10.1007/s10750-015-2526-310,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,11.174,raw,NA,0.975,NA
+Maehrlein_2016,10.1007/s10750-015-2526-311,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,12.018,raw,NA,0.671,NA
+Maehrlein_2016,10.1007/s10750-015-2526-312,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,11.358,raw,NA,0.652,NA
+Maehrlein_2016,10.1007/s10750-015-2526-313,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,10.514,raw,NA,0.616,NA
+Maehrlein_2016,10.1007/s10750-015-2526-314,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,9.651,raw,NA,0.533,NA
+Maehrlein_2016,10.1007/s10750-015-2526-315,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,9.394,raw,NA,0.537,NA
+Maehrlein_2016,10.1007/s10750-015-2526-316,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,9.211,raw,NA,0.62,NA
+Maehrlein_2016,10.1007/s10750-015-2526-317,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,8.771,raw,NA,0.58,NA
+Maehrlein_2016,10.1007/s10750-015-2526-318,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,8.569,raw,NA,0.391,NA
+Maehrlein_2016,10.1007/s10750-015-2526-319,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,8.404,raw,NA,0.351,NA
+Maehrlein_2016,10.1007/s10750-015-2526-320,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,9.064,raw,NA,0.312,NA
+Maehrlein_2016,10.1007/s10750-015-2526-321,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,9.872,raw,NA,0.419,NA
+Maehrlein_2016,10.1007/s10750-015-2526-322,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,11.615,raw,NA,0.498,NA
+Maehrlein_2016,10.1007/s10750-015-2526-323,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,11.45,raw,NA,0.328,NA
+Maehrlein_2016,10.1007/s10750-015-2526-324,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,9.872,raw,NA,0.261,NA
+Maehrlein_2016,10.1007/s10750-015-2526-325,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,9.908,raw,NA,0.217,NA
+Maehrlein_2016,10.1007/s10750-015-2526-326,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,8.771,raw,NA,0.174,NA
+Maehrlein_2016,10.1007/s10750-015-2526-327,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,8.624,raw,NA,0.126,NA
+Maehrlein_2016,10.1007/s10750-015-2526-328,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,8.385,raw,NA,0.083,NA
+Maehrlein_2016,10.1007/s10750-015-2526-329,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,7.743,raw,NA,0.122,NA
+Maehrlein_2016,10.1007/s10750-015-2526-330,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,7.67,raw,NA,0.079,NA
+Maehrlein_2016,10.1007/s10750-015-2526-331,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,7.651,raw,NA,0.039,NA
+Maehrlein_2016,10.1007/s10750-015-2526-332,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,7.193,raw,NA,0.067,NA
+Maehrlein_2016,10.1007/s10750-015-2526-333,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,6.899,raw,NA,0.075,NA
+Maehrlein_2016,10.1007/s10750-015-2526-334,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,6.275,raw,NA,0.193,NA
+Maehrlein_2016,10.1007/s10750-015-2526-335,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,7.046,raw,NA,0.225,NA
+Maehrlein_2016,10.1007/s10750-015-2526-336,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,5.431,raw,NA,0.166,NA
+Maehrlein_2016,10.1007/s10750-015-2526-337,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,5.083,raw,NA,0.111,NA
+Maehrlein_2016,10.1007/s10750-015-2526-338,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,4.936,raw,NA,0.024,NA
+Maehrlein_2016,10.1007/s10750-015-2526-339,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,3.963,raw,NA,0.059,NA
+Maehrlein_2016,10.1007/s10750-015-2526-340,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,3.817,raw,NA,0.091,NA
+Maehrlein_2016,10.1007/s10750-015-2526-341,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,3.633,raw,NA,0.087,NA
+Maehrlein_2016,10.1007/s10750-015-2526-342,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,3.119,raw,NA,0.024,NA
+Maehrlein_2016,10.1007/s10750-015-2526-343,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,4.183,raw,NA,0.012,NA
+Maehrlein_2016,10.1007/s10750-015-2526-344,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,6.404,raw,NA,0.012,NA
+Maehrlein_2016,10.1007/s10750-015-2526-345,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,6.734,raw,NA,0.178,NA
+Maehrlein_2016,10.1007/s10750-015-2526-346,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,7.596,raw,NA,0.308,NA
+Maehrlein_2016,10.1007/s10750-015-2526-347,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,10.385,raw,NA,0.391,NA
+Maehrlein_2016,10.1007/s10750-015-2526-348,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,11.651,raw,NA,0.612,NA
+Maehrlein_2016,10.1007/s10750-015-2526-349,Diptera,Chironomidae,53.247254,13.274586,ethanol,70,NA,NA,larva,raw,NA,8.092,raw,NA,0.332,NA
+Maehrlein_2016,10.1007/s10750-015-2526-350,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,16.61,raw,NA,5.06,NA
+Maehrlein_2016,10.1007/s10750-015-2526-351,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,17.21,raw,NA,3.77,NA
+Maehrlein_2016,10.1007/s10750-015-2526-352,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,25.993,raw,NA,5.048,NA
+Maehrlein_2016,10.1007/s10750-015-2526-353,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,26.442,raw,NA,5.056,NA
+Maehrlein_2016,10.1007/s10750-015-2526-354,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,26.573,raw,NA,4.44,NA
+Maehrlein_2016,10.1007/s10750-015-2526-355,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,24.101,raw,NA,4.351,NA
+Maehrlein_2016,10.1007/s10750-015-2526-356,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,23.801,raw,NA,4.073,NA
+Maehrlein_2016,10.1007/s10750-015-2526-357,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.491,raw,NA,3.468,NA
+Maehrlein_2016,10.1007/s10750-015-2526-358,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.884,raw,NA,3.448,NA
+Maehrlein_2016,10.1007/s10750-015-2526-359,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,23.109,raw,NA,3.548,NA
+Maehrlein_2016,10.1007/s10750-015-2526-360,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,20.393,raw,NA,3.032,NA
+Maehrlein_2016,10.1007/s10750-015-2526-361,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.772,raw,NA,3.093,NA
+Maehrlein_2016,10.1007/s10750-015-2526-362,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,24.101,raw,NA,2.964,NA
+Maehrlein_2016,10.1007/s10750-015-2526-363,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.921,raw,NA,2.903,NA
+Maehrlein_2016,10.1007/s10750-015-2526-364,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.978,raw,NA,2.762,NA
+Maehrlein_2016,10.1007/s10750-015-2526-365,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,25.15,raw,NA,2.69,NA
+Maehrlein_2016,10.1007/s10750-015-2526-366,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,25.599,raw,NA,2.238,NA
+Maehrlein_2016,10.1007/s10750-015-2526-367,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,25.993,raw,NA,2.093,NA
+Maehrlein_2016,10.1007/s10750-015-2526-368,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,24.494,raw,NA,1.879,NA
+Maehrlein_2016,10.1007/s10750-015-2526-369,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.228,raw,NA,2.125,NA
+Maehrlein_2016,10.1007/s10750-015-2526-370,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.191,raw,NA,2.464,NA
+Maehrlein_2016,10.1007/s10750-015-2526-371,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,19.663,raw,NA,2.669,NA
+Maehrlein_2016,10.1007/s10750-015-2526-372,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,22.434,raw,NA,1.843,NA
+Maehrlein_2016,10.1007/s10750-015-2526-373,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,15.749,raw,NA,2.149,NA
+Maehrlein_2016,10.1007/s10750-015-2526-374,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,17.959,raw,NA,1.621,NA
+Maehrlein_2016,10.1007/s10750-015-2526-375,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,19.981,raw,NA,1.69,NA
+Maehrlein_2016,10.1007/s10750-015-2526-376,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,20.037,raw,NA,1.609,NA
+Maehrlein_2016,10.1007/s10750-015-2526-377,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,20.3,raw,NA,1.621,NA
+Maehrlein_2016,10.1007/s10750-015-2526-378,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,20.131,raw,NA,1.109,NA
+Maehrlein_2016,10.1007/s10750-015-2526-379,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,19.719,raw,NA,0.98,NA
+Maehrlein_2016,10.1007/s10750-015-2526-380,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,19.719,raw,NA,0.831,NA
+Maehrlein_2016,10.1007/s10750-015-2526-381,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,18.708,raw,NA,0.831,NA
+Maehrlein_2016,10.1007/s10750-015-2526-382,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,18.352,raw,NA,0.802,NA
+Maehrlein_2016,10.1007/s10750-015-2526-383,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,18.09,raw,NA,1.04,NA
+Maehrlein_2016,10.1007/s10750-015-2526-384,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,17.809,raw,NA,0.73,NA
+Maehrlein_2016,10.1007/s10750-015-2526-385,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,17.285,raw,NA,0.661,NA
+Maehrlein_2016,10.1007/s10750-015-2526-386,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,17.097,raw,NA,0.766,NA
+Maehrlein_2016,10.1007/s10750-015-2526-387,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,16.049,raw,NA,1.206,NA
+Maehrlein_2016,10.1007/s10750-015-2526-388,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,14.363,raw,NA,1.407,NA
+Maehrlein_2016,10.1007/s10750-015-2526-389,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,14.363,raw,NA,1.282,NA
+Maehrlein_2016,10.1007/s10750-015-2526-390,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,14.401,raw,NA,1.052,NA
+Maehrlein_2016,10.1007/s10750-015-2526-391,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,15.393,raw,NA,0.968,NA
+Maehrlein_2016,10.1007/s10750-015-2526-392,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,14.906,raw,NA,0.859,NA
+Maehrlein_2016,10.1007/s10750-015-2526-393,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,13.258,raw,NA,1.145,NA
+Maehrlein_2016,10.1007/s10750-015-2526-394,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,16.049,raw,NA,0.569,NA
+Maehrlein_2016,10.1007/s10750-015-2526-395,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,15.637,raw,NA,0.427,NA
+Maehrlein_2016,10.1007/s10750-015-2526-396,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,13.67,raw,NA,0.673,NA
+Maehrlein_2016,10.1007/s10750-015-2526-397,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,13.24,raw,NA,0.569,NA
+Maehrlein_2016,10.1007/s10750-015-2526-398,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,13.67,raw,NA,0.371,NA
+Maehrlein_2016,10.1007/s10750-015-2526-399,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,12.884,raw,NA,0.31,NA
+Maehrlein_2016,10.1007/s10750-015-2526-400,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,12.341,raw,NA,0.403,NA
+Maehrlein_2016,10.1007/s10750-015-2526-401,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,12.566,raw,NA,0.512,NA
+Maehrlein_2016,10.1007/s10750-015-2526-402,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,12.996,raw,NA,0.512,NA
+Maehrlein_2016,10.1007/s10750-015-2526-403,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,11.704,raw,NA,0.645,NA
+Maehrlein_2016,10.1007/s10750-015-2526-404,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,11.292,raw,NA,0.556,NA
+Maehrlein_2016,10.1007/s10750-015-2526-405,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,10.805,raw,NA,0.532,NA
+Maehrlein_2016,10.1007/s10750-015-2526-406,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,11.18,raw,NA,0.492,NA
+Maehrlein_2016,10.1007/s10750-015-2526-407,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,11.292,raw,NA,0.427,NA
+Maehrlein_2016,10.1007/s10750-015-2526-408,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,11.742,raw,NA,0.391,NA
+Maehrlein_2016,10.1007/s10750-015-2526-409,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,12.135,raw,NA,0.339,NA
+Maehrlein_2016,10.1007/s10750-015-2526-410,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,10.749,raw,NA,0.359,NA
+Maehrlein_2016,10.1007/s10750-015-2526-411,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,10.524,raw,NA,0.363,NA
+Maehrlein_2016,10.1007/s10750-015-2526-412,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,10.449,raw,NA,0.411,NA
+Maehrlein_2016,10.1007/s10750-015-2526-413,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,10.15,raw,NA,0.319,NA
+Maehrlein_2016,10.1007/s10750-015-2526-414,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.644,raw,NA,0.319,NA
+Maehrlein_2016,10.1007/s10750-015-2526-415,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.644,raw,NA,0.226,NA
+Maehrlein_2016,10.1007/s10750-015-2526-416,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.288,raw,NA,0.21,NA
+Maehrlein_2016,10.1007/s10750-015-2526-417,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.232,raw,NA,0.262,NA
+Maehrlein_2016,10.1007/s10750-015-2526-418,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,8.652,raw,NA,0.262,NA
+Maehrlein_2016,10.1007/s10750-015-2526-419,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,8.764,raw,NA,0.21,NA
+Maehrlein_2016,10.1007/s10750-015-2526-420,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,8.483,raw,NA,0.161,NA
+Maehrlein_2016,10.1007/s10750-015-2526-421,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,8.071,raw,NA,0.157,NA
+Maehrlein_2016,10.1007/s10750-015-2526-422,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.828,raw,NA,0.181,NA
+Maehrlein_2016,10.1007/s10750-015-2526-423,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.753,raw,NA,0.379,NA
+Maehrlein_2016,10.1007/s10750-015-2526-424,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.097,raw,NA,0.242,NA
+Maehrlein_2016,10.1007/s10750-015-2526-425,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.33,raw,NA,0.181,NA
+Maehrlein_2016,10.1007/s10750-015-2526-426,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.734,raw,NA,0.085,NA
+Maehrlein_2016,10.1007/s10750-015-2526-427,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.378,raw,NA,0.109,NA
+Maehrlein_2016,10.1007/s10750-015-2526-428,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.966,raw,NA,0.169,NA
+Maehrlein_2016,10.1007/s10750-015-2526-429,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.723,raw,NA,0.117,NA
+Maehrlein_2016,10.1007/s10750-015-2526-430,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.348,raw,NA,0.065,NA
+Maehrlein_2016,10.1007/s10750-015-2526-431,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.787,raw,NA,0.016,NA
+Maehrlein_2016,10.1007/s10750-015-2526-432,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.655,raw,NA,0.097,NA
+Maehrlein_2016,10.1007/s10750-015-2526-433,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.086,raw,NA,0.113,NA
+Maehrlein_2016,10.1007/s10750-015-2526-434,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.199,raw,NA,0.056,NA
+Maehrlein_2016,10.1007/s10750-015-2526-435,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.187,raw,NA,0.089,NA
+Maehrlein_2016,10.1007/s10750-015-2526-436,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.243,raw,NA,0.044,NA
+Maehrlein_2016,10.1007/s10750-015-2526-437,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.625,raw,NA,0.077,NA
+Maehrlein_2016,10.1007/s10750-015-2526-438,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.738,raw,NA,0.028,NA
+Maehrlein_2016,10.1007/s10750-015-2526-439,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.232,raw,NA,0.028,NA
+Maehrlein_2016,10.1007/s10750-015-2526-440,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.101,raw,NA,0.056,NA
+Maehrlein_2016,10.1007/s10750-015-2526-441,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.764,raw,NA,0.008,NA
+Maehrlein_2016,10.1007/s10750-015-2526-442,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.745,raw,NA,0.036,NA
+Maehrlein_2016,10.1007/s10750-015-2526-443,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.052,raw,NA,0.02,NA
+Maehrlein_2016,10.1007/s10750-015-2526-444,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.296,raw,NA,0.004,NA
+Maehrlein_2016,10.1007/s10750-015-2526-445,Diptera,Chironomini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.24,raw,NA,0.028,NA
+Maehrlein_2016,10.1007/s10750-015-2526-446,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.81,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-447,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.295,raw,NA,0.01,NA
+Maehrlein_2016,10.1007/s10750-015-2526-448,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.26,raw,NA,0.02,NA
+Maehrlein_2016,10.1007/s10750-015-2526-449,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.65,raw,NA,0.02,NA
+Maehrlein_2016,10.1007/s10750-015-2526-450,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.705,raw,NA,0.02,NA
+Maehrlein_2016,10.1007/s10750-015-2526-451,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.155,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-452,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.16,raw,NA,0.04,NA
+Maehrlein_2016,10.1007/s10750-015-2526-453,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.785,raw,NA,0.06,NA
+Maehrlein_2016,10.1007/s10750-015-2526-454,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.25,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-455,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.79,raw,NA,0.06,NA
+Maehrlein_2016,10.1007/s10750-015-2526-456,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.185,raw,NA,0.09,NA
+Maehrlein_2016,10.1007/s10750-015-2526-457,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.175,raw,NA,0.12,NA
+Maehrlein_2016,10.1007/s10750-015-2526-458,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.785,raw,NA,0.13,NA
+Maehrlein_2016,10.1007/s10750-015-2526-459,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.745,raw,NA,0.11,NA
+Maehrlein_2016,10.1007/s10750-015-2526-460,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.2,raw,NA,0.13,NA
+Maehrlein_2016,10.1007/s10750-015-2526-461,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.29,raw,NA,0.15,NA
+Maehrlein_2016,10.1007/s10750-015-2526-462,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.69,raw,NA,0.19,NA
+Maehrlein_2016,10.1007/s10750-015-2526-463,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,8.515,raw,NA,0.14,NA
+Maehrlein_2016,10.1007/s10750-015-2526-464,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,8.64,raw,NA,0.16,NA
+Maehrlein_2016,10.1007/s10750-015-2526-465,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.695,raw,NA,0.24,NA
+Maehrlein_2016,10.1007/s10750-015-2526-466,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,8.235,raw,NA,0.24,NA
+Maehrlein_2016,10.1007/s10750-015-2526-467,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,8.71,raw,NA,0.27,NA
+Maehrlein_2016,10.1007/s10750-015-2526-468,Diptera,Orthocladiinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.525,raw,NA,0.25,NA
+Maehrlein_2016,10.1007/s10750-015-2526-469,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.263,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-470,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.237,raw,NA,0.04,NA
+Maehrlein_2016,10.1007/s10750-015-2526-471,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.609,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-472,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.647,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-473,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.256,raw,NA,0.04,NA
+Maehrlein_2016,10.1007/s10750-015-2526-474,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.75,raw,NA,0.08,NA
+Maehrlein_2016,10.1007/s10750-015-2526-475,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.16,raw,NA,0.08,NA
+Maehrlein_2016,10.1007/s10750-015-2526-476,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.808,raw,NA,0.09,NA
+Maehrlein_2016,10.1007/s10750-015-2526-477,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.263,raw,NA,0.11,NA
+Maehrlein_2016,10.1007/s10750-015-2526-478,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.949,raw,NA,0.14,NA
+Maehrlein_2016,10.1007/s10750-015-2526-479,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.301,raw,NA,0.1,NA
+Maehrlein_2016,10.1007/s10750-015-2526-480,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.647,raw,NA,0.16,NA
+Maehrlein_2016,10.1007/s10750-015-2526-481,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.506,raw,NA,0.15,NA
+Maehrlein_2016,10.1007/s10750-015-2526-482,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.263,raw,NA,0.18,NA
+Maehrlein_2016,10.1007/s10750-015-2526-483,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,8.686,raw,NA,0.16,NA
+Maehrlein_2016,10.1007/s10750-015-2526-484,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.635,raw,NA,0.2,NA
+Maehrlein_2016,10.1007/s10750-015-2526-485,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.545,raw,NA,0.28,NA
+Maehrlein_2016,10.1007/s10750-015-2526-486,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.59,raw,NA,0.38,NA
+Maehrlein_2016,10.1007/s10750-015-2526-487,Diptera,Tanypodinae,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,10.346,raw,NA,0.36,NA
+Maehrlein_2016,10.1007/s10750-015-2526-488,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.522,raw,NA,0.27,NA
+Maehrlein_2016,10.1007/s10750-015-2526-489,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,9.27,raw,NA,0.2,NA
+Maehrlein_2016,10.1007/s10750-015-2526-490,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,7.573,raw,NA,0.1,NA
+Maehrlein_2016,10.1007/s10750-015-2526-491,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.882,raw,NA,0.09,NA
+Maehrlein_2016,10.1007/s10750-015-2526-492,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.168,raw,NA,0.1,NA
+Maehrlein_2016,10.1007/s10750-015-2526-493,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.402,raw,NA,0.08,NA
+Maehrlein_2016,10.1007/s10750-015-2526-494,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,6.18,raw,NA,0.07,NA
+Maehrlein_2016,10.1007/s10750-015-2526-495,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.951,raw,NA,0.06,NA
+Maehrlein_2016,10.1007/s10750-015-2526-496,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.781,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-497,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.512,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-498,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.711,raw,NA,0.07,NA
+Maehrlein_2016,10.1007/s10750-015-2526-499,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.77,raw,NA,0.07,NA
+Maehrlein_2016,10.1007/s10750-015-2526-500,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,5.173,raw,NA,0.06,NA
+Maehrlein_2016,10.1007/s10750-015-2526-501,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.71,raw,NA,0.06,NA
+Maehrlein_2016,10.1007/s10750-015-2526-502,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.306,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-503,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.23,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-504,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,4.195,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-505,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.82,raw,NA,0.04,NA
+Maehrlein_2016,10.1007/s10750-015-2526-506,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.733,raw,NA,0.04,NA
+Maehrlein_2016,10.1007/s10750-015-2526-507,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.692,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-508,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.85,raw,NA,0.06,NA
+Maehrlein_2016,10.1007/s10750-015-2526-509,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.253,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-510,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.206,raw,NA,0.04,NA
+Maehrlein_2016,10.1007/s10750-015-2526-511,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.171,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-512,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,3.276,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-513,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.843,raw,NA,0.02,NA
+Maehrlein_2016,10.1007/s10750-015-2526-514,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.691,raw,NA,0.04,NA
+Maehrlein_2016,10.1007/s10750-015-2526-515,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.749,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-516,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.673,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-517,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.544,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-518,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.275,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-519,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.228,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-520,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.064,raw,NA,0.02,NA
+Maehrlein_2016,10.1007/s10750-015-2526-521,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.234,raw,NA,0.02,NA
+Maehrlein_2016,10.1007/s10750-015-2526-522,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.31,raw,NA,0.02,NA
+Maehrlein_2016,10.1007/s10750-015-2526-523,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.152,raw,NA,0.01,NA
+Maehrlein_2016,10.1007/s10750-015-2526-524,Diptera,Tanytarsini,52.245774,14.054017,ethanol,70,NA,NA,larva,raw,NA,2.299,raw,NA,0.01,NA
+Maehrlein_2016,10.1007/s10750-015-2526-525,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.418,raw,NA,0.13,NA
+Maehrlein_2016,10.1007/s10750-015-2526-526,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.108,raw,NA,0.09,NA
+Maehrlein_2016,10.1007/s10750-015-2526-527,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.048,raw,NA,0.08,NA
+Maehrlein_2016,10.1007/s10750-015-2526-528,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.538,raw,NA,0.06,NA
+Maehrlein_2016,10.1007/s10750-015-2526-529,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.838,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-530,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.598,raw,NA,0.08,NA
+Maehrlein_2016,10.1007/s10750-015-2526-531,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.629,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-532,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.598,raw,NA,0.02,NA
+Maehrlein_2016,10.1007/s10750-015-2526-533,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.418,raw,NA,0.04,NA
+Maehrlein_2016,10.1007/s10750-015-2526-534,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.358,raw,NA,0.04,NA
+Maehrlein_2016,10.1007/s10750-015-2526-535,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.439,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-536,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.25,raw,NA,0.05,NA
+Maehrlein_2016,10.1007/s10750-015-2526-537,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.079,raw,NA,0.06,NA
+Maehrlein_2016,10.1007/s10750-015-2526-538,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.159,raw,NA,0.04,NA
+Maehrlein_2016,10.1007/s10750-015-2526-539,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.998,raw,NA,0.02,NA
+Maehrlein_2016,10.1007/s10750-015-2526-540,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.93,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-541,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.839,raw,NA,0.01,NA
+Maehrlein_2016,10.1007/s10750-015-2526-542,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.698,raw,NA,0.01,NA
+Maehrlein_2016,10.1007/s10750-015-2526-543,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.6,raw,NA,0.01,NA
+Maehrlein_2016,10.1007/s10750-015-2526-544,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.578,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-545,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.248,raw,NA,0.02,NA
+Maehrlein_2016,10.1007/s10750-015-2526-546,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.139,raw,NA,0.01,NA
+Maehrlein_2016,10.1007/s10750-015-2526-547,Trichoptera,Hydroptilidae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.05,raw,NA,0.03,NA
+Maehrlein_2016,10.1007/s10750-015-2526-548,Trichoptera,Molanna angustata,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.79,raw,NA,0.02,NA
+Maehrlein_2016,10.1007/s10750-015-2526-549,Trichoptera,Molanna angustata,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.808,raw,NA,0.09,NA
+Maehrlein_2016,10.1007/s10750-015-2526-550,Trichoptera,Molanna angustata,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.038,raw,NA,0.069,NA
+Maehrlein_2016,10.1007/s10750-015-2526-551,Trichoptera,Molanna angustata,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.936,raw,NA,0.19,NA
+Maehrlein_2016,10.1007/s10750-015-2526-552,Trichoptera,Molanna angustata,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.159,raw,NA,0.27,NA
+Maehrlein_2016,10.1007/s10750-015-2526-553,Trichoptera,Molanna angustata,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,6.208,raw,NA,0.169,NA
+Maehrlein_2016,10.1007/s10750-015-2526-554,Trichoptera,Molanna angustata,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,8.649,raw,NA,0.32,NA
+Maehrlein_2016,10.1007/s10750-015-2526-555,Trichoptera,Molanna angustata,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,9.285,raw,NA,0.679,NA
+Maehrlein_2016,10.1007/s10750-015-2526-556,Trichoptera,Molanna angustata,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,9.364,raw,NA,0.799,NA
+Maehrlein_2016,10.1007/s10750-015-2526-557,Trichoptera,Molanna angustata,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,11.335,raw,NA,0.8,NA
+Maehrlein_2016,10.1007/s10750-015-2526-558,Trichoptera,Molanna angustata,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,9.801,raw,NA,0.969,NA
+Maehrlein_2016,10.1007/s10750-015-2526-559,Trichoptera,Molanna angustata,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,12.87,raw,NA,1.398,NA
+Maehrlein_2016,10.1007/s10750-015-2526-560,Trichoptera,Orthotrichia,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.343831626,raw,NA,0.019938363,NA
+Maehrlein_2016,10.1007/s10750-015-2526-561,Trichoptera,Orthotrichia,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.451172915,raw,NA,0.019906793,NA
+Maehrlein_2016,10.1007/s10750-015-2526-562,Trichoptera,Orthotrichia,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.542995396,raw,NA,0.020044348,NA
+Maehrlein_2016,10.1007/s10750-015-2526-563,Trichoptera,Orthotrichia,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.657067243,raw,NA,0.030215917,NA
+Maehrlein_2016,10.1007/s10750-015-2526-564,Trichoptera,Orthotrichia,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.743211501,raw,NA,0.030084375,NA
+Maehrlein_2016,10.1007/s10750-015-2526-565,Trichoptera,Orthotrichia,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.974512199,raw,NA,0.040229635,NA
+Maehrlein_2016,10.1007/s10750-015-2526-566,Trichoptera,Orthotrichia,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.85304582,raw,NA,0.040253688,NA
+Maehrlein_2016,10.1007/s10750-015-2526-567,Trichoptera,Orthotrichia,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.383087475,raw,NA,0.070513577,NA
+Maehrlein_2016,10.1007/s10750-015-2526-568,Trichoptera,Orthotrichia,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.040900122,raw,NA,0.080264963,NA
+Maehrlein_2017,10.1007/s10750-015-2526-569,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.466759003,raw,NA,0.05,NA
+Maehrlein_2018,10.1007/s10750-015-2526-570,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.56232687,raw,NA,0.039842382,NA
+Maehrlein_2019,10.1007/s10750-015-2526-571,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.670360111,raw,NA,0.03966725,NA
+Maehrlein_2020,10.1007/s10750-015-2526-572,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.738919668,raw,NA,0.03966725,NA
+Maehrlein_2021,10.1007/s10750-015-2526-573,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.876038781,raw,NA,0.029859895,NA
+Maehrlein_2022,10.1007/s10750-015-2526-574,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.944598338,raw,NA,0.040192644,NA
+Maehrlein_2023,10.1007/s10750-015-2526-575,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.131578947,raw,NA,0.039316988,NA
+Maehrlein_2024,10.1007/s10750-015-2526-576,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.322714681,raw,NA,0.039492119,NA
+Maehrlein_2025,10.1007/s10750-015-2526-577,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.917590028,raw,NA,0.059807356,NA
+Maehrlein_2026,10.1007/s10750-015-2526-578,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.052631579,raw,NA,0.059807356,NA
+Maehrlein_2027,10.1007/s10750-015-2526-579,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.048476454,raw,NA,0.070140105,NA
+Maehrlein_2028,10.1007/s10750-015-2526-580,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.218836565,raw,NA,0.069964974,NA
+Maehrlein_2029,10.1007/s10750-015-2526-581,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.42867036,raw,NA,0.109894921,NA
+Maehrlein_2030,10.1007/s10750-015-2526-582,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.619806094,raw,NA,0.110245184,NA
+Maehrlein_2031,10.1007/s10750-015-2526-583,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.014542936,raw,NA,0.149649737,NA
+Maehrlein_2032,10.1007/s10750-015-2526-584,Trichoptera,Oxyethira,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.522160665,raw,NA,0.16033275,NA
+Maehrlein_2033,10.1007/s10750-015-2526-585,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.951612903,raw,NA,0.149051491,NA
+Maehrlein_2034,10.1007/s10750-015-2526-586,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.241935484,raw,NA,0.176151762,NA
+Maehrlein_2035,10.1007/s10750-015-2526-587,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.943548387,raw,NA,0.108401084,NA
+Maehrlein_2036,10.1007/s10750-015-2526-588,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,6.137096774,raw,NA,0.243902439,NA
+Maehrlein_2037,10.1007/s10750-015-2526-589,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,6.403225806,raw,NA,0.216802168,NA
+Maehrlein_2038,10.1007/s10750-015-2526-590,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,6.524193548,raw,NA,0.352303523,NA
+Maehrlein_2039,10.1007/s10750-015-2526-591,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,7.274193548,raw,NA,0.243902439,NA
+Maehrlein_2040,10.1007/s10750-015-2526-592,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,7.491935484,raw,NA,0.352303523,NA
+Maehrlein_2041,10.1007/s10750-015-2526-593,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,7.637096774,raw,NA,0.284552846,NA
+Maehrlein_2042,10.1007/s10750-015-2526-594,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,9.790322581,raw,NA,0.514905149,NA
+Maehrlein_2043,10.1007/s10750-015-2526-595,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,11.45967742,raw,NA,0.745257453,NA
+Maehrlein_2044,10.1007/s10750-015-2526-596,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,14.84677419,raw,NA,2.371273713,NA
+Maehrlein_2045,10.1007/s10750-015-2526-597,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,18.30645161,raw,NA,3.604336043,NA
+Maehrlein_2046,10.1007/s10750-015-2526-598,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,18.66935484,raw,NA,2.886178862,NA
+Maehrlein_2047,10.1007/s10750-015-2526-599,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,21.08870968,raw,NA,3.617886179,NA
+Maehrlein_2048,10.1007/s10750-015-2526-600,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,21.42741935,raw,NA,10.32520325,NA
+Maehrlein_2049,10.1007/s10750-015-2526-601,Trichoptera,Phryganeinae,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,23.38709677,raw,NA,6.734417344,NA
+,10.1007/s10750-015-2526-601,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.013610354,raw,NA,0.016792981,NA
+,10.1007/s10750-015-2526-602,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.388820456,raw,NA,0.033601131,NA
+,10.1007/s10750-015-2526-603,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.651258184,raw,NA,0.028619365,NA
+,10.1007/s10750-015-2526-604,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.814030255,raw,NA,0.05038501,NA
+,10.1007/s10750-015-2526-605,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.938968817,raw,NA,0.045469991,NA
+,10.1007/s10750-015-2526-606,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.839545877,raw,NA,0.091634759,NA
+,10.1007/s10750-015-2526-607,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.889848969,raw,NA,0.115882185,NA
+,10.1007/s10750-015-2526-608,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.152923829,raw,NA,0.161870984,NA
+,10.1007/s10750-015-2526-609,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.277316278,raw,NA,0.11326691,NA
+,10.1007/s10750-015-2526-610,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.277012882,raw,NA,0.088995212,NA
+,10.1007/s10750-015-2526-611,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.201588583,raw,NA,0.055051244,NA
+,10.1007/s10750-015-2526-612,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.376769558,raw,NA,0.069529311,NA
+,10.1007/s10750-015-2526-613,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.689055285,raw,NA,0.052387425,NA
+,10.1007/s10750-015-2526-614,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.701761518,raw,NA,0.068886111,NA
+,10.1007/s10750-015-2526-615,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.540536769,raw,NA,0.170906123,NA
+,10.1007/s10750-015-2526-616,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.390871415,raw,NA,0.197677805,NA
+,10.1007/s10750-015-2526-617,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.95249422,raw,NA,0.12750226,NA
+,10.1007/s10750-015-2526-618,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.839115054,raw,NA,0.057168949,NA
+,10.1007/s10750-015-2526-619,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.916481089,raw,NA,0.246451781,NA
+,10.1007/s10750-015-2526-620,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.079647575,raw,NA,0.299770632,NA
+,10.1007/s10750-015-2526-621,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.31744953,raw,NA,0.323927039,NA
+,10.1007/s10750-015-2526-622,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.642053143,raw,NA,0.292216067,NA
+,10.1007/s10750-015-2526-623,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.766688309,raw,NA,0.263029351,NA
+,10.1007/s10750-015-2526-624,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.791384761,raw,NA,0.238745517,NA
+,10.1007/s10750-015-2526-625,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.84117208,raw,NA,0.221731057,NA
+,10.1007/s10750-015-2526-626,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.316958028,raw,NA,0.28460689,NA
+,10.1007/s10750-015-2526-627,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.229852974,raw,NA,0.316202572,NA
+,10.1007/s10750-015-2526-628,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.403213573,raw,NA,0.185050455,NA
+,10.1007/s10750-015-2526-629,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.642077415,raw,NA,0.294157802,NA
+,10.1007/s10750-015-2526-630,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.94237899,raw,NA,0.31828387,NA
+,10.1007/s10750-015-2526-631,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.330337801,raw,NA,0.354988744,NA
+,10.1007/s10750-015-2526-632,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.943355926,raw,NA,0.396438735,NA
+,10.1007/s10750-015-2526-633,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.345022178,raw,NA,0.529738897,NA
+,10.1007/s10750-015-2526-634,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.881274992,raw,NA,0.429964017,NA
+,10.1007/s10750-015-2526-635,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,6.416799655,raw,NA,0.271937063,NA
+,10.1007/s10750-015-2526-636,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,7.832446405,raw,NA,0.523677041,NA
+,10.1007/s10750-015-2526-637,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,9.859072457,raw,NA,0.653761203,NA
+,10.1007/s10750-015-2526-638,Trichoptera,Anthripsodes,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,11.33318366,raw,NA,1.582657265,NA
+,10.1007/s10750-015-2526-639,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.501318508,raw,NA,0.012003844,NA
+,10.1007/s10750-015-2526-640,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.736193593,raw,NA,0.051132833,NA
+,10.1007/s10750-015-2526-641,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.906190848,raw,NA,0.0410038,NA
+,10.1007/s10750-015-2526-642,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.289244585,raw,NA,0.044529455,NA
+,10.1007/s10750-015-2526-643,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.715545393,raw,NA,0.080667418,NA
+,10.1007/s10750-015-2526-644,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.077611369,raw,NA,0.097768289,NA
+,10.1007/s10750-015-2526-645,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.354931582,raw,NA,0.131818313,NA
+,10.1007/s10750-015-2526-646,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.717178176,raw,NA,0.15740821,NA
+,10.1007/s10750-015-2526-647,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.303509761,raw,NA,0.214992703,NA
+,10.1007/s10750-015-2526-648,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,5.981873221,raw,NA,0.098075339,NA
+,10.1007/s10750-015-2526-649,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,6.227025445,raw,NA,0.12022989,NA
+,10.1007/s10750-015-2526-650,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,9.41263167,raw,NA,0.343722456,NA
+,10.1007/s10750-015-2526-651,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,8.67607323,raw,NA,0.725475747,NA
+,10.1007/s10750-015-2526-652,Trichoptera,Mystacides longicornis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,10.4963732,raw,NA,1.279574321,NA
+,10.1007/s10750-015-2526-653,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,1.420670523,raw,NA,0.009867611,NA
+,10.1007/s10750-015-2526-654,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,1.563436405,raw,NA,0.020311226,NA
+,10.1007/s10750-015-2526-655,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,1.378408999,raw,NA,0.030657429,NA
+,10.1007/s10750-015-2526-656,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,1.649194758,raw,NA,0.0307379,NA
+,10.1007/s10750-015-2526-657,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,1.92898765,raw,NA,0.010018671,NA
+,10.1007/s10750-015-2526-658,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.04323565,raw,NA,0.019859458,NA
+,10.1007/s10750-015-2526-659,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.266748079,raw,NA,0.029732715,NA
+,10.1007/s10750-015-2526-660,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.57628004,raw,NA,0.061028267,NA
+,10.1007/s10750-015-2526-661,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,2.884583755,raw,NA,0.040614687,NA
+,10.1007/s10750-015-2526-662,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.160120142,raw,NA,0.04069657,NA
+,10.1007/s10750-015-2526-663,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.283622336,raw,NA,0.040138919,NA
+,10.1007/s10750-015-2526-664,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,3.075314738,raw,NA,0.07038905,NA
+,10.1007/s10750-015-2526-665,Trichoptera,Oecetis,52.245774,14.054017,ethanol,70,NA,NA,nymph,raw,NA,4.898609753,raw,NA,0.231109197,NA
+,10.1007/s10750-015-2526-666,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.388936588,raw,NA,0.057665014,NA
+,10.1007/s10750-015-2526-667,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.676823606,raw,NA,0.016926285,NA
+,10.1007/s10750-015-2526-668,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.174204062,raw,NA,0.015927529,NA
+,10.1007/s10750-015-2526-669,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.514552049,raw,NA,0.03532442,NA
+,10.1007/s10750-015-2526-670,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.724080531,raw,NA,0.095144644,NA
+,10.1007/s10750-015-2526-671,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.090746614,raw,NA,0.194809974,NA
+,10.1007/s10750-015-2526-672,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.37870372,raw,NA,0.194231746,NA
+,10.1007/s10750-015-2526-673,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.718841443,raw,NA,0.093147133,NA
+,10.1007/s10750-015-2526-674,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,5.814581837,raw,NA,0.952392634,NA
+,10.1007/s10750-015-2526-675,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,6.444534002,raw,NA,1.914983091,NA
+,10.1007/s10750-015-2526-676,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,6.651924795,raw,NA,0.749908009,NA
+,10.1007/s10750-015-2526-677,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,7.096739149,raw,NA,0.62853288,NA
+,10.1007/s10750-015-2526-678,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,7.541974032,raw,NA,0.748120762,NA
+,10.1007/s10750-015-2526-679,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,8.433039547,raw,NA,1.328660791,NA
+,10.1007/s10750-015-2526-680,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,8.747665189,raw,NA,1.609153511,NA
+,10.1007/s10750-015-2526-681,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,8.487638205,raw,NA,2.613691717,NA
+,10.1007/s10750-015-2526-682,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,8.618878239,raw,NA,2.814231396,NA
+,10.1007/s10750-015-2526-683,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,9.586585131,raw,NA,2.310280177,NA
+,10.1007/s10750-015-2526-684,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,11.07963764,raw,NA,2.829370433,NA
+,10.1007/s10750-015-2526-685,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,11.31544918,raw,NA,2.949378844,NA
+,10.1007/s10750-015-2526-686,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,11.55241716,raw,NA,3.732035535,NA
+,10.1007/s10750-015-2526-687,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,10.58523593,raw,NA,4.537190517,NA
+,10.1007/s10750-015-2526-688,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,10.8471553,raw,NA,4.61698586,NA
+,10.1007/s10750-015-2526-689,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,12.21086016,raw,NA,6.019869987,NA
+,10.1007/s10750-015-2526-690,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,13.57176149,raw,NA,5.81633404,NA
+,10.1007/s10750-015-2526-691,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,13.83266458,raw,NA,5.313802106,NA
+,10.1007/s10750-015-2526-692,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,13.26014964,raw,NA,7.262742899,NA
+,10.1007/s10750-015-2526-693,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,13.1844895,raw,NA,8.909481173,NA
+,10.1007/s10750-015-2526-694,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,16.59147378,raw,NA,11.11147518,NA
+,10.1007/s10750-015-2526-695,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,17.90240227,raw,NA,12.27350143,NA
+,10.1007/s10750-015-2526-696,Bivalvia,Dreissena polymorpha,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,20.94079305,raw,NA,13.27141631,NA
+,10.1007/s10750-015-2526-697,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.123966942,raw,NA,0.270676692,NA
+,10.1007/s10750-015-2526-698,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.231404959,raw,NA,0.390977444,NA
+,10.1007/s10750-015-2526-699,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.305785124,raw,NA,0.421052632,NA
+,10.1007/s10750-015-2526-700,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.388429752,raw,NA,0.390977444,NA
+,10.1007/s10750-015-2526-701,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.433884298,raw,NA,0.45112782,NA
+,10.1007/s10750-015-2526-702,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.504132231,raw,NA,0.45112782,NA
+,10.1007/s10750-015-2526-703,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.545454545,raw,NA,0.571428571,NA
+,10.1007/s10750-015-2526-704,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.607438017,raw,NA,0.781954887,NA
+,10.1007/s10750-015-2526-705,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.723140496,raw,NA,0.631578947,NA
+,10.1007/s10750-015-2526-706,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.789256198,raw,NA,0.872180451,NA
+,10.1007/s10750-015-2526-707,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.847107438,raw,NA,1.142857143,NA
+,10.1007/s10750-015-2526-708,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,1.97107438,raw,NA,1.323308271,NA
+,10.1007/s10750-015-2526-709,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.053719008,raw,NA,1.443609023,NA
+,10.1007/s10750-015-2526-710,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.049586777,raw,NA,0.842105263,NA
+,10.1007/s10750-015-2526-711,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.061983471,raw,NA,1.684210526,NA
+,10.1007/s10750-015-2526-712,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.136363636,raw,NA,1.62406015,NA
+,10.1007/s10750-015-2526-713,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.247933884,raw,NA,1.744360902,NA
+,10.1007/s10750-015-2526-714,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.326446281,raw,NA,1.353383459,NA
+,10.1007/s10750-015-2526-715,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.553719008,raw,NA,3.879699248,NA
+,10.1007/s10750-015-2526-716,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.578512397,raw,NA,3.278195489,NA
+,10.1007/s10750-015-2526-717,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.619834711,raw,NA,3.278195489,NA
+,10.1007/s10750-015-2526-718,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.710743802,raw,NA,3.157894737,NA
+,10.1007/s10750-015-2526-719,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.855371901,raw,NA,4,NA
+,10.1007/s10750-015-2526-720,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.929752066,raw,NA,4.902255639,NA
+,10.1007/s10750-015-2526-721,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.02892562,raw,NA,5.233082707,NA
+,10.1007/s10750-015-2526-722,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.838842975,raw,NA,5.052631579,NA
+,10.1007/s10750-015-2526-723,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.847107438,raw,NA,5.714285714,NA
+,10.1007/s10750-015-2526-724,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,2.884297521,raw,NA,6.315789474,NA
+,10.1007/s10750-015-2526-725,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.111570248,raw,NA,7.218045113,NA
+,10.1007/s10750-015-2526-726,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.252066116,raw,NA,8.691729323,NA
+,10.1007/s10750-015-2526-727,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.351239669,raw,NA,9.503759398,NA
+,10.1007/s10750-015-2526-728,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.421487603,raw,NA,10.16541353,NA
+,10.1007/s10750-015-2526-729,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.702479339,raw,NA,13.23308271,NA
+,10.1007/s10750-015-2526-730,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.731404959,raw,NA,13.26315789,NA
+,10.1007/s10750-015-2526-731,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.97107438,raw,NA,14.85714286,NA
+,10.1007/s10750-015-2526-732,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.896694215,raw,NA,15.63909774,NA
+,10.1007/s10750-015-2526-733,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.5,raw,NA,14.37593985,NA
+,10.1007/s10750-015-2526-734,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,4.123966942,raw,NA,17.41353383,NA
+,10.1007/s10750-015-2526-735,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.909090909,raw,NA,18.34586466,NA
+,10.1007/s10750-015-2526-736,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.776859504,raw,NA,18.58646617,NA
+,10.1007/s10750-015-2526-737,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,4.08677686,raw,NA,19.54887218,NA
+,10.1007/s10750-015-2526-738,Bivalvia,Pisidium,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,4.32231405,raw,NA,21.38345865,NA
+,10.1007/s10750-015-2526-739,Oligochaeta,Erpobdella,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,3.80952381,raw,NA,0.270687831,NA
+,10.1007/s10750-015-2526-740,Oligochaeta,Erpobdella,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,4.96031746,raw,NA,0.487089947,NA
+,10.1007/s10750-015-2526-741,Oligochaeta,Erpobdella,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,6.26984127,raw,NA,0.757248677,NA
+,10.1007/s10750-015-2526-742,Oligochaeta,Erpobdella,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,8.849206349,raw,NA,1.724126984,NA
+,10.1007/s10750-015-2526-743,Oligochaeta,Erpobdella,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,12.77777778,raw,NA,4.081269841,NA
+,10.1007/s10750-015-2526-744,Oligochaeta,Erpobdella,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,15.47619048,raw,NA,6.168465608,NA
+,10.1007/s10750-015-2526-745,Oligochaeta,Erpobdella,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,18.05555556,raw,NA,7.882010582,NA
+,10.1007/s10750-015-2526-746,Oligochaeta,Erpobdella,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,21.23015873,raw,NA,10.39714286,NA
+,10.1007/s10750-015-2526-747,Oligochaeta,Erpobdella,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,24.24603175,raw,NA,18.13851852,NA
+,10.1007/s10750-015-2526-748,Oligochaeta,Erpobdella,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,26.9047619,raw,NA,26.1989418,NA
+,10.1007/s10750-015-2526-749,Oligochaeta,Erpobdella,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,29.4047619,raw,NA,23.3789418,NA
+,10.1007/s10750-015-2526-750,Oligochaeta,Erpobdella,52.245774,14.054017,ethanol,70,NA,NA,none,raw,NA,33.80952381,raw,NA,40.83068783,NA
