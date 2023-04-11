@@ -15,29 +15,24 @@ library(readr)
 library(bdc)
 library(tidyr)
 library(Matrix)
-library(here)
 
 # load the special names function
-source(here("R/special_names.R"))
-
-# check for the correct packages
-source(here("companion_scripts/02_create_database/01_version_package_warnings.R"))
+source("R/special_names.R")
 
 # load the taxonomic distance matrix
-source(here("companion_scripts/02_create_database/02_taxon_matrix_function.R"))
+source("companion_scripts/02_create_database/helper-taxon-matrix-function.R")
 
 # set-up a vector of taxonomic databases: "gbif", "itis", "col"
 database <- c("gbif", "itis", "col")
-
-for (j in 1:length(database)) {
+j <- 1
+# for (j in 1:length(database)) {
   # create the local database
   td_create(
-    provider = database[j],
-    overwrite = FALSE
-  )
+    database[j]
+    )
 
   # load the taxon data
-  tax.dat <- readRDS(file = here("database/taxon_database.rds"))
+  tax.dat <- readRDS(file = "database/taxon_database.rds")
 
   # remove the empty columns
   tax.dat <-
@@ -76,9 +71,6 @@ for (j in 1:length(database)) {
       rank_name = "Animalia",
       rank = "kingdom"
     )
-
-  # write some code to remove the output file
-  unlink("Output", recursive = TRUE)
 
   # process the harmonised name taxa
   harm.tax <-
@@ -121,13 +113,14 @@ for (j in 1:length(database)) {
     distinct()
 
   d.dist <- vector("list", length = nrow(d.ht))
-  for (i in 1:nrow(d.ht)) {
+  i <- 10
+  # for (i in 1:nrow(d.ht)) {
     # get classification data for the higher taxon
     raw_class <-
       filter_rank(
         name = d.ht[i, ]$db_taxon_higher,
         rank = d.ht[i, ]$db_taxon_higher_rank,
-        provider = database[j],
+        provider = database[3],
         collect = FALSE
       ) %>%
       filter(!is.na(scientificName)) %>%
@@ -135,6 +128,8 @@ for (j in 1:length(database)) {
       select(order, family, genus) %>%
       distinct()
 
+    raw_class
+    
     # process data depending on whether the higher rank is order or family
     if (d.ht[i, ]$db_taxon_higher_rank == "order") {
       # some entries don't have proper classification data so we remove these
@@ -148,6 +143,7 @@ for (j in 1:length(database)) {
             mutate(rank = "genus") %>%
             mutate(parentrank = "family") %>%
             select(name, rank, parentname, parentrank),
+          
           raw_class %>%
             select(family, order) %>%
             rename(name = family, parentname = order) %>%
@@ -155,7 +151,9 @@ for (j in 1:length(database)) {
             mutate(parentrank = "order") %>%
             select(name, rank, parentname, parentrank)
         )
+      
     } else if (d.ht[i, ]$db_taxon_higher_rank == "family") {
+      
       raw_class <-
         raw_class %>%
         select(-order)
@@ -193,7 +191,7 @@ for (j in 1:length(database)) {
 
     # write these sparse matrices into a list
     d.dist[[i]] <- d.g
-  }
+  # }
 
   # add the names of the higher taxa to the matrix
   names(d.dist) <- d.ht$db_taxon_higher
@@ -202,9 +200,9 @@ for (j in 1:length(database)) {
 
   # write the taxon database
   name1 <- paste(paste(database[j], "taxon", "database", sep = "_"), ".rds", sep = "")
-  saveRDS(tax.clean, file = paste(here("database"), "/", name1, sep = ""))
+  saveRDS(tax.clean, file = paste("database", "/", name1, sep = ""))
 
   # write the higher taxon matrices
   name2 <- paste(paste(database[j], "higher", "taxon", "matrices", sep = "_"), ".rds", sep = "")
-  saveRDS(d.dist, file = paste(here("database"), "/", name2, sep = ""))
-}
+  saveRDS(d.dist, file = paste("database", "/", name2, sep = ""))
+# }
