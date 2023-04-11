@@ -24,8 +24,9 @@ source("companion_scripts/02_create_database/helper-taxon-matrix-function.R")
 
 # set-up a vector of taxonomic databases: "gbif", "itis", "col"
 database <- c("gbif", "itis", "col")
-j <- 1
-# for (j in 1:length(database)) {
+
+# loop over the three databases
+for (j in 1:length(database)) {
   # create the local database
   td_create(
     database[j]
@@ -75,20 +76,14 @@ j <- 1
   # process the harmonised name taxa
   harm.tax <-
     harm.tax %>%
-    mutate(db_taxon_higher_rank = ifelse(is.na(order) & is.na(family), NA,
-      ifelse(is.na(order) & !is.na(family), "family", "order")
-    )) %>%
-    mutate(db_taxon_higher = ifelse(is.na(order) & is.na(family), NA,
-      ifelse(is.na(order), family, order)
-    )) %>%
-    mutate(db_higher_rank_source = database[j]) %>%
+    mutate(db_source = database[j]) %>%
     mutate(row_id = 1:n()) %>%
-    select(row_id, original_search, scientificName, acceptedNameUsageID, db_higher_rank_source, family, db_taxon_higher_rank, db_taxon_higher)
+    select(row_id, original_search, scientificName, acceptedNameUsageID, db_source, order, family)
 
   # remove the names that we were not able to resolve
   harm.tax <-
     harm.tax %>%
-    filter(!(is.na(scientificName) | is.na(db_taxon_higher_rank) | is.na(db_taxon_higher))) %>%
+    filter(!(is.na(scientificName) | is.na(family) )) %>%
     rename(db_taxon = original_search)
 
   # join these data to the tax.dat data
@@ -109,42 +104,61 @@ j <- 1
   # get distinct higher taxa
   d.ht <-
     tax.clean %>%
-    select(db_taxon_higher_rank, db_taxon_higher) %>%
+    select(order, family) %>%
     distinct()
-
-  d.dist <- vector("list", length = nrow(d.ht))
-  i <- 10
-  # for (i in 1:nrow(d.ht)) {
-    # get classification data for the higher taxon
+  
+  higher_class <- vector("list", length = nrow(d.ht))
+  for (i in 1:nrow(d.ht)) {
+    # get classification data for the family
     raw_class <-
-      filter_rank(
-        name = d.ht[i, ]$db_taxon_higher,
-        rank = d.ht[i, ]$db_taxon_higher_rank,
-        provider = database[3],
-        collect = FALSE
-      ) %>%
+      taxadb::filter_rank(
+        name = d.ht[i, ]$family,
+        rank = "family",
+        provider = database[j]
+      )
+    
+    # clean the classification data from filter_rank
+    raw_class <- 
+      raw_class %>%
       filter(!is.na(scientificName)) %>%
+      filter(scientificName != d.ht[i, ]$family) %>%
       filter(taxonomicStatus == "accepted") %>%
       select(order, family, genus) %>%
       distinct()
-
-    raw_class
     
+    higher_class[[i]] <- raw_class 
+    
+    } 
+  
+  # bind into a data.frame
+  higher_class <- bind_rows(higher_class)
+  
+  # split by order or family if order is missing
+  higher_class <- split(higher_class, ifelse( is.na(higher_class$order), higher_class$family, higher_class$order ))
+  
+  # create the higher taxonomic distance matrices
+  
+  # create an output list
+  d.dist <- vector("list", length = length(higher_class))
+  
+  for (k in 1:length(higher_class) ) {
+    # initiate an input data.frame to process
+    input_class <- higher_class[[k]]
     # process data depending on whether the higher rank is order or family
-    if (d.ht[i, ]$db_taxon_higher_rank == "order") {
+    if ( all(!is.na(input_class[["order"]]) ) ) {
       # some entries don't have proper classification data so we remove these
-      raw_class <- raw_class[complete.cases(raw_class), ]
-
+      input_class <- input_class[complete.cases(input_class), ]
+      
       proc_class <-
         bind_rows(
-          raw_class %>%
+          input_class %>%
             select(genus, family) %>%
             rename(name = genus, parentname = family) %>%
             mutate(rank = "genus") %>%
             mutate(parentrank = "family") %>%
             select(name, rank, parentname, parentrank),
           
-          raw_class %>%
+          input_class %>%
             select(family, order) %>%
             rename(name = family, parentname = order) %>%
             mutate(rank = "family") %>%
@@ -152,23 +166,23 @@ j <- 1
             select(name, rank, parentname, parentrank)
         )
       
-    } else if (d.ht[i, ]$db_taxon_higher_rank == "family") {
+    } else if ( all(is.na(input_class[["order"]])) ) {
       
-      raw_class <-
-        raw_class %>%
+      input_class <-
+        input_class %>%
         select(-order)
-
-      raw_class <- raw_class[complete.cases(raw_class), ]
-
+      
+      input_class <- input_class[complete.cases(input_class), ]
+      
       proc_class <-
-        raw_class %>%
+        input_class %>%
         select(genus, family) %>%
         rename(name = genus, parentname = family) %>%
         mutate(rank = "genus") %>%
         mutate(parentrank = "family") %>%
         select(name, rank, parentname, parentrank)
     }
-
+    
     # apply taxonomic weights
     weights <- mapply(
       function(x, y) {
@@ -177,24 +191,25 @@ j <- 1
       x = proc_class$rank,
       proc_class$parentrank
     )
-
+    
     # add weights to the processed classification data
     proc_class$weights <- unlist(weights, use.names = FALSE)
-
+    
     # create the distance matrix
     d.mat <-
       proc_class %>%
       select(from = parentname, to = name, weights)
-
+    
     # use igraph to create a graph from the matrix
     d.g <- graph_from_data_frame(d = d.mat, directed = FALSE)
-
+    
     # write these sparse matrices into a list
-    d.dist[[i]] <- d.g
-  # }
+    d.dist[[k]] <- d.g
+    
+  }
 
   # add the names of the higher taxa to the matrix
-  names(d.dist) <- d.ht$db_taxon_higher
+  names(d.dist) <- names(higher_class)
 
   # write these databases into the database folder
 
@@ -205,4 +220,5 @@ j <- 1
   # write the higher taxon matrices
   name2 <- paste(paste(database[j], "higher", "taxon", "matrices", sep = "_"), ".rds", sep = "")
   saveRDS(d.dist, file = paste("database", "/", name2, sep = ""))
-# }
+
+  }

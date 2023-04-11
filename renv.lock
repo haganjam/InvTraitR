@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.2.2",
+    "Version": "4.2.3",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -102,6 +102,23 @@
         "utils"
       ],
       "Hash": "4006dffe49958d2dd591c17e61e60591"
+    },
+    "MuMIn": {
+      "Package": "MuMIn",
+      "Version": "1.47.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "Matrix",
+        "R",
+        "graphics",
+        "insight",
+        "methods",
+        "nlme",
+        "stats",
+        "stats4"
+      ],
+      "Hash": "76720a11cd43c0ddeb428a4b24dc2ed1"
     },
     "R6": {
       "Package": "R6",
@@ -353,14 +370,14 @@
     },
     "cli": {
       "Package": "cli",
-      "Version": "3.6.0",
+      "Version": "3.6.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "utils"
       ],
-      "Hash": "3177a5a16c243adc199ba33117bd9657"
+      "Hash": "89e6d8219950eac806ae0c489052048a"
     },
     "clipr": {
       "Package": "clipr",
@@ -494,7 +511,7 @@
     },
     "dbplyr": {
       "Package": "dbplyr",
-      "Version": "2.3.1",
+      "Version": "2.3.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -518,7 +535,7 @@
         "vctrs",
         "withr"
       ],
-      "Hash": "6e432b1a334fc06786e2ee8627e8cbea"
+      "Hash": "d24305b92db333726aed162a2c23a147"
     },
     "desc": {
       "Package": "desc",
@@ -560,9 +577,23 @@
       ],
       "Hash": "8b708f296afd9ae69f450f9640be8990"
     },
+    "doParallel": {
+      "Package": "doParallel",
+      "Version": "1.0.17",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "foreach",
+        "iterators",
+        "parallel",
+        "utils"
+      ],
+      "Hash": "451e5edf411987991ab6a5410c45011f"
+    },
     "dplyr": {
       "Package": "dplyr",
-      "Version": "1.1.0",
+      "Version": "1.1.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -581,7 +612,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "d3c34618017e7ae252d46d79a1b9ec32"
+      "Hash": "eb5742d256a0d9306d85ea68756d8187"
     },
     "duckdb": {
       "Package": "duckdb",
@@ -880,6 +911,19 @@
       ],
       "Hash": "a7ef0d811cb66d8be9da0d7b5ab80ded"
     },
+    "insight": {
+      "Package": "insight",
+      "Version": "0.19.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "b7a721ab3228268ed3a4ac3d585a09bf"
+    },
     "isoband": {
       "Package": "isoband",
       "Version": "0.2.7",
@@ -1097,7 +1141,7 @@
     },
     "pillar": {
       "Package": "pillar",
-      "Version": "1.8.1",
+      "Version": "1.9.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1110,7 +1154,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "f2316df30902c81729ae9de95ad5a608"
+      "Hash": "15da5a8412f317beeee6175fbc76f4bb"
     },
     "pkgconfig": {
       "Package": "pkgconfig",
@@ -1631,9 +1675,14 @@
     },
     "taxadb": {
       "Package": "taxadb",
-      "Version": "0.2.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
+      "Version": "0.2.1.99",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "taxadb",
+      "RemoteUsername": "ropensci",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "17e3690abb2df6db7d0e862948affe582ba889f7",
       "Requirements": [
         "DBI",
         "R",
@@ -1647,7 +1696,7 @@
         "stringi",
         "tibble"
       ],
-      "Hash": "7d54c7f3aef87d91ff7dee2bcd7cf89d"
+      "Hash": "bd32c3e2bd5b6e8c9681d26040f3d2f9"
     },
     "terra": {
       "Package": "terra",
@@ -1693,7 +1742,7 @@
     },
     "tibble": {
       "Package": "tibble",
-      "Version": "3.2.0",
+      "Version": "3.2.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1708,7 +1757,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "37695ff125982007d42a59ad10982ff2"
+      "Hash": "a84e2cc86d07289b3b6f5069df7a004c"
     },
     "tidyr": {
       "Package": "tidyr",
@@ -1826,7 +1875,7 @@
     },
     "vctrs": {
       "Package": "vctrs",
-      "Version": "0.6.0",
+      "Version": "0.6.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1836,7 +1885,7 @@
         "lifecycle",
         "rlang"
       ],
-      "Hash": "7e877404388794361277be95d8445de8"
+      "Hash": "06eceb3a5d716fd0654cc23ca3d71a99"
     },
     "vipor": {
       "Package": "vipor",
