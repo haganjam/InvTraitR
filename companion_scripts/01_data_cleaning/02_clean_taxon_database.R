@@ -2,14 +2,13 @@
 
 # load relevant libraries
 library(bdc)
-library(here)
 library(stringdist)
 
 # load special names function
-source(here("R/special_names.R"))
+source("R/special_names.R")
 
 # load the equation data
-t.dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_BEF_rockpools_Australia/data/trait_and_allometry_data/allometry_database_ver2/taxon_database.xlsx")
+t.dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver3/taxon_database.xlsx")
 head(t.dat)
 
 # clean the names for typos etc.
@@ -22,9 +21,6 @@ if (!any(x$scientificName != x$names_clean)) {
 
 # replace the names in tax.dat with these cleaned names
 t.dat$db_taxon <- x$names_clean
-
-# write some code to remove the output file
-unlink("Output", recursive = TRUE)
 
 # fix the special names
 spec.names <- special_taxon_names()
@@ -40,4 +36,4 @@ for (i in 1:length(spec.names)) {
 }
 
 # write this into a .rds file
-saveRDS(t.dat, file = paste(here("database"), "/", "taxon_database.rds", sep = ""))
+saveRDS(t.dat, file = paste("database", "/", "taxon_database.rds", sep = ""))
