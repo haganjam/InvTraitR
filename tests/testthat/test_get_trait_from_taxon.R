@@ -1,5 +1,5 @@
 make_test_input <- function() {
-  df_test1 <-
+  df <-
     data.frame(
       taxon_name = c(
         "Gammarus", "Gammarus", "Gammarus", "Daphnia",
@@ -18,9 +18,9 @@ make_test_input <- function() {
     )
 
   # add an NA to see how the functions react
-  df_test1[9, ]$body_size_mm <- NA
+  df[9, ]$body_size_mm <- NA
 
-  df_test1
+  df
 }
 
 test_that("given a bad workflow,

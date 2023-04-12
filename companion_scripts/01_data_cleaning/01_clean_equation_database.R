@@ -57,6 +57,9 @@ equ.dat[["RMS"]] <- round(as.numeric(equ.dat[["RMS"]]), 4)
 # back-transformation correction factor
 equ.dat[["lm_correction"]] <- round(as.numeric(equ.dat[["lm_correction"]]), 4)
 
+# preservation correction factor
+equ.dat[["correction_percentage"]] <- round(as.numeric(equ.dat[["correction_percentage"]]), 4)
+
 # check the variables structure
 str(equ.dat)
 

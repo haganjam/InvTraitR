@@ -28,13 +28,13 @@ make_test_input <- function() {
       "GBIF:2218440", "GBIF:2234785", NA,
       "GBIF:2235057", "GBIF:2234807", NA, NA
     ),
-    db_taxon_higher_rank = c(
-      "order", "order", NA, "order", "order",
-      NA, NA
-    ),
-    db_taxon_higher = c(
+    db_taxon_order = c(
       "Amphipoda", "Diplostraca", NA, "Notostraca",
       "Diplostraca", NA, NA
+    ),
+    db_taxon_family = c(
+      "Gammaridae", "Daphniidae", NA, "Triopsidae",
+      "Daphniidae", NA, NA
     ),
     habitat_id = c(
       404, 404, 404, 404, 404, 404, 404
@@ -143,9 +143,9 @@ test_that("test if select_traits_tax_dist() the column
     all(names(input) == c(
       "taxon_name", "Life_stage", "lat", "lon", "clean_taxon",
       "db", "scientificName", "taxonRank", "acceptedNameUsageID",
-      "db_taxon_higher_rank", "db_taxon_higher", "habitat_id",
+      "db_taxon_order", "db_taxon_family", "habitat_id",
       "realm", "major_habitat_type", "ecoregion",
-      "db.scientificName", "trait_out", "id", "tax_distance"
+      "db_scientificName", "trait_out", "id", "tax_distance"
     ))
   })
 
