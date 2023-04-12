@@ -1,10 +1,11 @@
+# dummy data / test fixtures
+
 make_valid_df <- function() {
     a <- c("lorem ipsum", "dolor")
     b <- c("alpha beta", "gamma")
     data.frame(a, b)
 }
 
-# set-up the test data
 make_test_input <- function() {
     data.frame(
         taxon_name = c(
@@ -31,6 +32,43 @@ make_test_input <- function() {
         )
     )
 }
+
+# bdc::bdc_clean_names result
+bdc_clean_names_stub <- data.frame(
+    scientificName = c(
+        "Gammarus_", "Daphnia", "Triops granitica",
+        "Triops", "Simocephalus vetulus", NA,
+        "Turbellaria", "Nematoda", "Bae.tidae"
+    ),
+    names_clean = c(
+        "Gammarus", "Daphnia", "Triops granitica",
+        "Triops", "Simocephalus vetulus", NA,
+        "Turbellaria", "Nematoda", NA
+    )
+)
+
+# bdc_query_names_taxadb result
+bdc_query_names_taxadb_stub <- data.frame(
+    scientificName = c(
+        "Gammarus", "Daphnia", NA,
+        "Triops", "Simocephalus vetulus", NA, NA
+    ),
+    taxonRank = c("genus", "genus", NA, "genus", "species", NA, NA),
+    acceptedNameUsageID = c(
+        "GBIF:2218440", "GBIF:2234785", NA,
+        "GBIF:2235057", "GBIF:2234807", NA, NA
+    ),
+    family = c(
+        "Gammaridae", "Daphniidae", NA, "Triopsidae",
+        "Daphniidae", NA, NA
+    ),
+    order = c(
+        "Amphipoda", "Diplostraca", NA, "Notostraca",
+        "Diplostraca", NA, NA
+    )
+)
+
+# --- tests
 
 test_that("given an unsupported database, when clean_taxon_names, then error", {
     expect_error(clean_taxon_names(NULL, NULL, NULL, "unsup"), ".*backbone.*")
@@ -77,6 +115,11 @@ test_that("given an unsupported life stage,
 
 test_that("Does the clean_taxon_names() function
             obtain the correct information?", {
+    # mocks
+    mockery::stub(clean_taxon_names, "taxadb::td_create", NULL)
+    mockery::stub(clean_taxon_names, "bdc::bdc_clean_names", bdc_clean_names_stub)
+    mockery::stub(clean_taxon_names, "bdc::bdc_query_names_taxadb", bdc_query_names_taxadb_stub)
+
     # set-up the correct result
     clean_taxon_name <- c(
         "Gammarus", "Daphnia", "Triops granitica", "Triops",
@@ -90,13 +133,13 @@ test_that("Does the clean_taxon_names() function
         "GBIF:2218440", "GBIF:2234785", NA, "GBIF:2235057",
         "GBIF:2234807", NA, NA, NA, NA
     )
-    db_taxon_order = c(
-      "Amphipoda", "Diplostraca", NA, "Notostraca",
-      "Diplostraca", NA, NA, NA, NA
+    db_taxon_order <- c(
+        "Amphipoda", "Diplostraca", NA, "Notostraca",
+        "Diplostraca", NA, NA, NA, NA
     )
-    db_taxon_family = c(
-      "Gammaridae", "Daphniidae", NA, "Triopsidae",
-      "Daphniidae", NA, NA, NA, NA
+    db_taxon_family <- c(
+        "Gammaridae", "Daphniidae", NA, "Triopsidae",
+        "Daphniidae", NA, NA, NA, NA
     )
 
     # when
@@ -117,6 +160,10 @@ test_that("Does the clean_taxon_names() function
 
 test_that("Does the clean_taxon_names() function output
              the correct additional identifier columns?", {
+    mockery::stub(clean_taxon_names, "taxadb::td_create", NULL)
+    mockery::stub(clean_taxon_names, "bdc::bdc_clean_names", bdc_clean_names_stub)
+    mockery::stub(clean_taxon_names, "bdc::bdc_query_names_taxadb", bdc_query_names_taxadb_stub)
+
     df_test1 <- make_test_input()
     df_test2 <- dplyr::mutate(df_test1,
         site = 1:nrow(df_test1),
@@ -168,6 +215,12 @@ test_that("Does the clean_taxon_names() function output
 
 test_that("Does the clean_taxon_names() function work
             when there are only special names?", {
+    mockery::stub(clean_taxon_names, "taxadb::td_create", NULL)
+    mockery::stub(clean_taxon_names, "bdc::bdc_clean_names", data.frame(
+        scientificName = c("Turbellaria", "Nematoda"),
+        names_clean = c("Turbellaria", "Nematoda")
+    ))
+    mockery::stub(clean_taxon_names, "bdc::bdc_query_names_taxadb", NULL)
     input_data <- make_test_input()[c(7, 8), ]
 
     # when
@@ -185,6 +238,9 @@ test_that("Does the clean_taxon_names() function work
 
 test_that("Does the clean_taxon_names() function work
              when there are no special names?", {
+    mockery::stub(clean_taxon_names, "taxadb::td_create", NULL)
+    mockery::stub(clean_taxon_names, "bdc::bdc_clean_names", bdc_clean_names_stub[-c(7, 8), ])
+    mockery::stub(clean_taxon_names, "bdc::bdc_query_names_taxadb", bdc_query_names_taxadb_stub)
     input_data <- make_test_input()[-c(7, 8), ]
 
     # when
