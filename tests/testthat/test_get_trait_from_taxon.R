@@ -57,31 +57,6 @@ test_that("if all taxon_names are not present in output,
   expect_true(all(output[["taxon_name"]] == input[["taxon_name"]]))
 })
 
-test_that("given some individual body size is not within
-            the taxon's minimum and maximum body size,
-           when get_trait_from_taxon,
-           then error", { # TODO: description ain't accurate, is it?
-  input <- make_test_input()
-
-  # when
-  output <- get_trait_from_taxon(
-    data = input,
-    target_taxon = "taxon_name",
-    life_stage = "Life_stage",
-    latitude_dd = "lat",
-    longitude_dd = "lon",
-    body_size = "body_size_mm",
-    max_tax_dist = 3,
-    trait = "equation",
-    gen_sp_dist = 0.5
-  )
-
-  # test if individual body sizes are within the min and max body size values
-  x <- (output[["body_size_mm"]] >= output[["min_body_size_mm"]]) &
-    (output[["body_size_mm"]] <= output[["max_body_size_mm"]])
-  expect_true(all(x | is.na(x)))
-})
-
 test_that("given the equation, body_size_mm or id columns are NA,
            when get_trait_from_taxon,
            then dry_biomass_mg should be NA", {

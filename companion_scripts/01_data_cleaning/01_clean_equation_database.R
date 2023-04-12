@@ -1,5 +1,7 @@
 # clean the equation data
 
+# calculate the correction factors here before exporting the equation database
+
 # load relevant libraries
 library(bdc)
 library(stringdist)
@@ -59,6 +61,9 @@ equ.dat[["lm_correction"]] <- round(as.numeric(equ.dat[["lm_correction"]]), 4)
 
 # preservation correction factor
 equ.dat[["correction_percentage"]] <- round(as.numeric(equ.dat[["correction_percentage"]]), 4)
+
+# calculate the correction factors
+
 
 # check the variables structure
 str(equ.dat)
