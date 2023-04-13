@@ -3,6 +3,31 @@ title: "InvTraitR project documentation"
 output: html_notebook
 ---
 
+### Forms of length-dry biomass models
+
+Allometric models generally take two different forms. The standard form is a power function with a multiplicative error structure (model1):
+
+Y = a x (X^b) x exp(error)
+
+This is the mode fit when the Y and X variables are log-transformed. For example, let's consider taking the natural logarithm of both sides of this equation:
+
+log(Y) = log(a) + log(X^b) + error
+
+This equations simplifies to:
+
+log(Y) = log(a) + (b x log(X)) + error
+
+This simplified version is the standard linear regression equation. However, given that we fit the model in log-log space with additive error, when we back-transform the error, it is no longer centered on zero. This means that we typically require a correction factor to obtain the appropriate back-transformed Y value.
+
+The second model form is a model that is fit directly using non-linear regression models (model2):
+
+Y = a x (X^b) + error
+
+When models are fit using this type of non-linear regression equation, then we do not need any corrections to get the predictions of Y on the natural scale.
+
+The vast majority of allometric equations in the literature take the form of model1.
+
+
 ### Preservation effects
 
 The recommended approach to generating length-dry biomass equations is to use fresh specimens or frozen specimens (Benke et al. 1999). This is because preservation in commonly used preservatives like formalin and ethanol can cause mass loss as lipids and other compounds may dissolve. 
@@ -33,6 +58,24 @@ The details of how to do this will depend and I'll need to figure it out.
 A nice comparison figure for the manuscript will be something like comparing accuracy of the method when accounting for preservation effects and when not accounting for preservation effects.
 
 I think this is actually very important because most people that use these equations generally don't think too much about the preservation effects. This makes sense given that it's a lot of extra work. But, if it only needs to be done once (by us) then it might improve these biomass estimations a lot.
+
+### Prediction error calculations
+
+A general note is that mean squared error (MSE) is calculated in the same way as residual mean square (RMS). As far as I can tell, RMS is the older term. In this mathematics tutorial, RMS and MSE are used interchangeably (https://web.maths.unsw.edu.au/~adelle/Garvan/Assays/GoodnessOfFit.html). Nonetheless, it is calculated as:
+
+MSE = (1/n)*sum( (y - y-hat)^2 )
+
+So, it is the average of the squared residuals (in words).
+
+If we take the square root of this, we get the RMSE which is the root mean squared error. 
+
+RMSE = sqrt(MSE)
+
+This is typically an estimate of the standard deviation of the regression. But, the denominator is not (1/n), it is (1/n-K) where k is the number of parameters the model is fit to. Thus, the standard deviation of the regression (s) is simply:
+
+MSE = sqrt( (1/n-K)*sum( (y - y-hat)^2 ) )
+
+So, given that we are only dealing with models with two parameters, this small difference can probably be ignored and we can use RMSE as a measure of the standard deviation of the model.
 
 
 ### Back-transformation problems for log-linear models
@@ -165,5 +208,13 @@ mean((abs(y - pred_log)/y)*100)
 ```
 
 
+### Standard error of the prediction
 
+Perhaps we can try to estimate it from some existing information but let's see how it goes:
+
+https://www.researchgate.net/post/Standard_error_of_estimate_not_reported_in_regression_studies_Can_you_calculate_this_without_knowing_the_residuals
+
+Estimating the standard deviation from the range:
+
+https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/1471-2288-14-135#Tab1
 
