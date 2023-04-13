@@ -63,6 +63,7 @@ equ.dat[["lm_correction"]] <- round(as.numeric(equ.dat[["lm_correction"]]), 4)
 equ.dat[["correction_percentage"]] <- round(as.numeric(equ.dat[["correction_percentage"]]), 4)
 
 # calculate the correction factors
+View(equ.dat)
 
 
 # check the variables structure
