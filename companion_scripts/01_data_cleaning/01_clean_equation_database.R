@@ -1,10 +1,9 @@
 # clean the equation data
 
-# calculate the correction factors here before exporting the equation database
-
 # load relevant libraries
 library(bdc)
 library(stringdist)
+library(dplyr)
 
 # load special names function
 source("R/special_names.R")
@@ -62,12 +61,33 @@ equ.dat[["lm_correction"]] <- round(as.numeric(equ.dat[["lm_correction"]]), 4)
 # preservation correction factor
 equ.dat[["correction_percentage"]] <- round(as.numeric(equ.dat[["correction_percentage"]]), 4)
 
+# convert the log-base to a numeric factor
+equ.dat[["log_base"]] <- round(as.numeric(equ.dat[["log_base"]]), 5)
+
 # calculate the correction factors
-View(equ.dat)
 
+BC_correction <- function(r2, a, ymin, ymax) {
+  
+  x <- exp( (0.5* (1 - r2)) * ( (1/(log(a))) * (( log(ymax, b=a)-log(ymin, b=a) )/6))^2)
+  return(x)
+}
 
-# check the variables structure
-str(equ.dat)
+# 1. calculate the BC-corrections
+equ.dat <- 
+  equ.dat %>%
+  mutate(lm_correction = ifelse(lm_correction_type == "BC_correction",
+                                BC_correction(r2 = r2, 
+                                              a = log_base, 
+                                              ymin = dry_biomass_min, 
+                                              ymax = dry_biomass_max),
+                                lm_correction))
+
+# 2. calculate the RMS_corrections
+equ.dat <- 
+  equ.dat %>%
+  mutate(lm_correction = ifelse(lm_correction_type == "RMS_correction",
+                                log_base^(RMS/2),
+                                lm_correction))
 
 # write this into a .rds file
 saveRDS(equ.dat, file = paste("database", "/", "equation_database.rds", sep = ""))
