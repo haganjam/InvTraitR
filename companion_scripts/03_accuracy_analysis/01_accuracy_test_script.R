@@ -57,34 +57,13 @@ lapply(list(dat1, dat2, dat3, dat4), head)
 
 # extract the relevant columns from each dataset
 
-# dat1
-dat1 <- 
-  dat1 %>%
-  select(Reference, order, Taxa, lat, lon, Life_stage, Length_mm, Dry_weight_mg)
-
-# dat2
-dat2 <-
-  dat2 %>%
-  select(author_year, order, taxon, lat, lon, life_stage, mean_length_mm, mean_mass_g)
-
-# dat3
-dat3 <- 
-  dat3 %>%
-  select(reference, order, taxa, lat, lon, life_stage, length_mm, dry_weight_mg)
-
-# dat4
-dat4 <- 
-  dat4 %>%
-  select(author_year, order, taxon, lat, lon, life_stage, average_body_length_mm, average_mass_mg)
-
-# standardise the column names in these data
 dat <- 
-  
   lapply(list(dat1, dat2, dat3, dat4), function(x) {
   
-  names(x) <- c("author_year", "order", "taxon", "lat", "lon", "life_stage", "length_mm", "obs_dry_biomass_mg")
-  return(x)
-  
+    x %>%
+    select(reference, order, taxon, lat, lon, life_stage, length_mm, dry_weight_mg) %>%
+    rename(obs_dry_biomass_mg = dry_weight_mg)  
+    
 })
 
 # bind into a single large data.frame
@@ -112,7 +91,7 @@ dat <-
 head(dat)
 dat <- 
   dat %>%
-  group_by(author_year, taxon) %>%
+  group_by(reference, taxon) %>%
   sample_n(size = ifelse(min(n()) < 8, min(n()), 8), replace = FALSE) %>%
   # sample_n(size = 1, replace = FALSE) %>%
   ungroup()
@@ -120,7 +99,7 @@ dat <-
 # use method to get biomass data
 output <-
   get_trait_from_taxon(
-    data = dat,
+    data = dat[1:20,],
     target_taxon = "taxon",
     life_stage = "life_stage",
     body_size = "length_mm",

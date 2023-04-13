@@ -339,26 +339,32 @@ get_trait_from_taxon <- function(data,
   # bind these choices into a data.frame
   trait_sel_select <- dplyr::bind_rows(trait_sel_select)
   
-  # add the traits or equation to the selected id numbers
-  trait_sel_select[[trait]] <-
-    sapply(trait_sel_select[["id"]], function(x) {
-      if (!is.na(x)) {
-        trait_db[trait_db[[paste0(trait, "_id")]] == x, ][[trait]]
-      } else {
-        NA
-      }
-    })
-  
-  # add correction factor data if it is the equation database
+  # if the trait is an equation then we add all the relevant equation information
+  # if the trait is not an equation, then we simply add the trait value
   if(trait == "equation") {
     
     # extract the relevant columns
-    cor_factors <- trait_db[, c("equation_id", "preservation", "lm_correction", "lm_correction_type")]
+    cor_factors <- trait_db[, c("equation_id", 
+                                "preservation",
+                                "equation_form", "log_base", "a", "b",  
+                                "lm_correction", "lm_correction_type",
+                                "dry_biomass_scale")]
     names(cor_factors)[1] <- "id"
     
     # join these columns to the trait_sel_select
     trait_sel_select <- dplyr::left_join(trait_sel_select, cor_factors, by = "id")
     
+  } else {
+    
+    # add the traits or equation to the selected id numbers
+    trait_sel_select[[trait]] <-
+      sapply(trait_sel_select[["id"]], function(x) {
+        if (!is.na(x)) {
+          trait_db[trait_db[[paste0(trait, "_id")]] == x, ][[trait]]
+        } else {
+          NA
+        }
+      })
   }
   
   # remove the taxon_id column
@@ -366,27 +372,51 @@ get_trait_from_taxon <- function(data,
   
   # parse the equation to calculate dry_biomass_mg
   if (trait == "equation") {
-    trait_sel_select[["dry_biomass_mg"]] <-
-      mapply(function(x, y, z) {
+    
+    # set-up a vector to capture the dry biomass values
+    dry_biomass_mg <- vector(length = nrow(trait_sel_select))
+    
+    # loop over all the rows
+    for(i in 1:nrow(trait_sel_select)) {
+      
+      # get the ith row of data
+      L <- unlist(trait_sel_select[i, body_size], use.names = FALSE)
+      model <- trait_sel_select[i,]$equation_form
+      log_base <- trait_sel_select[i,]$log_base
+      a <- trait_sel_select[i,]$a
+      b <- trait_sel_select[i,]$b
+      CF <- trait_sel_select[i,]$lm_correction
+      scale <- trait_sel_select[i,]$dry_biomass_scale
+      
+      # evalulate the equation
+      if( any(is.na(c(a, b))) )  {
         
-        if (any(is.na(c(x, y)))) {
-          return(NA)
-        } else {
-          var1 <- x # TODO: unused
-          dw <- eval(parse(text = y))
-        }
+        dry_biomass_mg[i] <- NA
         
-        if(!is.na(z)) {
-          dw <- dw*z
-        }
+      } else if (model == "model1") {
         
-        return(dw)
+        # calculate the raw prediction on the log-scale
+        x <- a + (b*logb(x = L, base = log_base))
         
-      }, 
-      trait_sel_select[[body_size]], 
-      trait_sel_select[[trait]], 
-      trait_sel_select[["lm_correction"]])
+        # convert to the natural scale
+        x <- (log_base^x)
+        
+        # apply the correction factor
+        dry_biomass_mg[i] <- ifelse(!is.na(CF), x*CF, x)*scale
+        
+      } else if (model == "model2") {
+        
+        # calculate the raw prediction
+        dry_biomass_mg[i] <- a*(L^b)*scale
+        
+      }
+      
+    }
+    
   }
+  
+  # add this dry biomass estimate to the data.frame
+  trait_sel_select[["dry_biomass_mg"]] <- dry_biomass_mg
   
   assert_that(
     all(unique(data[[target_taxon]]) == unique(trait_sel_select[[target_taxon]])),
@@ -394,4 +424,5 @@ get_trait_from_taxon <- function(data,
   )
   
   trait_sel_select
+  
 }

@@ -64,8 +64,13 @@ equ.dat[["correction_percentage"]] <- round(as.numeric(equ.dat[["correction_perc
 # convert the log-base to a numeric factor
 equ.dat[["log_base"]] <- round(as.numeric(equ.dat[["log_base"]]), 5)
 
+# convert the equation parameters
+equ.dat[["a"]] <- round(as.numeric(equ.dat[["a"]]), 5)
+equ.dat[["b"]] <- round(as.numeric(equ.dat[["b"]]), 5)
+
 # calculate the correction factors
 
+# function to calculate the BC3 correction factor sensu Strimbu et al. (2018)
 BC_correction <- function(r2, a, ymin, ymax) {
   
   x <- exp( (0.5* (1 - r2)) * ( (1/(log(a))) * (( log(ymax, b=a)-log(ymin, b=a) )/6))^2)
