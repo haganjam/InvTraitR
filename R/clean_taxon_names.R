@@ -92,7 +92,7 @@ clean_taxon_names <- function(
   }
   
   # add the database to the data
-  data$db <- ifelse(is.na(data[[clean_col]]), NA, database)
+  data$db <- database
   
   # subset out taxa with special names
   spec_names <- special_taxon_names()
@@ -110,7 +110,7 @@ clean_taxon_names <- function(
   # remove the special names from the data
   data <- dplyr::filter(data, !(row_id %in% data_spec[["row_id"]]))
   
-  # if the are data points that are not special names
+  # if there are data points that are not special names
   # then we clean those names
   if (nrow(data) > 0) {
     # harmonise the names to the chosen data.base

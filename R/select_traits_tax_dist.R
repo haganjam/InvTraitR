@@ -104,6 +104,7 @@ select_traits_tax_dist <- function(data,
         assign(db_name, readRDS(file = get_db_file_path(
           paste0(input[["db"]], "_higher_taxon_matrices.rds")
         )))
+        
       }
       
       htm_db <- get(db_name)
@@ -116,33 +117,28 @@ select_traits_tax_dist <- function(data,
       
       td_db <- get(td_name)
       
-    } else {
-      
-      htm_db <- NA
-      
-    }
+    } 
     
-    # select the higher taxonomic matrix and calculate taxonomic distance
-    if (!is.na(input[["scientificName"]]) && # if scientificName is present
-        
-        (!is.na(input[["db_taxon_order"]]) | 
-         !is.na(input[["db_taxon_family"]]))  && # if order or family are present 
-        
-        ((input[["db_taxon_order"]] %in% names(htm_db)) | 
-         (input[["db_taxon_family"]] %in% names(htm_db))) # if order or family are in htm_db
-        
-    ) {
-      # taxon matrix
+    # extract the target_name
+    target_name <- input[["scientificName"]]
+    
+    target_name_cond <- extract_genus(target_name)
+    
+    # test if the target name is present in any of the taxon matrices
+    target_present <- 
       
-      # get the taxon matrix if there is an order level taxonomic matrix
-      if ( input[["db_taxon_order"]] %in% names(htm_db) ) {
-        htm <- htm_db[(names(htm_db) == input[["db_taxon_order"]])][[1]]
-      }
+      sapply(htm_db, function(htm) {  
+        
+        target_name_cond %in% names(V(htm))
+        
+      })
+    
+    # target_present[1] <- TRUE
+    if ( any( target_present == TRUE ) ) {
       
-      # get the taxon matrix if there is a family level taxonomic matrix
-      if ( input[["db_taxon_family"]] %in% names(htm_db) ) {
-        htm <- htm_db[(names(htm_db) == input[["db_taxon_family"]])][[1]]
-      }
+      # get the relevant taxon matrix
+      higher_taxon <- names(htm_db[target_present])
+      htm <- htm_db[target_present][[1]]
       
       # extract vertices
       v_x <- igraph::V(htm)
@@ -151,34 +147,29 @@ select_traits_tax_dist <- function(data,
       td <- td_db[td_db$database == trait, ]
       
       # extract the entries from the equation taxon database matching the target higher taxon
-      td <- td[td$order == input[["db_taxon_order"]] | 
-                 td$family == input[["db_taxon_family"]] , ]
+      td <- td[td$order == higher_taxon | td$family == higher_taxon , ]
       
       # remove the NA values
       td <- td[ !(is.na(td$order) & is.na(td$family)), ]
       
-      # extract the target_name
-      target_name <- input[["scientificName"]]
-      
       # taxonomic distance
       dist_df <-
-        mapply(function(db_name, id) {
-          if (db_name == target_name) {
+        mapply(function(db_taxon, id) {
+          if (db_taxon == target_name) {
             tax_dist <- 0
           } else {
             # extract genus for species-level names
-            target_name2 <- extract_genus(target_name)
-            db_name2 <- extract_genus(db_name)
+            db_taxon_cond <- extract_genus(db_taxon)
             
             tax_dist <-
               igraph::distances(htm,
-                                v_x[which(attr(v_x, "names") == target_name2)],
-                                v_x[which(attr(v_x, "names") == db_name2)],
+                                v_x[which(attr(v_x, "names") == target_name_cond)],
+                                v_x[which(attr(v_x, "names") == db_taxon_cond)],
                                 mode = c("all"),
                                 algorithm = c("bellman-ford")
               )
             
-            # if length is zero then the distance is zero
+            # if length is zero then the distance is NA
             if (length(tax_dist) == 0) {
               tax_dist <- NA
             } else {
@@ -186,33 +177,40 @@ select_traits_tax_dist <- function(data,
             }
             
             # extra distance for species level: gen_sp_dist argument
-            sp_l <- sum(ifelse(c(attr(target_name2, "n"), attr(db_name2, "n")) > 1, gen_sp_dist, 0))
+            sp_l <- sum(ifelse(c(attr(target_name_cond, "n"), attr(db_taxon_cond, "n")) > 1, gen_sp_dist, 0))
             
             # add extra distance
             tax_dist <- tax_dist + sp_l
+            
           }
           
           dist_df <-
             dplyr::tibble(
-              db_scientificName = db_name, # TODO: change to db_scientificName
+              db_scientificName = db_taxon,
               trait_out = trait,
               id = id,
               tax_distance = tax_dist
             )
           
           return(dist_df)
+          
         }, td[["scientificName"]], td[["id"]], SIMPLIFY = FALSE)
       
       # bind into a data.frame
       dist_df <- dplyr::bind_rows(dist_df)
       
-      # remove the rows where tax_distance is too large
+      # filter out rows where the taxonomic distance is too large
       dist_df <- dplyr::filter(dist_df, tax_distance <= max_tax_dist)
-    } else if (is.na(input[["scientificName"]]) & (input[["db"]] == "special")) {
+      
+    }
+    
+    # check if there are special names
+    if (is.na(input[["scientificName"]]) & (input[["db"]] == "special")) {
+      
       # get row_id's from trait database matching the special names
       row_id <- which(trait_db[["db_taxon"]] == input[[paste0("clean_", target_taxon)]])
       
-      # check if there are rows that outputted and if not return NA
+      # check if there are rows that are outputted and if not return NA
       x <- if (length(row_id) == 0) {
         NA
       } else {
@@ -231,7 +229,10 @@ select_traits_tax_dist <- function(data,
         id = y,
         tax_distance = NA
       )
-    } else {
+    } 
+    
+    if( all( target_present == FALSE ) ) {
+      
       dist_df <- dplyr::tibble(
         db_scientificName = NA,
         trait_out = trait,
@@ -243,9 +244,15 @@ select_traits_tax_dist <- function(data,
     # add metadata
     dist_df <- dplyr::bind_cols(input, dist_df)
     
-    return(dist_df)
+    dist_df
     
   })
+  
+  # test if all entries in the original data match the output list
+  assert_that(
+    all(unique(data[[target_taxon]]) == unique(unlist(sapply(output, function(x) {x[[target_taxon]]}))) ),
+    msg = "number of unique taxa in input and output do not match"
+  )
   
   output
   
