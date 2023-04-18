@@ -1,0 +1,10 @@
+reference,url,order,taxon,lat,lon,preservation,percentage,sex,gravid,life_stage,length_type,length_n,length_mm,dry_weight_type,dry_weight_n,dry_weight_mg,notes
+Brittain_1978,https://www.jstor.org/stable/3682691,Coleoptera,Haliplus fulvus,61.422098,8.868675,none,NA,NA,NA,adult,mean,13,3.9,mean,13,3.12,
+Brittain_1978,https://www.jstor.org/stable/3682691,Coleoptera,Hydroporus palustris,61.422098,8.868675,none,NA,NA,NA,adult,mean,10,3.8,mean,10,1.38,
+Brittain_1978,https://www.jstor.org/stable/3682691,Coleoptera,Deronectes alpinus,61.422098,8.868675,none,NA,NA,NA,adult,mean,9,4.4,mean,9,2.14,
+Brittain_1978,https://www.jstor.org/stable/3682691,Coleoptera,Deronectes multilineatus,61.422098,8.868675,none,NA,NA,NA,adult,mean,2,5,mean,2,3.12,
+Brittain_1978,https://www.jstor.org/stable/3682691,Coleoptera,Deronectes rivalis,61.422098,8.868675,none,NA,NA,NA,adult,mean,7,3.1,mean,7,1.18,
+Brittain_1978,https://www.jstor.org/stable/3682691,Coleoptera,Platambus maculatus,61.422098,8.868675,none,NA,NA,NA,adult,mean,6,7.8,mean,6,9.92,
+Brittain_1978,https://www.jstor.org/stable/3682691,Coleoptera,Platambus maculatus,61.422098,8.868675,none,NA,NA,NA,larva,mean,7,10.7,mean,7,5.56,
+Brittain_1978,https://www.jstor.org/stable/3682691,Coleoptera,Colymbetes dolabratus,61.422098,8.868675,none,NA,NA,NA,adult,mean,4,17,mean,4,52.43,
+Brittain_1978,https://www.jstor.org/stable/3682691,Coleoptera,Helophorus glacialis,61.422098,8.868675,none,NA,NA,NA,adult,mean,1,4,mean,1,2.04,
