@@ -199,7 +199,7 @@ select_traits_tax_dist <- function(data,
       # bind into a data.frame
       dist_df <- dplyr::bind_rows(dist_df)
       
-      # filter out rows where the taxonomic distance is too large
+      # remove the rows where the taxonomic distance is too great
       dist_df <- dplyr::filter(dist_df, tax_distance <= max_tax_dist)
       
     }
@@ -231,7 +231,7 @@ select_traits_tax_dist <- function(data,
       )
     } 
     
-    if( all( target_present == FALSE ) | nrow(dist_df) == 0 ) {
+    if( all( target_present == FALSE ) ) {
       
       dist_df <- dplyr::tibble(
         db_scientificName = NA,
@@ -239,6 +239,17 @@ select_traits_tax_dist <- function(data,
         id = NA,
         tax_distance = NA
       )
+    }
+    
+    if ( nrow(dist_df) == 0 ) {
+      
+      dist_df <- dplyr::tibble(
+        db_scientificName = NA,
+        trait_out = trait,
+        id = NA,
+        tax_distance = NA
+      )
+      
     }
     
     # add metadata

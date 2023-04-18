@@ -1,18 +1,18 @@
 ﻿reference,url,order,taxon,lat,lon,preservation,percentage,sex,gravid,life_stage,length_type,length_n,length_mm,dry_weight_type,dry_weight_n,dry_weight_mg,notes
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Argyrodiaptomus azevedoi,-29.16368,-48.73928,formaldehyde,4,male,NA,adult,mean,6,2.1259,mean,6,0.0325,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Argyrodiaptomus azevedoi,-29.16368,-48.73928,formaldehyde,4,female,NA,adult,mean,8,2.4886,mean,8,0.05125,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Notodiaptomus iheringi,-29.16368,-48.73928,formaldehyde,4,male,NA,adult,mean,15,1.1,mean,15,0.005267,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Notodiaptomus iheringi,-29.16368,-48.73928,formaldehyde,4,female,NA,adult,mean,12,1.2278,mean,12,0.006083,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Notodiaptomus cearensis,-29.16368,-48.73928,formaldehyde,4,male,NA,adult,mean,12,1.3034,mean,12,0.009667,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Notodiaptomus cearensis,-29.16368,-48.73928,formaldehyde,4,female,NA,adult,mean,19,1.3639,mean,19,0.009842,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Notodiaptomus evaldus,-29.16368,-48.73928,formaldehyde,4,male,NA,adult,mean,18,1.2493,mean,18,0.008056,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Notodiaptomus evaldus,-29.16368,-48.73928,formaldehyde,4,female,NA,adult,mean,19,1.4721,mean,19,0.011842,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Acanthocyclops robustus,-29.16368,-48.73928,formaldehyde,4,female,NA,adult,mean,22,1.226,mean,22,0.010136,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Mesocyclops ogunnus,-29.16368,-48.73928,formaldehyde,4,female,NA,adult,mean,28,1.1299,mean,28,0.008786,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Ceriodaphnia silvestrii,-29.16368,-48.73928,formaldehyde,4,NA,NA,adult,mean,25,0.5779,mean,25,0.00144,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Bosmina hagmanni,-29.16368,-48.73928,formaldehyde,4,NA,NA,adult,mean,29,0.3943,mean,29,0.001897,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Diaphanosoma spinulosum,-29.16368,-48.73928,formaldehyde,4,NA,NA,adult,mean,30,0.7697,mean,30,0.002233,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Daphnia gessneri,-29.16368,-48.73928,formaldehyde,4,NA,NA,adult,mean,58,1.006,mean,58,0.004197,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Keratella tropica,-29.16368,-48.73928,formaldehyde,4,NA,NA,adult,mean,40,0.1086,mean,40,0.000025,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Asplanchna sielboldi,-29.16368,-48.73928,formaldehyde,4,NA,NA,adult,mean,23,1.366,mean,23,0.004174,NA
-Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Cypridae,-29.16368,-48.73928,formaldehyde,4,NA,NA,adult,mean,19,0.5305,mean,19,0.003211,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Argyrodiaptomus azevedoi,-22.1636833,-48.7392833,formaldehyde,4,male,NA,adult,mean,6,2.1259,mean,6,0.0325,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Argyrodiaptomus azevedoi,-22.1636833,-48.7392833,formaldehyde,4,female,NA,adult,mean,8,2.4886,mean,8,0.05125,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Notodiaptomus iheringi,-22.1636833,-48.7392833,formaldehyde,4,male,NA,adult,mean,15,1.1,mean,15,0.005267,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Notodiaptomus iheringi,-22.1636833,-48.7392833,formaldehyde,4,female,NA,adult,mean,12,1.2278,mean,12,0.006083,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Notodiaptomus cearensis,-22.1636833,-48.7392833,formaldehyde,4,male,NA,adult,mean,12,1.3034,mean,12,0.009667,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Notodiaptomus cearensis,-22.1636833,-48.7392833,formaldehyde,4,female,NA,adult,mean,19,1.3639,mean,19,0.009842,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Notodiaptomus evaldus,-22.1636833,-48.7392833,formaldehyde,4,male,NA,adult,mean,18,1.2493,mean,18,0.008056,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Notodiaptomus evaldus,-22.1636833,-48.7392833,formaldehyde,4,female,NA,adult,mean,19,1.4721,mean,19,0.011842,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Acanthocyclops robustus,-22.1636833,-48.7392833,formaldehyde,4,female,NA,adult,mean,22,1.226,mean,22,0.010136,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Copepoda,Mesocyclops ogunnus,-22.1636833,-48.7392833,formaldehyde,4,female,NA,adult,mean,28,1.1299,mean,28,0.008786,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Ceriodaphnia silvestrii,-22.1636833,-48.7392833,formaldehyde,4,NA,NA,adult,mean,25,0.5779,mean,25,0.00144,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Bosmina hagmanni,-22.1636833,-48.7392833,formaldehyde,4,NA,NA,adult,mean,29,0.3943,mean,29,0.001897,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Diaphanosoma spinulosum,-22.1636833,-48.7392833,formaldehyde,4,NA,NA,adult,mean,30,0.7697,mean,30,0.002233,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Daphnia gessneri,-22.1636833,-48.7392833,formaldehyde,4,NA,NA,adult,mean,58,1.006,mean,58,0.004197,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Keratella tropica,-22.1636833,-48.7392833,formaldehyde,4,NA,NA,adult,mean,40,0.1086,mean,40,0.000025,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Asplanchna sielboldi,-22.1636833,-48.7392833,formaldehyde,4,NA,NA,adult,mean,23,1.366,mean,23,0.004174,NA
+Gonzalez_2008,https://doi.org/10.1590/S1519-69842008000100010,Diplostraca,Cypridae,-22.1636833,-48.7392833,formaldehyde,4,NA,NA,adult,mean,19,0.5305,mean,19,0.003211,NA

@@ -83,10 +83,6 @@ dat <- dplyr::filter(dat, !is.na(life_stage), life_stage != "NA")
 # check the summary statistics
 summary(dat)
 
-# check why there are negative obs dry biomass values
-dat %>%
-  filter(obs_dry_biomass_mg < 0 | obs_dry_biomass_mg == 0)
-
 # filter these negative values
 dat <- 
   dat %>%
@@ -97,12 +93,17 @@ dat <-
   dat %>%
   filter(!is.na(lat))
 
+# remove gravid individuals
+dat <- 
+  dat %>%
+  filter(gravid != "yes")
+
 # sample from these data to make sure we don't pseudoreplicate too much
 head(dat)
 dat <- 
   dat %>%
   group_by(reference, taxon) %>%
-  sample_n(size = ifelse(min(n()) < 8, min(n()), 8), replace = FALSE) %>%
+  sample_n(size = ifelse(min(n()) < 5, min(n()), 5), replace = FALSE) %>%
   ungroup()
 
 output <-
@@ -115,7 +116,7 @@ output <-
     longitude_dd = "lon",
     workflow = "workflow2",
     trait = "equation",
-    max_tax_dist = 3,
+    max_tax_dist = 4,
     gen_sp_dist = 1
   )
 
@@ -165,6 +166,7 @@ p1 <-
     colour = "#ec7853", linetype = "dashed", linewidth = 1) +
   scale_colour_viridis_d(option = "C", begin = 0, end = 0.9) +
   theme_meta() +
+  facet_wrap(~order, scales = "free") +
   theme(legend.position = "none")
 plot(p1)
 
@@ -174,10 +176,38 @@ cor.test(log10(output$obs_dry_biomass_mg), log10(output$dry_biomass_mg))
 # calculate percentage error for actual data
 output <-
   output %>%
-  mutate(error_perc = (abs(obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100)
+  mutate(error_perc = ((obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100,
+         abs_error_perc = (abs(obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100,
+         abs_error = (abs(obs_dry_biomass_mg - dry_biomass_mg)))
 
 # check the distribution of error_perc
 hist(output$error_perc)
+hist(output$abs_error_perc)
+hist(output$abs_error)
+
+# check the summary statistics of error_perc
+summary(output$error_perc)
+summary(output$abs_error)
+
+# check which taxa have large error values
+output_cond <- 
+  output %>%
+  select(reference, order, taxon, db_scientificName, id, 
+         tax_distance,
+         body_size_range_match,
+         length_mm, obs_dry_biomass_mg, dry_biomass_mg, error_perc, abs_error_perc)
+
+# check outliers
+output_cond %>%
+  filter(order == "Odonata") %>%
+  View()
+
+output_cond %>%
+  filter(abs_error_perc > 200) %>%
+  View()
+
+# how many data-points have more than 100 percent error
+sum(output$error_perc > 100)/nrow(output)
 
 # null model i.e. order-level equations
 order_null <- read_csv("database/test_order_level_null_model.csv")
