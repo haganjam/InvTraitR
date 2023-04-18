@@ -231,7 +231,7 @@ select_traits_tax_dist <- function(data,
       )
     } 
     
-    if( all( target_present == FALSE ) ) {
+    if( all( target_present == FALSE ) | nrow(dist_df) == 0 ) {
       
       dist_df <- dplyr::tibble(
         db_scientificName = NA,

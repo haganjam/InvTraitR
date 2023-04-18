@@ -36,16 +36,6 @@ source("R/special_names.R")
 source("R/get_trait_from_taxon.R")
 source("R/helpers.R")
 
-x <- readRDS("database/gbif_taxon_database.rds")
-names(x)
-y <- !(unique(x$family) %in% unique(output$db_taxon_family))
-
-# which orders do we need equations for?
-unique(unique(x$family))[y]
-x %>%
-  filter(!(order %in% unique(output$db_taxon_order)) ) %>%
-  View()
-
 # check if a figure folder exists
 if (!dir.exists("figures")) {
   dir.create("figures")
@@ -55,21 +45,25 @@ if (!dir.exists("figures")) {
 test_names <- list.files("database/")
 test_names <- test_names[grepl(pattern = "test_a_", x = test_names)]
 
-# load the datasets and name them dat1 ... datN 
+# load the datasets and name them dat1 ... datN
+dat_list <- vector("list", length = length(test_names))
 for(i in 1:length(test_names)) {
   
   x <- read_csv(paste0("database/", test_names[i]))
-  assign(x = paste0("dat", i), value = x)
+  dat_list[[i]] <- x
   
 }
 
+# rename the dat_list
+names(dat_list) <- paste0("dat_", 1:length(test_names))
+
 # check the datasets
-lapply(list(dat1, dat2, dat3, dat4), head)
+lapply(dat_list, head)
 
 # extract the relevant columns from each dataset
 
 dat <- 
-  lapply(list(dat1, dat2, dat3, dat4), function(x) {
+  lapply(dat_list, function(x) {
   
     x %>%
     select(reference, order, taxon, lat, lon, sex, gravid, life_stage, length_mm, dry_weight_mg, dry_weight_type) %>%
@@ -98,16 +92,19 @@ dat <-
   dat %>%
   filter( !(obs_dry_biomass_mg < 0) )
 
+# remove the rows without lat and lon data
+dat <- 
+  dat %>%
+  filter(!is.na(lat))
+
 # sample from these data to make sure we don't pseudoreplicate too much
 head(dat)
 dat <- 
   dat %>%
   group_by(reference, taxon) %>%
   sample_n(size = ifelse(min(n()) < 8, min(n()), 8), replace = FALSE) %>%
-  # sample_n(size = 1, replace = FALSE) %>%
   ungroup()
 
-# use method to get biomass data
 output <-
   get_trait_from_taxon(
     data = dat,
@@ -122,11 +119,12 @@ output <-
     gen_sp_dist = 1
   )
 
-# get names that were not found
+# get proportion of names for which we do not have equations for
 output %>%
   filter(is.na(id)) %>%
   pull(taxon) %>%
-  unique()
+  unique() %>%
+  length()/length(unique(output$taxon))
 
 # remove rows where the dry-biomass is not there
 output <-
