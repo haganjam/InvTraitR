@@ -20,8 +20,6 @@ library(mobsim)
 library(ggplot2)
 library(ggbeeswarm)
 library(ggpubr)
-library(igraph)
-library(assertthat)
 library(MuMIn)
 library(lme4)
 
@@ -35,6 +33,10 @@ source("R/select_traits_tax_dist.R")
 source("R/special_names.R")
 source("R/get_trait_from_taxon.R")
 source("R/helpers.R")
+
+# load libraries required for those function
+library(igraph)
+library(assertthat)
 
 # check if a figure folder exists
 if (!dir.exists("figures")) {
@@ -96,7 +98,7 @@ dat <-
 # remove gravid individuals
 dat <- 
   dat %>%
-  filter(gravid != "yes")
+  filter(gravid == "yes" | is.na(gravid))
 
 # sample from these data to make sure we don't pseudoreplicate too much
 head(dat)
@@ -105,6 +107,12 @@ dat <-
   group_by(reference, taxon) %>%
   sample_n(size = ifelse(min(n()) < 5, min(n()), 5), replace = FALSE) %>%
   ungroup()
+
+# how many samples are left?
+nrow(dat)
+
+# check the summary statistics
+summary(dat)
 
 output <-
   get_trait_from_taxon(
@@ -116,8 +124,8 @@ output <-
     longitude_dd = "lon",
     workflow = "workflow2",
     trait = "equation",
-    max_tax_dist = 4,
-    gen_sp_dist = 1
+    max_tax_dist = 2.75,
+    gen_sp_dist = 0.75
   )
 
 # get proportion of names for which we do not have equations for
@@ -127,10 +135,21 @@ output %>%
   unique() %>%
   length()/length(unique(output$taxon))
 
+# check which taxa there were no equations for
+output %>%
+  select(reference, order, taxon, dry_biomass_mg) %>%
+  distinct()
+
 # remove rows where the dry-biomass is not there
 output <-
   output %>%
   filter(!is.na(dry_biomass_mg))
+
+# check how many equations are outside the body size range
+sum(output$body_size_range_match < 0)/nrow(output)
+
+# check the distribution
+hist(output$body_size_range_match)
 
 # check how many unique taxa are left
 length(unique(output$taxon))
@@ -166,7 +185,7 @@ p1 <-
     colour = "#ec7853", linetype = "dashed", linewidth = 1) +
   scale_colour_viridis_d(option = "C", begin = 0, end = 0.9) +
   theme_meta() +
-  facet_wrap(~order, scales = "free") +
+  facet_wrap(~order) +
   theme(legend.position = "none")
 plot(p1)
 
@@ -203,14 +222,27 @@ output_cond %>%
   View()
 
 output_cond %>%
-  filter(abs_error_perc > 200) %>%
+  filter(order == "Coleoptera") %>%
+  View()
+
+output_cond %>%
+  filter(abs_error_perc > 150) %>%
+  View()
+
+output_cond %>%
+  filter(abs_error_perc > 100, body_size_range_match > 0) %>%
+  mutate(dry_biomass_mg = round(dry_biomass_mg, 4)) %>%
   View()
 
 # how many data-points have more than 100 percent error
-sum(output$error_perc > 100)/nrow(output)
+sum(output$abs_error_perc > 100)/nrow(output)
 
 # null model i.e. order-level equations
 order_null <- read_csv("database/test_order_level_null_model.csv")
+
+# check which orders there are
+unique(order_null$order)
+unique(output$order)
 
 # calculate the order-level biomass from the input body lengths
 output$order_dry_biomass_mg <- 
@@ -230,23 +262,23 @@ output$order_dry_biomass_mg <-
 # calculate order-level absolute error
 output <- 
   output %>%
-  mutate(error_perc_order = (abs(obs_dry_biomass_mg - order_dry_biomass_mg) / obs_dry_biomass_mg) * 100)
+  mutate(abs_error_perc_order = (abs(obs_dry_biomass_mg - order_dry_biomass_mg) / obs_dry_biomass_mg) * 100)
 
 # compare error percentages
 x <- output[!is.na(output$order_dry_biomass_mg), ]
 x <- 
   tibble(method = c(rep("FreshInvTraitR", nrow(x)), rep("Order", nrow(x))),
-         error_perc = c(x$error_perc, x$error_perc_order))
+         abs_error_perc = c(x$abs_error_perc, x$abs_error_perc_order))
 
 ggplot(data = x,
-       mapping = aes(x = error_perc, fill = method)) +
+       mapping = aes(x = log(abs_error_perc), fill = method)) +
   geom_density(alpha = 0.2) +
   theme_test()
 
 # what is the average error?
 x %>%
   group_by(method) %>%
-  summarise(mean_error = mean(error_perc, na.rm = TRUE))
+  summarise(mean_error = mean(abs_error_perc, na.rm = TRUE))
 
 
 # what is causing the FreshInvTraitR predictions to be so bad?
@@ -259,173 +291,64 @@ x %>%
 # plot for each group
 # negative relationship expected between score and error
 ggplot(data = output,
-       mapping = aes(x = body_size_range_match, y = error_perc)) +
+       mapping = aes(x = body_size_range_match, y = abs_error_perc)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
   theme_test() +
+  facet_wrap(~order, scales = "free") +
   geom_vline(xintercept = 0, linetype = "dashed", colour = "red") +
   theme(legend.position = "none")
 
-# only plot when there is more than data-point
-ggplot(data = output %>% 
-         group_by(group) %>% 
-         mutate(n = n()) %>% 
-         filter(n > 1),
-       mapping = aes(x = body_size_range_match, y = error_perc, colour = group)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE) +
-  theme_test() +
-  geom_vline(xintercept = 0, linetype = "dashed", colour = "red") +
-  facet_wrap(~group, scales = "free") +
-  theme(legend.position = "none")
-
-# only deviations at the upper limit
-ggplot(data = output %>% 
-         group_by(group) %>% 
-         mutate(n = n()) %>% 
-         filter(n > 1) %>%
-         ungroup() %>%
-         filter(length_mm > db_min_body_size_mm),
-       mapping = aes(x = body_size_range_match, y = error_perc, colour = group)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE) +
-  theme_test() +
-  geom_vline(xintercept = 0, linetype = "dashed", colour = "red") +
-  facet_wrap(~group, scales = "free") +
-  theme(legend.position = "none")
-
-output %>%
-  select(taxon, length_mm, tax_distance, r2_match, body_size_range_match, N,
-         dry_biomass_mg, error_perc) %>%
-  View()
-
-output %>%
-  mutate(body_size_range = ifelse(body_size_range_match < 0, 1, 0)) %>%
-  group_by(body_size_range) %>%
-  summarise(mean_error = mean(error_perc))
-
-# conclusion: There is some evidence that this is important from simply plotting the raw data
-
-
-# Q2: are specific equations just really bad?
-
-# is it specific equations?
-unique(output$id)
-
-# most equations give errors of less than 100 except a few and these do have low r2 values
-ggplot(data = output,
-       mapping = aes(x = as.character(id), y = (error_perc), colour = r2_match )) +
-  geom_point() +
-  scale_colour_viridis_c() +
-  geom_hline(yintercept = 100, colour = "red") +
-  theme_test()
-
-# which equations have errors more than 100?
-output %>%
-  filter(error_perc > 100) %>%
-  pull(id) %>%
-  unique()
-
-ggplot(data = output,
-       mapping = aes(x = reference, y = (error_perc), colour = r2_match )) +
-  geom_point() +
-  scale_colour_viridis_c() +
-  geom_hline(yintercept = 100, colour = "red") +
-  theme_test()
-
-
-# Q3: is it due to bad equations i.e. r2 values?
+# Q2: is it due to bad equations i.e. r2 values?
 
 # there is some relationship between the r2 match the maximum error percentage
 ggplot(data = output,
-       mapping = aes(x = r2_match, y = error_perc)) +
+       mapping = aes(x = r2_match, y = abs_error_perc)) +
   geom_point() +
   geom_hline(yintercept = 100, linetype = "dashed", colour = "red") +
   theme_test()
 
-# is this simply due to the equations from reference 2?
-# no, not necessarily: The general pattern seems to hold
-ggplot(data = output %>% filter(id < 23 | id > 37),
-       mapping = aes(x = r2_match, y = error_perc)) +
-  geom_point() +
-  geom_hline(yintercept = 100, linetype = "dashed", colour = "red") +
-  theme_test()
-
-# equation 24 has high error but not ubiquitously
-# seems that the equation is not predicting well for smaller lengths
-output %>%
-  filter(id == 24) %>%
-  select(reference, taxon, length_mm, db_scientificName, taxonRank,
-         tax_distance, r2_match, body_size_range_match, 
-         obs_dry_biomass_mg, dry_biomass_mg, error_perc) %>%
-  View()
-
-# equation 25 also has high error for some lengths
-output %>%
-  filter(id == 25) %>%
-  select(reference, taxon, length_mm, db_scientificName, taxonRank,
-         tax_distance, r2_match, body_size_range_match, 
-         obs_dry_biomass_mg, dry_biomass_mg, error_perc) %>%
-  View()
-
-
-# Q4: is it easier to get accurate predictions for larger lengths?
+# Q3: is it easier to get accurate predictions for larger lengths?
 
 # is there a relationship between length and error within a taxon
 ggplot(data = output,
-       mapping = aes(x = length_mm, y = error_perc)) +
+       mapping = aes(x = length_mm, y = abs_error_perc)) +
   geom_point() +
   theme_test()
 
-# conclusions: for the equations with high errors > 100, there is some evidence that
-# smaller body sizes are more difficult to predict accurately
-
-
-# Q5: do specific equations generalise poorly?
+# Q4: do specific equations generalise poorly?
 
 # check the taxonomic ranks that are present
 unique(output$taxonRank)
 
 ggplot(data = output,
-       mapping = aes(x = taxonRank, y = error_perc)) +
+       mapping = aes(x = taxonRank, y = abs_error_perc)) +
   geom_boxplot() +
   theme_test()
-
 
 # Q6: is there a relationship with taxonomic distance?
 ggplot(data = output,
-       mapping = aes(x = tax_distance, y = error_perc)) +
+       mapping = aes(x = tax_distance, y = abs_error_perc)) +
   geom_jitter() +
   theme_test()
 
+output %>%
+  filter(abs_error_perc > 150) %>%
+  View()
+
 # conclusion: there doesn't seem to be one factor that is particularly important
 
-
-# Q7: is there a difference between equations with and without correction factors?
-output %>%
-  mutate(correction_YN = ifelse(is.na(lm_correction), 0, 1)) %>%
-  ggplot(data = .,
-         mapping = aes(x = as.character(correction_YN), y = error_perc)) +
-  geom_point() +
-  geom_boxplot() +
-  theme_test()
-
-
-# Q8: are there preservation effects?
+# Q5: are there preservation effects?
 output %>%
   group_by(preservation) %>%
   summarise(n = length(unique(group)))
 
 output %>%
   ggplot(data = .,
-         mapping = aes(x = preservation, y = error_perc)) +
+         mapping = aes(x = preservation, y = abs_error_perc)) +
   geom_point() +
   geom_boxplot() +
   theme_test()
-
-
-
-
 
 # let's model it
 
@@ -440,7 +363,7 @@ names(output)
 # subset the variables
 dat_lm <- 
   output %>%
-  select(obs_dry_biomass_mg, length_mm, dry_biomass_mg, tax_distance, r2_match, body_size_range_match, group)
+  select(obs_dry_biomass_mg, length_mm, dry_biomass_mg, tax_distance, r2_match, body_size_range_match, order)
 
 # add the habitat match score
 dat_lm$habitat_score <- 
@@ -464,7 +387,7 @@ length(unique(output$id))
 length(unique(output$db_taxon_order))
 
 # model the error to get a distribution of error
-lm_glob <- lm(log(dat_lm$obs_dry_biomass_mg) ~ body_size_range_match*dry_biomass_mg + body_size_range_match*tax_distance + length_mm, data = dat_lm,
+lm_glob <- lm(log(dat_lm$obs_dry_biomass_mg) ~ order + body_size_range_match*dry_biomass_mg + body_size_range_match*tax_distance + length_mm, data = dat_lm,
               na.action = "na.fail")
 summary(lm_glob)
 

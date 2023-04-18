@@ -311,7 +311,7 @@ get_trait_from_taxon <- function(data,
             "major_habitat_type_match",
             "ecoregion_match"
           )
-          weights <- c(1, 2, 0.75, 0.75, 0.75)
+          weights <- c(1, 1, 0.75, 0.75, 0.75)
         } else {
           match_cols <- input[, c(
             "realm_match",
