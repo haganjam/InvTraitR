@@ -60,14 +60,14 @@ for(i in 1:length(test_names)) {
 names(dat_list) <- paste0("dat_", 1:length(test_names))
 
 # check the datasets
-lapply(dat_list, head)
+# lapply(dat_list, head)
 
 # extract the relevant columns from each dataset
 dat <- 
   lapply(dat_list, function(x) {
   
     x %>%
-    select(reference, order, taxon, lat, lon, sex, gravid, life_stage, length_mm, dry_weight_mg, dry_weight_type) %>%
+    dplyr::select(reference, order, taxon, lat, lon, sex, gravid, life_stage, length_mm, dry_weight_mg, dry_weight_type) %>%
     rename(obs_dry_biomass_mg = dry_weight_mg)  
     
 })
@@ -100,9 +100,9 @@ dat <-
   filter(gravid == "yes" | is.na(gravid))
 
 # remove the Mahrlein datapoints
-dat <- 
-  dat %>%
-  filter(reference != "Maehrlein_2016")
+# dat <- 
+  # dat %>%
+  # filter(reference != "Maehrlein_2016")
 
 # sample from these data to make sure we don't pseudoreplicate too much
 head(dat)
@@ -128,7 +128,7 @@ output <-
     longitude_dd = "lon",
     workflow = "workflow2",
     trait = "equation",
-    max_tax_dist = 2.5,
+    max_tax_dist = 3,
     gen_sp_dist = 0.5
   )
 
@@ -141,14 +141,13 @@ output %>%
 
 # check which taxa there were no equations for
 output %>%
-  select(reference, order, taxon, dry_biomass_mg) %>%
+  dplyr::select(reference, order, taxon, dry_biomass_mg) %>%
   distinct()
 
 # remove rows where the dry-biomass is not there
 output <-
   output %>%
   filter(!is.na(dry_biomass_mg))
-
 
 # check how many unique taxa are left
 length(unique(output$taxon))
@@ -210,7 +209,7 @@ summary(output$abs_error)
 # check which taxa have large error values
 output_cond <- 
   output %>%
-  select(reference, order, taxon, db_scientificName, id, 
+  dplyr::select(reference, order, taxon, db_scientificName, id, 
          tax_distance,
          body_size_range_match,
          length_mm, obs_dry_biomass_mg, dry_biomass_mg, error_perc, abs_error_perc)
@@ -229,6 +228,9 @@ output_cond %>%
 output_cond %>%
   filter(abs_error_perc > 150) %>%
   View()
+
+mean(output_cond %>% filter(abs_error_perc < 150) %>% pull(abs_error_perc))
+output_cond %>% filter(abs_error_perc > 150) %>% nrow()
 
 output_cond %>%
   filter(abs_error_perc > 100, body_size_range_match > 0) %>%

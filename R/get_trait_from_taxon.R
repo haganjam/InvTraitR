@@ -88,6 +88,7 @@ get_trait_from_taxon <- function(data,
   # run the select_traits_tax_dist() function: z1
   trait_sel <- select_traits_tax_dist(data = clean_taxa, 
                                       target_taxon = target_taxon,
+                                      body_size = body_size,
                                       max_tax_dist = max_tax_dist,
                                       trait = trait,
                                       gen_sp_dist = gen_sp_dist

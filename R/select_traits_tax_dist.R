@@ -58,11 +58,13 @@ extract_genus <- function(binomial) {
 #' @return string with the genus name
 #' @importFrom assertthat assert_that
 #' @importFrom assertthat is.string
-extract_body_size_range_match <- function(equation_id, target_body_size, equation_db) {
+extract_body_size_range_match <- function(equation_id, 
+                                          target_body_size, 
+                                          equation_db) {
   
   if (!is.na(equation_id)) {
     # extract relevant equation from database
-    equ_meta <- equation_db[equation_db[[paste0(trait, "_id")]] == equation_id, ]
+    equ_meta <- equation_db[equation_db[["equation_id"]] == equation_id, ]
     
     # calculate equation midpoint
     mp <- with(equ_meta, ((body_size_max - body_size_min)/2) + body_size_min)
@@ -111,9 +113,11 @@ extract_body_size_range_match <- function(equation_id, target_body_size, equatio
 #' @importFrom assertthat is.number
 select_traits_tax_dist <- function(data,
                                    target_taxon,
+                                   body_size,
                                    max_tax_dist = 3,
                                    trait = "equation",
-                                   gen_sp_dist = 0.5) {
+                                   gen_sp_dist = 0.5
+                                   ) {
   # make sure the max_tax_dist argument is a number > 0
   assert_that(is.number(max_tax_dist) & (max_tax_dist >= 0))
   assert_that(is.number(gen_sp_dist) & (gen_sp_dist >= 0))
@@ -253,7 +257,7 @@ select_traits_tax_dist <- function(data,
           sapply(dist_df[["id"]], function(x) {
             
             extract_body_size_range_match(equation_id = x, 
-                                          target_body_size = input[[body_size]], 
+                                          target_body_size = input[[body_size]],
                                           equation_db = trait_db)
             
           })
