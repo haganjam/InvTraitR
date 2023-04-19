@@ -42,6 +42,53 @@ extract_genus <- function(binomial) {
     binomial
 }
 
+#' @title extract_body_size_range_match()
+#' @description calculate whether target length matches equation range
+#' @details This function is used to calculate a score that describes how
+#' close a target length is to the range of the lengths that a given equation
+#' was developed for. If the score is negative, the target length is out of the
+#' range of the equation. Values between 0 and 1 describe how close the target
+#' length is to the middle of the equation. Specifically, if the score is 1,
+#' the target length is at the mid-point of the range of the lengths that the
+#' equation was developed for.
+#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' @param equation_id - id number of the equation
+#' @param target_body_size - body size of the target taxon
+#' @param equation_db - equation database object
+#' @return string with the genus name
+#' @importFrom assertthat assert_that
+#' @importFrom assertthat is.string
+extract_body_size_range_match <- function(equation_id, target_body_size, equation_db) {
+  
+  if (!is.na(equation_id)) {
+    # extract relevant equation from database
+    equ_meta <- equation_db[equation_db[[paste0(trait, "_id")]] == equation_id, ]
+    
+    # calculate equation midpoint
+    mp <- with(equ_meta, ((body_size_max - body_size_min)/2) + body_size_min)
+    
+    # calculate linear equation slopes (m) and intercepts (c)
+    m_low <- (1-0)/(mp - equ_meta[["body_size_min"]])
+    c_low <- 1 - (mp*m_low)
+    m_high <- (1-0)/(mp - equ_meta[["body_size_max"]])
+    c_high <- 1 - (mp*m_high)
+    
+    # calculate the score
+    score <- ifelse(target_body_size < mp, 
+                    (m_low*target_body_size) + c_low,  
+                    (m_high*target_body_size) + c_high)
+    score <- round(score, 2)
+    
+    return(score)
+    
+  } else {
+    
+    return(NA)
+    
+  }
+  
+}
+
 #' @title select_traits_tax_dist()
 #' @description Get taxonomic distances of target names relative to the taxa
 #'  databases
@@ -199,6 +246,23 @@ select_traits_tax_dist <- function(data,
       # bind into a data.frame
       dist_df <- dplyr::bind_rows(dist_df)
       
+      if (trait == "equation") {
+        
+        dist_df[["body_size_range_match"]] <- 
+          
+          sapply(dist_df[["id"]], function(x) {
+            
+            extract_body_size_range_match(equation_id = x, 
+                                          target_body_size = input[[body_size]], 
+                                          equation_db = trait_db)
+            
+          })
+        
+        # remove rows where the body_size_range_match is negative
+        dist_df <- dplyr::filter(dist_df, body_size_range_match > 0)
+        
+      }
+      
       # remove the rows where the taxonomic distance is too great
       dist_df <- dplyr::filter(dist_df, tax_distance <= max_tax_dist)
       
@@ -229,6 +293,25 @@ select_traits_tax_dist <- function(data,
         id = y,
         tax_distance = NA
       )
+      
+      # get the body size range match data
+      if (trait == "equation") {
+        
+        dist_df[["body_size_range_match"]] <- 
+          
+          sapply(dist_df[["id"]], function(x) {
+            
+            extract_body_size_range_match(equation_id = x, 
+                                          target_body_size = input[[body_size]], 
+                                          equation_db = trait_db)
+            
+          })
+        
+        # remove rows where the body_size_range_match is negative
+        dist_df <- dplyr::filter(dist_df, body_size_range_match > 0)
+        
+      } 
+      
     } 
     
     if( all( target_present == FALSE ) ) {
@@ -239,6 +322,11 @@ select_traits_tax_dist <- function(data,
         id = NA,
         tax_distance = NA
       )
+      
+      if (trait == "equation") {
+        dist_df[["body_size_range_match"]] <- NA
+      }
+      
     }
     
     if ( nrow(dist_df) == 0 ) {
@@ -249,6 +337,10 @@ select_traits_tax_dist <- function(data,
         id = NA,
         tax_distance = NA
       )
+      
+      if (trait == "equation") {
+        dist_df[["body_size_range_match"]] <- NA
+      }
       
     }
     

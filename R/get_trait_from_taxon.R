@@ -143,41 +143,9 @@ get_trait_from_taxon <- function(data,
       }
     })
     
-    trait_sel[["N"]] <- N
+    trait_sel[["N"]] <- N 
     
-    # body size range match
-    body_size_range_match <- 
-      mapply(function(x, y) {
-        
-        if (!is.na(x)) {
-          # extract relevant equation from database
-          equ_meta <- trait_db[trait_db[[paste0(trait, "_id")]] == x, ]
-          
-          # calculate equation midpoint
-          mp <- with(equ_meta, ((body_size_max - body_size_min)/2) + body_size_min)
-          
-          # calculate linear equation slopes (m) and intercepts (c)
-          m_low <- (1-0)/(mp - equ_meta[["body_size_min"]])
-          c_low <- 1 - (mp*m_low)
-          m_high <- (1-0)/(mp - equ_meta[["body_size_max"]])
-          c_high <- 1 - (mp*m_high)
-          
-          # calculate the score
-          score <- ifelse(y < mp, (m_low*y) + c_low,  (m_high*y) + c_high)
-          score <- round(score, 2)
-          
-          return(score)
-          
-        } else {
-          
-          return(NA)
-          
-        }
-      }, trait_sel[["id"]], trait_sel[[body_size]] )
-    
-    trait_sel[["body_size_range_match"]] <- body_size_range_match
-    
-  }
+    }
   
   # add equation min body size
   min_bs <- sapply(trait_sel[["id"]], function(x) {
@@ -306,19 +274,18 @@ get_trait_from_taxon <- function(data,
         if (trait == "equation") {
           match_cols <- c(
             "r2_match",
-            "body_size_range_match",
             "realm_match",
             "major_habitat_type_match",
             "ecoregion_match"
           )
-          weights <- c(1, 1, 0.75, 0.75, 0.75)
+          weights <- c(1, (1/3), (1/3), (1/3))
         } else {
           match_cols <- input[, c(
             "realm_match",
             "major_habitat_type_match",
             "ecoregion_match"
           )]
-          weights <- c(0.75, 0.75, 0.75)
+          weights <- c((1/3), (1/3), (1/3))
         }
         
         # calculate the match score based on the different match categories

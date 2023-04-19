@@ -63,7 +63,6 @@ names(dat_list) <- paste0("dat_", 1:length(test_names))
 lapply(dat_list, head)
 
 # extract the relevant columns from each dataset
-
 dat <- 
   lapply(dat_list, function(x) {
   
@@ -100,6 +99,11 @@ dat <-
   dat %>%
   filter(gravid == "yes" | is.na(gravid))
 
+# remove the Mahrlein datapoints
+dat <- 
+  dat %>%
+  filter(reference != "Maehrlein_2016")
+
 # sample from these data to make sure we don't pseudoreplicate too much
 head(dat)
 dat <- 
@@ -124,8 +128,8 @@ output <-
     longitude_dd = "lon",
     workflow = "workflow2",
     trait = "equation",
-    max_tax_dist = 2.75,
-    gen_sp_dist = 0.75
+    max_tax_dist = 2.5,
+    gen_sp_dist = 0.5
   )
 
 # get proportion of names for which we do not have equations for
@@ -145,11 +149,6 @@ output <-
   output %>%
   filter(!is.na(dry_biomass_mg))
 
-# check how many equations are outside the body size range
-sum(output$body_size_range_match < 0)/nrow(output)
-
-# check the distribution
-hist(output$body_size_range_match)
 
 # check how many unique taxa are left
 length(unique(output$taxon))
@@ -215,6 +214,8 @@ output_cond <-
          tax_distance,
          body_size_range_match,
          length_mm, obs_dry_biomass_mg, dry_biomass_mg, error_perc, abs_error_perc)
+
+View(output_cond)
 
 # check outliers
 output_cond %>%
