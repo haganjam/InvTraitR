@@ -13,7 +13,7 @@ library(raster)
 library(dplyr)
 
 # load the set of metadata associated with each FEOW_ID
-fw.md <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver3/freshwater_ecoregion_habitat_list.xlsx")
+fw.md <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver4/freshwater_ecoregion_habitat_list.xlsx")
 head(fw.md)
 
 # remove the page column
@@ -28,7 +28,7 @@ saveRDS(fw.md, file = paste("database", "/", "freshwater_ecoregion_metadata.rds"
 crdref <- CRS("+proj=longlat +datum=WGS84")
 
 # load the freshwater map
-fw <- st_read("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver3/feow_hydrosheds.shp")
+fw <- st_read("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver4/feow_hydrosheds.shp")
 
 # set the crs
 st_crs(fw) <- crdref
@@ -37,7 +37,7 @@ st_crs(fw) <- crdref
 fw <- as(fw, "Spatial")
 
 # load the habitat data for each equation, length etc.
-hab <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver3/habitat_database.xlsx")
+hab <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver4/habitat_database.xlsx")
 head(hab)
 
 # create a spatial points object for each lat lon in the habitats database

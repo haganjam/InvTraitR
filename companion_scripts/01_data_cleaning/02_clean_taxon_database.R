@@ -8,7 +8,7 @@ library(stringdist)
 source("R/special_names.R")
 
 # load the equation data
-t.dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver3/taxon_database.xlsx")
+t.dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver4/taxon_database.xlsx")
 head(t.dat)
 
 # clean the names for typos etc.

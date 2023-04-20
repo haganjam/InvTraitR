@@ -9,7 +9,7 @@ library(dplyr)
 source("R/special_names.R")
 
 # load the equation data
-equ.dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver3/equation_database.xlsx")
+equ.dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver4/equation_database.xlsx")
 head(equ.dat)
 
 # clean the names for typos etc.
