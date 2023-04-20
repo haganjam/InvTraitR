@@ -218,3 +218,17 @@ Estimating the standard deviation from the range:
 
 https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/1471-2288-14-135#Tab1
 
+
+### Removing bad equations
+
+Based on tests of the accuracy of the equations, we removed all equations with an r2 value less than 0.6.
+
+In addition, we removed equations with an r2 value of less than 0.75 if they had a sample size of less than or equal 20.
+
+An r2 of 0.75 does not sound that bad but the errors can be very large on a log-scale which these equations are typically fit on.
+
+We also removed the Daphnia equation from Rahkola et al. (1998), (reference 2) because it was performing very poorly on the test data.
+
+
+
+

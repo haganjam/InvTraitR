@@ -100,9 +100,9 @@ dat <-
   filter(gravid == "yes" | is.na(gravid))
 
 # remove the Mahrlein datapoints
-# dat <- 
-  # dat %>%
-  # filter(reference != "Maehrlein_2016")
+dat <- 
+  dat %>%
+  filter(reference != "Maehrlein_2016")
 
 # sample from these data to make sure we don't pseudoreplicate too much
 head(dat)
@@ -128,7 +128,7 @@ output <-
     longitude_dd = "lon",
     workflow = "workflow2",
     trait = "equation",
-    max_tax_dist = 3,
+    max_tax_dist = 3.5,
     gen_sp_dist = 0.5
   )
 
@@ -142,7 +142,10 @@ output %>%
 # check which taxa there were no equations for
 output %>%
   dplyr::select(reference, order, taxon, dry_biomass_mg) %>%
-  distinct()
+  mutate(PA = ifelse(is.na(dry_biomass_mg), 0, 1 )) %>%
+  dplyr::select(-dry_biomass_mg) %>%
+  distinct() %>%
+  View()
 
 # remove rows where the dry-biomass is not there
 output <-
@@ -212,6 +215,7 @@ output_cond <-
   dplyr::select(reference, order, taxon, db_scientificName, id, 
          tax_distance,
          body_size_range_match,
+         r2_match,
          length_mm, obs_dry_biomass_mg, dry_biomass_mg, error_perc, abs_error_perc)
 
 View(output_cond)
@@ -238,7 +242,7 @@ output_cond %>%
   View()
 
 # how many data-points have more than 100 percent error
-sum(output$abs_error_perc > 100)/nrow(output)
+sum(output$abs_error_perc > 150)/nrow(output)
 
 # null model i.e. order-level equations
 order_null <- read_csv("database/test_order_level_null_model.csv")
@@ -281,8 +285,23 @@ ggplot(data = x,
 # what is the average error?
 x %>%
   group_by(method) %>%
-  summarise(mean_error = mean(abs_error_perc, na.rm = TRUE))
+  summarise(mean_error = mean(abs_error_perc, na.rm = TRUE),
+            median_error = median(abs_error_perc, na.rm = TRUE))
 
+
+# what explains the difference between order and freshinvtraitR
+ggplot(data = output,
+       mapping = aes(x = r2_match, y = abs_error_perc - abs_error_perc_order  ) ) +
+  geom_point()
+
+ggplot(data = output,
+       mapping = aes(x = abs_error_perc, y = abs_error_perc_order)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1) +
+  theme_test()
+
+y <- output[!is.na(output$abs_error_perc_order),]
+sum(y$abs_error_perc_order > y$abs_error_perc)/nrow(y)
 
 # what is causing the FreshInvTraitR predictions to be so bad?
 
