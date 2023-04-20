@@ -128,7 +128,7 @@ output <-
     longitude_dd = "lon",
     workflow = "workflow2",
     trait = "equation",
-    max_tax_dist = 3.5,
+    max_tax_dist = 3,
     gen_sp_dist = 0.5
   )
 
