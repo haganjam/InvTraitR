@@ -139,138 +139,30 @@ select_traits_tax_dist <- function(data,
   # assign the object to trait_db
   trait_db <- get(paste0(trait, "_db"))
   
+  # load the higher taxon matrices and taxon databases
+  db_vec <- c("gbif", "itis", "col")
+  for(i in 1:length(db_vec)) {
+    
+    db_name <- paste0(db_vec[i], "_db")
+    if (!exists(db_name)) {
+      assign(db_name, readRDS(file = get_db_file_path(
+        paste0(db_vec[i], "_higher_taxon_matrices.rds")
+      )))}
+    
+    td_name <- paste0(db_vec[i], "_td")
+    if (!exists(td_name)) {
+      assign(td_name, readRDS(file = get_db_file_path(
+        paste0(db_vec[i], "_taxon_database.rds")
+      )))
+    }
+    
+  }
+  
   # split the input data.frame into a list
   data_list <- split(data, 1:nrow(data))
   
   # for each entry in the input.list, select appropriate traits
   output <- lapply(data_list, function(input) {
-    
-    # get the higher-level taxon databases if the input database is
-    # one of the taxonomic backbones
-    if (input[["db"]] %in% c("gbif", "itis", "col")) {
-      db_name <- paste0(input[["db"]], "_db")
-      td_name <- paste0(input[["db"]], "_td")
-      
-      if (!exists(db_name)) {
-        assign(db_name, readRDS(file = get_db_file_path(
-          paste0(input[["db"]], "_higher_taxon_matrices.rds")
-        )))
-        
-      }
-      
-      htm_db <- get(db_name)
-      
-      if (!exists(td_name)) {
-        assign(td_name, readRDS(file = get_db_file_path(
-          paste0(input[["db"]], "_taxon_database.rds")
-        )))
-      }
-      
-      td_db <- get(td_name)
-      
-    } 
-    
-    # extract the target_name
-    target_name <- input[["scientificName"]]
-    
-    target_name_cond <- extract_genus(target_name)
-    
-    # test if the target name is present in any of the taxon matrices
-    target_present <- 
-      
-      sapply(htm_db, function(htm) {  
-        
-        target_name_cond %in% names(V(htm))
-        
-      })
-    
-    # target_present[1] <- TRUE
-    if ( any( target_present == TRUE ) ) {
-      
-      # get the relevant taxon matrix
-      higher_taxon <- names(htm_db[target_present])
-      htm <- htm_db[target_present][[1]]
-      
-      # extract vertices
-      v_x <- igraph::V(htm)
-      
-      # extract the equation entries from the taxon database
-      td <- td_db[td_db$database == trait, ]
-      
-      # extract the entries from the equation taxon database matching the target higher taxon
-      td <- td[td$order == higher_taxon | td$family == higher_taxon , ]
-      
-      # remove the NA values
-      td <- td[ !(is.na(td$order) & is.na(td$family)), ]
-      
-      # taxonomic distance
-      dist_df <-
-        mapply(function(db_taxon, id) {
-          if (db_taxon == target_name) {
-            tax_dist <- 0
-          } else {
-            # extract genus for species-level names
-            db_taxon_cond <- extract_genus(db_taxon)
-            
-            tax_dist <-
-              igraph::distances(htm,
-                                v_x[which(attr(v_x, "names") == target_name_cond)],
-                                v_x[which(attr(v_x, "names") == db_taxon_cond)],
-                                mode = c("all"),
-                                algorithm = c("bellman-ford")
-              )
-            
-            # if length is zero then the distance is NA
-            if (length(tax_dist) == 0) {
-              tax_dist <- NA
-            } else {
-              tax_dist <- tax_dist[[1]]
-            }
-            
-            # extra distance for species level: gen_sp_dist argument
-            sp_l <- sum(ifelse(c(attr(target_name_cond, "n"), attr(db_taxon_cond, "n")) > 1, gen_sp_dist, 0))
-            
-            # add extra distance
-            tax_dist <- tax_dist + sp_l
-            
-          }
-          
-          dist_df <-
-            dplyr::tibble(
-              db_scientificName = db_taxon,
-              trait_out = trait,
-              id = id,
-              tax_distance = tax_dist
-            )
-          
-          return(dist_df)
-          
-        }, td[["scientificName"]], td[["id"]], SIMPLIFY = FALSE)
-      
-      # bind into a data.frame
-      dist_df <- dplyr::bind_rows(dist_df)
-      
-      if (trait == "equation") {
-        
-        dist_df[["body_size_range_match"]] <- 
-          
-          sapply(dist_df[["id"]], function(x) {
-            
-            extract_body_size_range_match(equation_id = x, 
-                                          target_body_size = input[[body_size]],
-                                          equation_db = trait_db)
-            
-          })
-        
-        # remove rows where the body_size_range_match is negative
-        dist_df <- dplyr::filter(dist_df, body_size_range_match > 0)
-        
-      }
-      
-      # remove the rows where the taxonomic distance is too great
-      dist_df <- dplyr::filter(dist_df, tax_distance <= max_tax_dist)
-      
-    }
     
     # check if there are special names
     if (is.na(input[["scientificName"]]) & (input[["db"]] == "special")) {
@@ -296,42 +188,142 @@ select_traits_tax_dist <- function(data,
         trait_out = trait,
         id = y,
         tax_distance = NA
-      )
+      ) 
       
-      # get the body size range match data
-      if (trait == "equation") {
-        
-        dist_df[["body_size_range_match"]] <- 
-          
-          sapply(dist_df[["id"]], function(x) {
-            
-            extract_body_size_range_match(equation_id = x, 
-                                          target_body_size = input[[body_size]], 
-                                          equation_db = trait_db)
-            
-          })
-        
-        # remove rows where the body_size_range_match is negative
-        dist_df <- dplyr::filter(dist_df, body_size_range_match > 0)
-        
-      } 
-      
-    } 
+    }
     
-    if( all( target_present == FALSE ) ) {
+    # get the higher-level taxon databases if the input database is
+    # one of the taxonomic backbones
+    if (input[["db"]] %in% c("gbif", "itis", "col")) {
       
-      dist_df <- dplyr::tibble(
-        db_scientificName = NA,
-        trait_out = trait,
-        id = NA,
-        tax_distance = NA
-      )
+      htm_db <- get(paste0(input[["db"]], "_db"))
+      td_db <- get(paste0(input[["db"]], "_td") )
       
-      if (trait == "equation") {
-        dist_df[["body_size_range_match"]] <- NA
+      # extract the target_name
+      target_name <- input[["scientificName"]]
+      
+      target_name_cond <- extract_genus(target_name)
+      
+      # test if the target name is present in any of the taxon matrices
+      target_present <- 
+        
+        sapply(htm_db, function(htm) {  
+          
+          target_name_cond %in% names(V(htm))
+          
+        })
+      
+      # target_present is TRUE
+      if ( any( target_present == TRUE ) ) {
+        
+        # get the relevant taxon matrix
+        higher_taxon <- names(htm_db[target_present])
+        htm <- htm_db[target_present][[1]]
+        
+        # extract vertices
+        v_x <- igraph::V(htm)
+        
+        # extract the equation entries from the taxon database
+        td <- td_db[td_db$database == trait, ]
+        
+        # extract the entries from the equation taxon database matching the target higher taxon
+        td <- td[td$order == higher_taxon | td$family == higher_taxon , ]
+        
+        # remove the NA values
+        td <- td[ !(is.na(td$order) & is.na(td$family)), ]
+        
+        # taxonomic distance
+        dist_df <-
+          mapply(function(db_taxon, id) {
+            if (db_taxon == target_name) {
+              tax_dist <- 0
+            } else {
+              # extract genus for species-level names
+              db_taxon_cond <- extract_genus(db_taxon)
+              
+              tax_dist <-
+                igraph::distances(htm,
+                                  v_x[which(attr(v_x, "names") == target_name_cond)],
+                                  v_x[which(attr(v_x, "names") == db_taxon_cond)],
+                                  mode = c("all"),
+                                  algorithm = c("bellman-ford")
+                )
+              
+              # if length is zero then the distance is NA
+              if (length(tax_dist) == 0) {
+                tax_dist <- NA
+              } else {
+                tax_dist <- tax_dist[[1]]
+              }
+              
+              # extra distance for species level: gen_sp_dist argument
+              sp_l <- sum(ifelse(c(attr(target_name_cond, "n"), attr(db_taxon_cond, "n")) > 1, gen_sp_dist, 0))
+              
+              # add extra distance
+              tax_dist <- tax_dist + sp_l
+              
+            }
+            
+            dist_df <-
+              dplyr::tibble(
+                db_scientificName = db_taxon,
+                trait_out = trait,
+                id = id,
+                tax_distance = tax_dist
+              )
+            
+            return(dist_df)
+            
+          }, td[["scientificName"]], td[["id"]], SIMPLIFY = FALSE)
+        
+        # bind into a data.frame
+        dist_df <- dplyr::bind_rows(dist_df)
+        
+      }  else if ( all( target_present == FALSE ) ) {
+        
+        dist_df <- dplyr::tibble(
+          db_scientificName = NA,
+          trait_out = trait,
+          id = NA,
+          tax_distance = NA
+        )
+        
+        if (trait == "equation") {
+          
+          dist_df[["body_size_range_match"]] <- NA
+          
+        }
+        
       }
       
     }
+    
+    
+    # get the body size range matches if the trait is an equation
+    if (trait == "equation") {
+      
+      dist_df[["body_size_range_match"]] <- 
+        
+        sapply(dist_df[["id"]], function(x) {
+          
+          if (!is.na(x)) {
+            extract_body_size_range_match(equation_id = x, 
+                                          target_body_size = input[[body_size]],
+                                          equation_db = trait_db)
+          } else {
+            NA
+          }
+          
+          
+        })
+      
+    }
+    
+    # remove rows where the body_size_range_match is negative
+    dist_df <- dplyr::filter(dist_df, body_size_range_match > 0)
+    
+    # remove the rows where the taxonomic distance is too great
+    dist_df <- dplyr::filter(dist_df, tax_distance <= max_tax_dist)
     
     if ( nrow(dist_df) == 0 ) {
       

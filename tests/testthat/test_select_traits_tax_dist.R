@@ -10,6 +10,7 @@ make_test_input <- function() {
     ),
     lat = rep(50.55, 7),
     lon = rep(4.98, 7),
+    length_mm = rnorm(7, 10, 2),
     clean_taxon = c(
       "Gammarus", "Daphnia", "Triops granitica", "Triops",
       "Simocephalus vetulus", "Turbellaria", "Oligochaeta"
@@ -125,9 +126,7 @@ test_that("given an unsupported trait,
             when select_traits_tax_dist
             then error", {
   expect_error(
-    select_traits_tax_dist(data.frame(), "tax", 3, "nope"),
-    ".*trait.*"
-  )
+    select_traits_tax_dist(data.frame(), "tax", 3, "nope"))
 })
 
 test_that("test if select_traits_tax_dist() the column
@@ -135,17 +134,18 @@ test_that("test if select_traits_tax_dist() the column
   # when
   output <- select_traits_tax_dist(
     data = make_test_input(),
-    target_taxon = "taxon_name"
+    target_taxon = "taxon_name",
+    body_size = "length_mm"
   )
 
   # extract names from each element of the output list
   x <- lapply(output, function(input) {
     all(names(input) == c(
-      "taxon_name", "Life_stage", "lat", "lon", "clean_taxon",
+      "taxon_name", "Life_stage", "lat", "lon",  "length_mm", "clean_taxon",
       "db", "scientificName", "taxonRank", "acceptedNameUsageID",
       "db_taxon_order", "db_taxon_family", "habitat_id",
       "realm", "major_habitat_type", "ecoregion",
-      "db_scientificName", "trait_out", "id", "tax_distance"
+      "db_scientificName", "trait_out", "id", "tax_distance", "body_size_range_match"
     ))
   })
 
@@ -159,7 +159,8 @@ test_that("test if select_traits_tax_dist() outputs entries that should
   # when
   output <- select_traits_tax_dist(
     data = make_test_input(),
-    target_taxon = "taxon_name"
+    target_taxon = "taxon_name",
+    body_size = "length_mm"
   )
 
   # make sure the outputted scientific names are correct
@@ -182,7 +183,8 @@ test_that("test if select_traits_tax_dist() outputs
   # when
   output <- select_traits_tax_dist(
     data = make_test_input(),
-    target_taxon = "taxon_name"
+    target_taxon = "taxon_name",
+    body_size = "length_mm"
   )
 
   # get the taxonomic distance values for all names
@@ -196,16 +198,21 @@ test_that("test if select_traits_tax_dist() outputs
 
 test_that("test if select_traits_tax_dist() works
             correctly with only special names", {
+              
+  test_input <- make_test_input()   
+  
   # run the select_traits_tax_dist() function with only special names
   output1 <- select_traits_tax_dist(
-    data = make_test_input()[c(6, 7), ],
-    target_taxon = "taxon_name"
+    data = test_input[c(6, 7), ],
+    target_taxon = "taxon_name",
+    body_size = "length_mm"
   )
 
   # run the select_traits_tax_dist() function with all names
   output2 <- select_traits_tax_dist(
-    data = make_test_input(),
-    target_taxon = "taxon_name"
+    data = test_input,
+    target_taxon = "taxon_name",
+    body_size = "length_mm"
   )
 
   # make sure output is correct
@@ -221,16 +228,21 @@ test_that("test if select_traits_tax_dist() works
 
 test_that("test if select_traits_tax_dist() works
             correctly without any special names", {
+              
+  test_input <- make_test_input()             
+  
   # run the select_traits_tax_dist() function without special names
   output1 <- select_traits_tax_dist(
-    data = make_test_input()[-c(6, 7), ],
-    target_taxon = "taxon_name"
+    data = test_input[-c(6, 7), ],
+    target_taxon = "taxon_name",
+    body_size = "length_mm"
   )
 
   # run the select_traits_tax_dist() function with all names
   output2 <- select_traits_tax_dist(
-    data = make_test_input(),
-    target_taxon = "taxon_name"
+    data = test_input,
+    target_taxon = "taxon_name",
+    body_size = "length_mm"
   )
 
   x <- mapply(

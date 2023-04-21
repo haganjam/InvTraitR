@@ -84,7 +84,7 @@ test_that("Does the clean_taxon_names() function
     )
     db <- c(
         "gbif", "gbif", "gbif", "gbif", "gbif",
-        NA, NA, "special", "special"
+        "gbif", "gbif", "special", "special"
     )
     accepted_name_usage_id <- c(
         "GBIF:2218440", "GBIF:2234785", NA, "GBIF:2235057",

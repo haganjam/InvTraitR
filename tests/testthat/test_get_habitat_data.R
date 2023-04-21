@@ -187,3 +187,4 @@ test_that("Are the output columns correct?", {
     # test if the identifier column is correctly attached
     expect_true(all(x[["site"]] == df_test2[["site"]]))
 })
+
