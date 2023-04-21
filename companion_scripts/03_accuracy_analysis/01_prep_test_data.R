@@ -8,6 +8,7 @@ library(readr)
 # load datasets compiled from the literature
 test_names <- list.files("database/")
 test_names <- test_names[grepl(pattern = "test_a_", x = test_names)]
+test_names <- test_names[grepl(pattern = ".csv", x = test_names)]
 
 # load the datasets and name them dat1 ... datN
 dat_list <- vector("list", length = length(test_names))

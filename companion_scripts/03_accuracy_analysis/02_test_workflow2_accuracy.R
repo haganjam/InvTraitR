@@ -46,7 +46,7 @@ output <-
     longitude_dd = "lon",
     workflow = "workflow2",
     trait = "equation",
-    max_tax_dist = 4.5,
+    max_tax_dist = 3.5,
     gen_sp_dist = 0.5
   )
 
@@ -204,8 +204,9 @@ ggplot(data = x,
 x %>%
   group_by(method) %>%
   summarise(mean_error = mean(abs_error_perc, na.rm = TRUE),
-            median_error = median(abs_error_perc, na.rm = TRUE))
-
+            median_error = median(abs_error_perc, na.rm = TRUE),
+            min = min(abs_error_perc, na.rm = TRUE),
+            max = max(abs_error_perc, na.rm = TRUE))
 
 # what explains the difference between order and freshinvtraitR
 ggplot(data = output,
