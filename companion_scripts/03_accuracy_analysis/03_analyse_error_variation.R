@@ -34,15 +34,6 @@ max_tax_dist = 5
 trait = "equation"
 gen_sp_dist = 0.5
 
-# make sure the max_tax_dist argument is a number
-assert_that(
-  is.character(workflow) & (workflow %in% c("workflow1", "workflow2")),
-  msg = paste(
-    workflow,
-    "must be a character string corresponding to: workflow1 or workflow2"
-  )
-)
-
 # add a row_id variable
 data <- dplyr::bind_cols(
   dplyr::tibble(taxon_id = 1:nrow(data)),
@@ -76,6 +67,12 @@ clean_taxa <- dplyr::arrange(clean_taxa, taxon_id)
 # remove any duplicates that can arise from the special name procedure
 clean_taxa <- dplyr::distinct(clean_taxa)
 
+# add a row_id variable
+clean_taxa <- dplyr::bind_cols(
+  dplyr::tibble(row_id = 1:nrow(clean_taxa)),
+  clean_taxa
+)
+
 # load the trait data
 if (!exists(paste0(trait, "_db"))) {
   assign(
@@ -88,7 +85,7 @@ if (!exists(paste0(trait, "_db"))) {
 trait_db <- get(paste0(trait, "_db"))
 
 # split the input data.frame into a list
-data_list <- split(clean_taxa, 1:nrow(clean_taxa))
+data_list <- split(clean_taxa, clean_taxa$row_id)
 
 # for each entry in the input.list, select appropriate traits
 output <- lapply(data_list, function(input) {
