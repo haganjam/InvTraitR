@@ -123,53 +123,23 @@ get_trait_from_taxon <- function(data,
   trait_sel[["life_stage_match"]] <- life_stage_match
   
   # additional matches that are only relevant for the equation trait
-  if (trait == "equation") {
-    # r2 value match
-    r2_match <- sapply(trait_sel[["id"]], function(x) {
-      if (!is.na(x)) {
-        return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["r2"]])
-      } else {
-        return(NA)
-      }
-    })
+  
+  # set-up a vector of the relevant columns and relevant names
+  rel_cols <- c("r2", "n", "body_size_min", "body_size_max")
+  rel_names <- c("r2_match", "n", "db_min_body_size_mm", "db_max_body_size_mm")
+  
+  # loop over these variables
+  for (i in 1:length(rel_cols)) {
     
-    trait_sel[["r2_match"]] <- r2_match
-    
-    # sample size match
-    N <- sapply(trait_sel[["id"]], function(x) {
-      if (!is.na(x)) {
-        return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["n"]])
-      } else {
-        return(NA)
-      }
-    })
-    
-    trait_sel[["N"]] <- N 
-    
-    }
-  
-  # add equation min body size
-  min_bs <- sapply(trait_sel[["id"]], function(x) {
-    if (!is.na(x)) {
-      return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["body_size_min"]])
-    } else {
-      return(NA)
-    }
-  })
-  
-  trait_sel[["db_min_body_size_mm"]] <- min_bs
-  
-  # add equation max body size
-  max_bs <- sapply(trait_sel[["id"]], function(x) {
-    if (!is.na(x)) {
-      return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["body_size_max"]])
-    } else {
-      return(NA)
-    }
-  })
-  
-  trait_sel[["db_max_body_size_mm"]] <- max_bs
-  
+    trait_sel[[rel_names[i]]] <- 
+      sapply(trait_sel[["id"]], function(x) {
+        if (!is.na(x)) {
+          return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][[rel_cols[i]]])
+        } else {
+          return(NA)
+        }
+      })
+  }
   
   # get habitat match data
   

@@ -44,50 +44,67 @@ extract_genus <- function(binomial) {
 
 #' @title extract_body_size_range_match()
 #' @description calculate whether target length matches equation range
-#' @details This function is used to calculate a score that describes how
-#' close a target length is to the range of the lengths that a given equation
-#' was developed for. If the score is negative, the target length is out of the
-#' range of the equation. Values between 0 and 1 describe how close the target
-#' length is to the middle of the equation. Specifically, if the score is 1,
-#' the target length is at the mid-point of the range of the lengths that the
-#' equation was developed for.
+#' @details This function generates a data.frame with three variables:
+#' body_size_range_match: whether the target length is within the equation 
+#' length range (TRUE or FALSE), body_size_min_dist: percentage away 
+#' from the minimum length used to create the equation, body_size_max_dist: 
+#' percentage away from the maximum length.
 #' @author James G. Hagan (james_hagan(at)outlook.com)
 #' @param equation_id - id number of the equation
 #' @param target_body_size - body size of the target taxon
+#' @param prop - proportion above and below equation body size range
+#' considered acceptable for using an equation
 #' @param equation_db - equation database object
 #' @return string with the genus name
 #' @importFrom assertthat assert_that
 #' @importFrom assertthat is.string
 extract_body_size_range_match <- function(equation_id, 
-                                          target_body_size, 
+                                          target_body_size,
+                                          prop = 0.15,
                                           equation_db) {
   
   if (!is.na(equation_id)) {
+    
     # extract relevant equation from database
-    equ_meta <- equation_db[equation_db[["equation_id"]] == equation_id, ]
+    equ_meta <- trait_db[trait_db[[paste0(trait, "_id")]] == equation_id, ]
     
-    # calculate equation midpoint
-    mp <- with(equ_meta, ((body_size_max - body_size_min)/2) + body_size_min)
+    # calculate the minimum and maximum acceptable body size ranges
+    equ_min <- equ_meta[["body_size_min"]]
+    equ_min <- equ_min - (equ_min*prop)
     
-    # calculate linear equation slopes (m) and intercepts (c)
-    m_low <- (1-0)/(mp - equ_meta[["body_size_min"]])
-    c_low <- 1 - (mp*m_low)
-    m_high <- (1-0)/(mp - equ_meta[["body_size_max"]])
-    c_high <- 1 - (mp*m_high)
+    equ_max <- equ_meta[["body_size_max"]]
+    equ_max <- equ_max + (equ_max*prop)
     
-    # calculate the score
-    score <- ifelse(target_body_size < mp, 
-                    (m_low*target_body_size) + c_low,  
-                    (m_high*target_body_size) + c_high)
-    score <- round(score, 2)
+    # check whether target_body_length is within the equation range
+    body_size_range_match <- (target_body_size >= equ_min) & (target_body_size <= equ_max)
     
-    return(score)
+    # calculate how much lower (or higher) the length is
+    if (body_size_range_match == FALSE) {
+      body_size_min_dist <- abs(target_body_size - equ_min)/equ_min 
+    } else {
+      body_size_min_dist <- 0
+    }
+    
+    if (body_size_range_match == FALSE) {
+      body_size_max_dist <- abs(target_body_size - equ_max)/equ_max 
+    } else {
+      body_size_max_dist <- 0
+    }
+    
+    # pull these into a data.frame
+    df <- data.frame(body_size_range_match = body_size_range_match,
+                     body_size_min_dist = body_size_min_dist,
+                     body_size_max_dist = body_size_max_dist)
     
   } else {
     
-    return(NA)
+    df <- data.frame(body_size_range_match = NA,
+                     body_size_min_dist = NA,
+                     body_size_max_dist = NA)
     
   }
+  
+  df
   
 }
 
@@ -102,6 +119,9 @@ extract_body_size_range_match <- function(equation_id,
 #'  [clean_taxon_names()] function
 #' @param target_taxon - character string with the column name containing the
 #'  taxon names
+#' @param body_size - column name containing the body length data
+#' @param body_size_filter - if TRUE, unless the body size measurement falls within
+#'  the equation range of lengths, it will not be used
 #' @param max_tax_dist - maximum taxonomic distance acceptable between the
 #'  target and the taxa in the database (default = 3)
 #' @param trait - trait to be searched for (default = "equation")
@@ -114,6 +134,7 @@ extract_body_size_range_match <- function(equation_id,
 select_traits_tax_dist <- function(data,
                                    target_taxon,
                                    body_size,
+                                   body_size_filter = TRUE,
                                    max_tax_dist = 3,
                                    trait = "equation",
                                    gen_sp_dist = 0.5
@@ -163,7 +184,7 @@ select_traits_tax_dist <- function(data,
   
   # for each entry in the input.list, select appropriate traits
   output <- lapply(data_list, function(input) {
-    
+
     # check if there are special names
     if (is.na(input[["scientificName"]]) & (input[["db"]] == "special")) {
       
@@ -291,6 +312,8 @@ select_traits_tax_dist <- function(data,
         if (trait == "equation") {
           
           dist_df[["body_size_range_match"]] <- NA
+          dist_df[["body_size_min_dist"]] <- NA
+          dist_df[["body_size_max_dist"]] <- NA
           
         }
         
@@ -298,29 +321,32 @@ select_traits_tax_dist <- function(data,
       
     }
     
-    
     # get the body size range matches if the trait is an equation
     if (trait == "equation") {
       
-      dist_df[["body_size_range_match"]] <- 
+      body_size_range_match <- 
         
-        sapply(dist_df[["id"]], function(x) {
+        lapply(dist_df[["id"]], function(x) {
           
-          if (!is.na(x)) {
-            extract_body_size_range_match(equation_id = x, 
-                                          target_body_size = input[[body_size]],
-                                          equation_db = trait_db)
-          } else {
-            NA
-          }
+          # extract the body size range match information
+          bs_df <- extract_body_size_range_match(equation_id = x,
+                                                 target_body_size = input[[body_size]],
+                                                 equation_db = trait_db)
           
+          return(bs_df)
           
         })
+      
+      dist_df[["body_size_range_match"]] <- unlist(lapply(body_size_range_match, function(x) x[["body_size_range_match"]]))
+      dist_df[["body_size_min_dist"]] <- unlist(lapply(body_size_range_match, function(x) x[["body_size_min_dist"]]))
+      dist_df[["body_size_max_dist"]] <- unlist(lapply(body_size_range_match, function(x) x[["body_size_max_dist"]]))
       
     }
     
     # remove rows where the body_size_range_match is negative
-    dist_df <- dplyr::filter(dist_df, body_size_range_match > 0)
+    if (body_size_filter) {
+      dist_df <- dplyr::filter(dist_df, body_size_range_match == TRUE)
+    }
     
     # remove the rows where the taxonomic distance is too great
     dist_df <- dplyr::filter(dist_df, tax_distance <= max_tax_dist)
@@ -336,6 +362,8 @@ select_traits_tax_dist <- function(data,
       
       if (trait == "equation") {
         dist_df[["body_size_range_match"]] <- NA
+        dist_df[["body_size_min_dist"]] <- NA
+        dist_df[["body_size_max_dist"]] <- NA
       }
       
     }

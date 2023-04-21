@@ -145,7 +145,8 @@ test_that("test if select_traits_tax_dist() the column
       "db", "scientificName", "taxonRank", "acceptedNameUsageID",
       "db_taxon_order", "db_taxon_family", "habitat_id",
       "realm", "major_habitat_type", "ecoregion",
-      "db_scientificName", "trait_out", "id", "tax_distance", "body_size_range_match"
+      "db_scientificName", "trait_out", "id", "tax_distance", "body_size_range_match",
+      "body_size_min_dist", "body_size_max_dist"
     ))
   })
 

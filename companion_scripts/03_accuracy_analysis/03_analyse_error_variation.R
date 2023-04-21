@@ -30,7 +30,7 @@ latitude_dd = "lat"
 longitude_dd = "lon"
 body_size = "length_mm"
 workflow = "workflow2"
-max_tax_dist = 5
+max_tax_dist = 4
 trait = "equation"
 gen_sp_dist = 0.5
 
@@ -239,95 +239,198 @@ output_df <-
          db_scientificName, id, length_mm, obs_dry_biomass_mg) %>% 
   distinct()
 
-  nrow(output_df)
+# remove rows without equation ids
+output_df <- 
+  output_df %>%
+  filter(!is.na(id))
+
+# life_stage match
+output_df[["life_stage_match"]] <- 
   
-  
-  # run the select_traits_tax_dist() function: z1
-  trait_sel <- select_traits_tax_dist(data = clean_taxa, 
-                                      target_taxon = target_taxon,
-                                      body_size = body_size,
-                                      max_tax_dist = max_tax_dist,
-                                      trait = trait,
-                                      gen_sp_dist = gen_sp_dist
-  )
-  
-  # bind the rows together
-  trait_sel <- dplyr::bind_rows(trait_sel)
-  
-  # get equation match data
-  
-  # load the trait data
-  if (!exists(paste0(trait, "_db"))) {
-    assign(
-      paste0(trait, "_db"),
-      readRDS(file = get_db_file_path(paste0(trait, "_database.rds")))
-    )
-  }
-  
-  # assign the object to trait_db
-  trait_db <- get(paste0(trait, "_db"))
-  
-  # life_stage match
-  life_stage_match <- mapply(function(x, y) {
+  mapply(function(x, y) {
     if (!is.na(x)) {
       return((trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["db_life_stage"]] == y))
     } else {
       return(NA)
     }
-  }, trait_sel[["id"]], trait_sel[[life_stage]])
+  }, output_df[["id"]], output_df[[life_stage]])
   
-  # add life-stage match column
-  trait_sel[["life_stage_match"]] <- life_stage_match
+# only keep rows with matching life-stage information
+output_df <- 
+  output_df %>%
+  filter(life_stage_match == TRUE)
   
-  # additional matches that are only relevant for the equation trait
-  if (trait == "equation") {
-    # r2 value match
-    r2_match <- sapply(trait_sel[["id"]], function(x) {
+# additional matches that are only relevant for the equation trait
+
+# set-up a vector of the relevant columns and relevant names
+rel_cols <- c("r2", "n", "body_size_min", "body_size_max")
+rel_names <- c("r2_match", "n", "db_min_body_size_mm", "db_max_body_size_mm")
+
+# loop over these variables
+for (i in 1:length(rel_cols)) {
+  
+  output_df[[rel_names[i]]] <- 
+    sapply(output_df[["id"]], function(x) {
       if (!is.na(x)) {
-        return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["r2"]])
+        return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][[rel_cols[i]]])
       } else {
         return(NA)
       }
     })
-    
-    trait_sel[["r2_match"]] <- r2_match
-    
-    # sample size match
-    N <- sapply(trait_sel[["id"]], function(x) {
+}
+
+# add habitat match data
+# set-up a vector of the relevant columns and relevant names
+hab_cols <- c("realm", "major_habitat_type", "ecoregion")
+hab_names <- paste0(hab_cols, "_match")
+
+# load the habitat database
+hab_db <- readRDS("database/freshwater_ecoregion_data.rds")
+
+# loop over these habitat variables
+for (i in 1:length(hab_cols)) {
+  
+  output_df[[hab_names[i]]] <-
+    mapply(function(x, y) {
       if (!is.na(x)) {
-        return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["n"]])
+        return((hab_db[hab_db[["id"]] == x, ][[hab_cols[i]]] == y))
       } else {
         return(NA)
       }
-    })
+    }, output_df[["id"]], output_df[[hab_cols[i]]])
+  
+}
+
+# add the correction factor data
+# extract the relevant columns
+cor_factors <- trait_db[, c("equation_id", 
+                            "preservation",
+                            "equation_form", "log_base", "a", "b",  
+                            "lm_correction", "lm_correction_type",
+                            "dry_biomass_scale")]
+names(cor_factors)[1] <- "id"
+
+# join these columns to the trait_sel_select
+output_df <- dplyr::left_join(output_df, cor_factors, by = "id")
+
+# set-up a vector to capture the dry biomass values
+dry_biomass_mg <- vector(length = nrow(output_df))
+
+# loop over all the rows
+for(i in 1:nrow(output_df)) {
+  
+  # get the ith row of data
+  L <- unlist(output_df[i, body_size], use.names = FALSE)
+  model <- output_df[i,]$equation_form
+  log_base <- output_df[i,]$log_base
+  a <- output_df[i,]$a
+  b <- output_df[i,]$b
+  CF <- output_df[i,]$lm_correction
+  scale <- output_df[i,]$dry_biomass_scale
+  
+  # evalulate the equation
+  if( any(is.na(c(a, b))) )  {
     
-    trait_sel[["N"]] <- N 
+    dry_biomass_mg[i] <- NA
+    
+  } else if (model == "model1") {
+    
+    # calculate the raw prediction on the log-scale
+    x <- a + (b*logb(x = L, base = log_base))
+    
+    # convert to the natural scale
+    x <- (log_base^x)
+    
+    # apply the correction factor
+    dry_biomass_mg[i] <- ifelse(!is.na(CF), x*CF, x)*scale
+    
+  } else if (model == "model2") {
+    
+    # calculate the raw prediction
+    dry_biomass_mg[i] <- a*(L^b)*scale
     
   }
   
-  # add equation min body size
-  min_bs <- sapply(trait_sel[["id"]], function(x) {
-    if (!is.na(x)) {
-      return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["body_size_min"]])
-    } else {
-      return(NA)
-    }
-  })
-  
-  trait_sel[["db_min_body_size_mm"]] <- min_bs
-  
-  # add equation max body size
-  max_bs <- sapply(trait_sel[["id"]], function(x) {
-    if (!is.na(x)) {
-      return(trait_db[trait_db[[paste0(trait, "_id")]] == x, ][["body_size_max"]])
-    } else {
-      return(NA)
-    }
-  })
-  
-  trait_sel[["db_max_body_size_mm"]] <- max_bs
-  
-  
+}
+
+# add the dry biomass mg column to the data
+output_df[["dry_biomass_mg"]] <- dry_biomass_mg
+
+# how many taxon id datapoints do we have compared to all datapoints
+length(unique(output_df$taxon_id))
+nrow(output_df)
+
+# create a data.frame for modelling the error
+output_lm <- 
+  output_df %>%
+  select(taxon_id, order, taxon, db_scientificName,
+         tax_distance, body_size_range_match, r2_match, n,
+         realm_match, major_habitat_type_match, ecoregion_match,
+         length_mm, obs_dry_biomass_mg, dry_biomass_mg
+         )
+
+# get the percentage prediction error
+output_lm <- 
+  output_lm %>%
+  mutate(error_perc = ((obs_dry_biomass_mg - dry_biomass_mg)/obs_dry_biomass_mg)*100,
+         abs_error_perc = (abs(obs_dry_biomass_mg - dry_biomass_mg)/obs_dry_biomass_mg)*100) 
+
+
+# get a habitat match variable
+output_lm[["habitat_match"]] <- 
+  apply(output_lm[, paste0(c("realm", "major_habitat_type", "ecoregion"), "_match") ], 1,
+        function(x) sum(x) )
+
+# absolute error
+
+# check the distribution of these errors
+hist(output_lm$abs_error_perc)
+summary(output_lm$abs_error_perc)
+
+# what about the log-transformed abs error perc
+hist(log(output_lm$abs_error_perc))
+
+# error
+
+# check the distribution
+hist(output_lm$error_perc)
+summary(output_lm$error_perc)
+
+# how many data points do we have per taxon id
+output_lm %>%
+  group_by(taxon_id) %>%
+  summarise( n = n()) %>%
+  pull(n)
+
+# fit a massive interaction model
+
+mod_dat <- 
+  output_lm %>%
+  select(taxon_id, 
+         taxon,
+         tax_distance, body_size_range_match, habitat_match,
+         r2_match, n, 
+         length_mm, dry_biomass_mg,
+         abs_error_perc) %>%
+  mutate(taxon_id = as.character(taxon_id))
+
+lm1 <- lm(log(abs_error_perc) ~ 
+            taxon_id + 
+            taxon_id:tax_distance + 
+            taxon_id:body_size_range_match +
+            taxon_id:r2_match,
+          data = mod_dat)
+summary(lm1)
+anova(lm1)
+
+x <- lm1$coefficients[grepl("body_size_range_match", names(lm1$coefficients) )]
+hist(x)
+summary(x)
+
+lm1$coefficients[lm1$coefficients > 40]
+
+
+
 
   
   
