@@ -60,13 +60,13 @@ extract_genus <- function(binomial) {
 #' @importFrom assertthat is.string
 extract_body_size_range_match <- function(equation_id, 
                                           target_body_size,
-                                          prop = 0.15,
+                                          prop = 0.20,
                                           equation_db) {
   
   if (!is.na(equation_id)) {
     
     # extract relevant equation from database
-    equ_meta <- trait_db[trait_db[[paste0(trait, "_id")]] == equation_id, ]
+    equ_meta <- equation_db[equation_db[["equation_id"]] == equation_id, ]
     
     # calculate the minimum and maximum acceptable body size ranges
     equ_min <- equ_meta[["body_size_min"]]

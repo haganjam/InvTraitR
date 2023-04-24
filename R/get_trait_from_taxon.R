@@ -52,9 +52,9 @@ get_trait_from_taxon <- function(data,
     )
   )
   
-  # add a row_id variable
+  # add a row variable
   data <- dplyr::bind_cols(
-    dplyr::tibble(taxon_id = 1:nrow(data)),
+    dplyr::tibble(row = 1:nrow(data)),
     data
   )
   
@@ -74,25 +74,47 @@ get_trait_from_taxon <- function(data,
       )
       
       return(cl_tax)
+      
     })
   
   # bind these rows into a single data.frame
   clean_taxa <- dplyr::bind_rows(clean_taxa)
   
   # arrange by taxon_name
-  clean_taxa <- dplyr::arrange(clean_taxa, taxon_id)
+  clean_taxa <- dplyr::arrange(clean_taxa, row)
   
   # remove any duplicates that can arise from the special name procedure
   clean_taxa <- dplyr::distinct(clean_taxa)
   
-  # run the select_traits_tax_dist() function: z1
-  trait_sel <- select_traits_tax_dist(data = clean_taxa, 
-                                      target_taxon = target_taxon,
-                                      body_size = body_size,
-                                      max_tax_dist = max_tax_dist,
-                                      trait = trait,
-                                      gen_sp_dist = gen_sp_dist
-  )
+  # run the select_traits_tax_dist() function
+  if (workflow == "workflow1") {
+    
+    trait_sel <- select_traits_tax_dist(data = clean_taxa, 
+                                        target_taxon = target_taxon,
+                                        body_size = body_size,
+                                        body_size_filter = FALSE,
+                                        max_tax_dist = max_tax_dist,
+                                        trait = trait,
+                                        gen_sp_dist = gen_sp_dist
+    )
+    
+  } else if (workflow == "workflow2") {
+    
+    trait_sel <- select_traits_tax_dist(data = clean_taxa, 
+                                        target_taxon = target_taxon,
+                                        body_size = body_size,
+                                        body_size_filter = TRUE,
+                                        max_tax_dist = max_tax_dist,
+                                        trait = trait,
+                                        gen_sp_dist = gen_sp_dist
+    )
+    
+  } else {
+    
+    stop("choose either workflow1 or workflow2")
+    
+  }
+  
   
   # bind the rows together
   trait_sel <- dplyr::bind_rows(trait_sel)
@@ -148,134 +170,114 @@ get_trait_from_taxon <- function(data,
     hab_db <- readRDS(file = get_db_file_path("freshwater_ecoregion_data.rds"))
   }
   
+  hab_cols <- c("realm", "major_habitat_type", "ecoregion")
+  hab_names <- paste0(hab_cols, "_match")
+  
   # select the correct trait from the habitat database
   hab_db_sel <- hab_db[hab_db[["database"]] == trait, ]
   
-  # realm match
-  realm_match <-
-    mapply(function(x, y) {
-      if (!is.na(x)) {
-        return((hab_db_sel[hab_db_sel[["id"]] == x, ][["realm"]] == y))
-      } else {
-        return(NA)
-      }
-    }, trait_sel[["id"]], trait_sel[["realm"]])
-  
-  trait_sel[["realm_match"]] <- realm_match
-  
-  # major habitat type match
-  mht_match <-
-    mapply(function(x, y) {
-      if (!is.na(x)) {
-        # subset the hab_db_sel data to only include the correct id
-        hab_db_sel.sub <- hab_db_sel[hab_db_sel[["id"]] == x, ]
-      } else {
-        return(NA)
-      }
-      
-      # test whether the equation has an ID and if the scale is correct
-      if (!is.na(x) & (hab_db_sel.sub[["accuracy"]] %in% c("approximate", "exact"))) {
-        return((hab_db_sel.sub[["major_habitat_type"]] == y))
-      } else {
-        return(NA)
-      }
-    }, trait_sel[["id"]], trait_sel[["major_habitat_type"]])
-  
-  trait_sel[["major_habitat_type_match"]] <- mht_match
-  
-  # ecoregion match
-  ecoregion_match <-
-    mapply(function(x, y) {
-      if (!is.na(x)) {
-        # subset the hab_db_sel data to only include the correct id
-        hab_db_sel_sub <- hab_db_sel[hab_db_sel[["id"]] == x, ]
-      } else {
-        return(NA)
-      }
-      
-      # test whether the equation has an ID and if the scale is correct
-      if (!is.na(x) & (hab_db_sel_sub[["accuracy"]] %in% c("exact"))) {
-        return((hab_db_sel_sub[["ecoregion"]] == y))
-      } else {
-        return(NA)
-      }
-    }, trait_sel[["id"]], trait_sel[["ecoregion"]])
-  
-  trait_sel[["ecoregion_match"]] <- ecoregion_match
-  
-  # split into a list
-  trait_sel_list <- split(trait_sel, trait_sel[["taxon_id"]])
-  
-  trait_sel_select <-
-    lapply(trait_sel_list, function(input) {
-      # if none of the id values are present, then return any row or else
-      # remove the NAs
-      if (all(is.na(input[["id"]]))) {
-        input <- input[sample(1:nrow(input), 1), ]
+  # loop over these variables
+  for (i in 1:length(hab_cols)) {
+    
+    trait_sel[[hab_names[i]]] <- 
+      mapply(function(x, y) {
         
-        return(input)
-      } else {
-        input <- input[!is.na(input[["id"]]), ]
-      }
-      
-      # if workflow one is chosen then return this input value
-      if (workflow == "workflow1") {
-        return(input)
-      }
-      
-      # get the equations with matching life-stages
-      if (sum(input[["life_stage_match"]] == TRUE, na.rm = TRUE) == 0) {
-        input <- input[sample(1:nrow(input), 1), ]
-        input[1, c("id", "tax_distance", names(input)[grepl(pattern = "_match", x = names(input))])] <- NA
-        
-        return(input)
-      } else {
-        input <- input[input[["life_stage_match"]] == TRUE & !is.na(input[["life_stage_match"]]), ]
-      }
-      
-      # get the minimum taxonomic distance as long as the
-      # difference is greater than 0.5
-      if (all(!is.na(input[["tax_distance"]])) && (sum(!is.na(input[["tax_distance"]])) >= 1)) {
-        input <- input[input[["tax_distance"]] <= (min(input[["tax_distance"]], na.rm = FALSE) + 0.5), ]
-      }
-      
-      # if there is still no clear decision, then use the additional matches
-      if (nrow(input) > 1) {
-        # get the correct columns to match for the chosen trait
-        if (trait == "equation") {
-          match_cols <- c(
-            "r2_match",
-            "realm_match",
-            "major_habitat_type_match",
-            "ecoregion_match"
-          )
-          weights <- c(1, (1/3), (1/3), (1/3))
+        # if there is a valid equation present
+        if (!is.na(x)) {
+          hab_sub <- hab_db_sel[hab_db_sel[["id"]] == x, ]
+          
+          # get the habitat match dat
+          hab_match <- hab_sub[[hab_cols[i]]] == y
+          
+          # if the accuracy of the coordinates are approximate, then do not return
+          # an ecoregion variable
+          if( (hab_cols[i] == "ecoregion") & (hab_sub[["accuracy"]] == "approximate") ) {
+            hab_match <- NA
+          }
+          
         } else {
-          match_cols <- input[, c(
-            "realm_match",
-            "major_habitat_type_match",
-            "ecoregion_match"
-          )]
-          weights <- c((1/3), (1/3), (1/3))
+          hab_match <- NA
         }
         
-        # calculate the match score based on the different match categories
-        match_score <-
-          apply(input[, match_cols], 1, function(x) {
-            sum((x * weights), na.rm = TRUE)
-          })
+        return(hab_match)
         
-        input <- input[which(match_score == max(match_score)), ]
-      }
-      
-      # if there are still multiple equations then we pick them randomly
-      input <- input[sample(1:nrow(input), 1), ]
-      
-      return(input)
-    })
+      }, trait_sel[["id"]], trait_sel[[hab_cols[i]]])
+    
+  }
   
-  # bind these choices into a data.frame
-  trait_sel_select <- dplyr::bind_rows(trait_sel_select)
+  # output the dataset if workflow1
+  if(workflow == "workflow2") {
+    
+    # split into a list
+    trait_sel_list <- split(trait_sel, trait_sel[["row"]])
+    
+    trait_sel <-
+      lapply(trait_sel_list, function(input) {
+        # if none of the id values are present, then return any row or else
+        # remove the NAs
+        if( all(is.na(input[["id"]])) ) {
+          input <- input[1,]
+        } else {
+          input <- dplyr::filter(input, !is.na(id))
+        }
+        
+        # get the equations with matching life-stages
+        if( sum(input[["life_stage_match"]] == TRUE, na.rm = TRUE) == 0 ) {
+          input <- input[1,]
+        } else {
+          input <- input[input[["life_stage_match"]] == TRUE & !is.na(input[["life_stage_match"]]), ]
+        }
+        
+        # get the minimum taxonomic distance as long as the
+        # difference is greater than 0.5
+        if (all(!is.na(input[["tax_distance"]])) && (sum(!is.na(input[["tax_distance"]])) >= 1)) {
+          input <- input[input[["tax_distance"]] <= (min(input[["tax_distance"]], na.rm = FALSE) + 0.5), ]
+        }
+        
+        # if there is still no clear decision, then use the additional matches
+        if (nrow(input) > 1) {
+          # get the correct columns to match for the chosen trait
+          if (trait == "equation") {
+            match_cols <- c(
+              "r2_match",
+              "realm_match",
+              "major_habitat_type_match",
+              "ecoregion_match"
+            )
+            weights <- c(1, (1/3), (1/3), (1/3))
+          } else {
+            match_cols <- input[, c(
+              "realm_match",
+              "major_habitat_type_match",
+              "ecoregion_match"
+            )]
+            weights <- c((1/3), (1/3), (1/3))
+          }
+          
+          # calculate the match score based on the different match categories
+          match_score <-
+            apply(input[, match_cols], 1, function(x) {
+              sum((x * weights), na.rm = TRUE)
+            })
+          
+          input <- input[which(match_score == max(match_score)), ]
+          
+        }
+        
+        # if there are still multiple equations then we pick the first one
+        input <- input[1, ]
+        
+        return(input)
+        
+      })
+    
+    # bind these choices into a data.frame
+    trait_sel <- dplyr::bind_rows(trait_sel) 
+    
+  } 
+  
+  # within each taxon id, get the unique ids
+  trait_sel <- distinct(trait_sel, row, id, .keep_all = TRUE)
   
   # if the trait is an equation then we add all the relevant equation information
   # if the trait is not an equation, then we simply add the trait value
@@ -290,13 +292,13 @@ get_trait_from_taxon <- function(data,
     names(cor_factors)[1] <- "id"
     
     # join these columns to the trait_sel_select
-    trait_sel_select <- dplyr::left_join(trait_sel_select, cor_factors, by = "id")
+    trait_sel <- dplyr::left_join(trait_sel, cor_factors, by = "id")
     
   } else {
     
     # add the traits or equation to the selected id numbers
-    trait_sel_select[[trait]] <-
-      sapply(trait_sel_select[["id"]], function(x) {
+    trait_sel[[trait]] <-
+      sapply(trait_sel[["id"]], function(x) {
         if (!is.na(x)) {
           trait_db[trait_db[[paste0(trait, "_id")]] == x, ][[trait]]
         } else {
@@ -305,26 +307,23 @@ get_trait_from_taxon <- function(data,
       })
   }
   
-  # remove the taxon_id column
-  trait_sel_select <- dplyr::select(trait_sel_select, -taxon_id)
-  
   # parse the equation to calculate dry_biomass_mg
-  if (trait == "equation") {
+  if ( (trait == "equation") && (workflow == "workflow2") ) {
     
     # set-up a vector to capture the dry biomass values
-    dry_biomass_mg <- vector(length = nrow(trait_sel_select))
+    dry_biomass_mg <- vector(length = nrow(trait_sel))
     
     # loop over all the rows
-    for(i in 1:nrow(trait_sel_select)) {
+    for(i in 1:nrow(trait_sel)) {
       
       # get the ith row of data
-      L <- unlist(trait_sel_select[i, body_size], use.names = FALSE)
-      model <- trait_sel_select[i,]$equation_form
-      log_base <- trait_sel_select[i,]$log_base
-      a <- trait_sel_select[i,]$a
-      b <- trait_sel_select[i,]$b
-      CF <- trait_sel_select[i,]$lm_correction
-      scale <- trait_sel_select[i,]$dry_biomass_scale
+      L <- unlist(trait_sel[i, body_size], use.names = FALSE)
+      model <- trait_sel[i,]$equation_form
+      log_base <- trait_sel[i,]$log_base
+      a <- trait_sel[i,]$a
+      b <- trait_sel[i,]$b
+      CF <- trait_sel[i,]$lm_correction
+      scale <- trait_sel[i,]$dry_biomass_scale
       
       # evalulate the equation
       if( any(is.na(c(a, b))) )  {
@@ -351,16 +350,16 @@ get_trait_from_taxon <- function(data,
       
     }
     
+    # add this dry biomass estimate to the data.frame
+    trait_sel[["dry_biomass_mg"]] <- dry_biomass_mg
+    
   }
   
-  # add this dry biomass estimate to the data.frame
-  trait_sel_select[["dry_biomass_mg"]] <- dry_biomass_mg
-  
   assert_that(
-    all(unique(data[[target_taxon]]) == unique(trait_sel_select[[target_taxon]])),
+    all(unique(data[[target_taxon]]) == unique(trait_sel[[target_taxon]])),
     msg = "number of unique taxa in input and output do not match"
   )
   
-  trait_sel_select
+  trait_sel
   
 }
