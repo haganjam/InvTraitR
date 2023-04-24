@@ -6,10 +6,8 @@
 library(dplyr)
 library(readr)
 library(tidyr)
-library(mobsim)
 library(ggplot2)
 library(ggbeeswarm)
-library(ggpubr)
 library(MuMIn)
 library(lme4)
 

@@ -4,6 +4,7 @@
 # load the relevant libraries
 library(dplyr)
 library(ggplot2)
+library(rstan)
 
 # load the use-scripts
 source("companion_scripts/helper-plot-theme.R")
@@ -127,10 +128,28 @@ output_df %>%
   summarise( n = n()) %>%
   pull(n)
 
-# check the most extreme data points
-output_df %>%
-  filter(error_perc < -300) %>%
-  View()
+# write a function to min-max standardise
+min_max <- function(x) {
+  (x - min(x))/(max(x)-min(x))
+}
+
+# create a list with the relevant data
+dat <- list(id = as.integer(as.factor(output_df$row)),
+            td = min_max(output_df$tax_distance),
+            bs = as.integer(output_df$body_size_range_match),
+            hm = min_max(output_df$habitat_match),
+            abs_error = scale(output_df$abs_error_perc)[,1])
+summary(dat)
+str(dat)
+
+# compile the stan growth rate model
+m1 <- rstan::stan_model("companion_scripts/03_accuracy_analysis/04_model_error_variation.stan")
+
+# sample the stan model: m1
+m1_fit <- rstan::sampling(m1, data = dat, 
+                          iter = 1000, chains = 4, algorithm = c("NUTS"),
+                          control = list(adapt_delta = 0.99),
+                          seed = 54856)
 
 # fit a massive interaction model
 mod_dat <- 
