@@ -279,6 +279,19 @@ get_trait_from_taxon <- function(data,
   # within each taxon id, get the unique ids
   trait_sel <- distinct(trait_sel, row, id, .keep_all = TRUE)
   
+  # remove NA values but only if there are other matching equations
+  x <- 
+    mapply(function(x, y) {
+      if ( sum(trait_sel[["row"]] == x) > 1 & is.na(y) ) {
+        FALSE
+      } else {
+        TRUE
+      }
+    }, trait_sel[["row"]], trait_sel[["id"]] )
+  
+  # filter these additional NA values
+  trait_sel <- trait_sel[x,]
+  
   # if the trait is an equation then we add all the relevant equation information
   # if the trait is not an equation, then we simply add the trait value
   if(trait == "equation") {

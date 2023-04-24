@@ -127,8 +127,8 @@ clean_taxon_names <- function(
     
     data_harm <- 
       dplyr::rename(data_harm,
-                    db_taxon_order = order,
-                    db_taxon_family = family
+                    taxon_order = order,
+                    taxon_family = family
       )
     
     # select the relevant columns
@@ -137,14 +137,14 @@ clean_taxon_names <- function(
       "scientificName",
       "taxonRank",
       "acceptedNameUsageID",
-      "db_taxon_order",
-      "db_taxon_family"
+      "taxon_order",
+      "taxon_family"
     )]
     
     # remove the names that we were not able to resolve
     data_harm <- dplyr::filter(
       data_harm,
-      !(is.na(scientificName) | all( c(is.na(db_taxon_order), is.na(db_taxon_family)) ) )
+      !(is.na(scientificName) | all( c(is.na(taxon_order), is.na(taxon_family)) ) )
     )
     
     # join these data to the tax.dat data
@@ -160,8 +160,8 @@ clean_taxon_names <- function(
     data[["scientificName"]] <- NA
     data[["taxonRank"]] <- NA
     data[["acceptedNameUsageID"]] <- NA
-    data[["db_taxon_order"]] <- NA
-    data[["db_taxon_family"]] <- NA
+    data[["taxon_order"]] <- NA
+    data[["taxon_family"]] <- NA
   }
   
   # remove the row_id column

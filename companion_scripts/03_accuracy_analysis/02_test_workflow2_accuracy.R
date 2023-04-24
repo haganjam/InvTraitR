@@ -46,8 +46,8 @@ output <-
     longitude_dd = "lon",
     workflow = "workflow2",
     trait = "equation",
-    max_tax_dist = 3.5,
-    gen_sp_dist = 0.5
+    max_tax_dist = 3,
+    gen_sp_dist = 0.25
   )
 
 # get proportion of names for which we do not have equations for
