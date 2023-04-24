@@ -3,6 +3,7 @@
 
 # load the relevant libraries
 library(dplyr)
+library(ggplot2)
 
 # load the use-scripts
 source("companion_scripts/helper-plot-theme.R")
@@ -13,6 +14,7 @@ source("R/get_habitat_data.R")
 source("R/select_traits_tax_dist.R")
 source("R/special_names.R")
 source("R/helpers.R")
+source("R/get_trait_from_taxon.R")
 
 # load libraries required for those function
 library(igraph)
@@ -86,7 +88,7 @@ output <-
 # create a data.frame for modelling the error
 output_df <- 
   output %>%
-  select(row, order, taxon, db_scientificName,
+  dplyr::select(row, order, taxon, db_scientificName,
          tax_distance, body_size_range_match, equation_form, r2_match, n,
          realm_match, major_habitat_type_match, ecoregion_match,
          length_mm, obs_dry_biomass_mg, dry_biomass_mg
@@ -102,7 +104,7 @@ output_df <-
 # get a habitat match variable
 output_df[["habitat_match"]] <- 
   apply(output_df[, paste0(c("realm", "major_habitat_type", "ecoregion"), "_match") ], 1,
-        function(x) sum(x) )
+        function(x) sum(x, na.rm = TRUE) )
 
 # absolute error
 
@@ -130,36 +132,48 @@ output_df %>%
   filter(error_perc < -300) %>%
   View()
 
-# does the model type make a difference
-output_df %>%
-  filter(order == "Bivalvia") %>%
-  group_by(equation_form) %>%
-  summarise(mean_error_perc = mean(abs_error_perc))
-
 # fit a massive interaction model
 mod_dat <- 
   output_df %>%
-  select(row, 
+  dplyr::select(row, 
          taxon,
-         tax_distance, body_size_range_match, habitat_match,
-         r2_match, n, 
+         tax_distance, body_size_range_match, habitat_match, 
          length_mm, dry_biomass_mg,
-         error_perc) %>%
-  mutate(row = as.character(row),
-         log_error_perc = log(1700 + error_perc) )
+         error_perc,
+         abs_error_perc) %>%
+  mutate(row = as.character(row))
 
-lm1 <- lm(error_perc ~ 
+# check relationship between taxonomic distance and error_perc
+df <- 
+  mod_dat %>% 
+  group_by(row) %>%
+  filter(n() > 1 & (length(unique(tax_distance)) > 1) ) %>%
+  ungroup() %>%
+  filter(row %in% sample(unique(mod_dat$row), 20))
+
+ggplot(data = df,
+       mapping = aes(x = tax_distance, 
+                     y = abs_error_perc,
+                     colour = body_size_range_match)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_wrap(~row, scales = "free") +
+  theme_test() +
+  theme(legend.position = "bottom")
+
+lm1 <- lm(abs_error_perc ~ 
             row + 
             row:tax_distance + 
             row:body_size_range_match +
-            row:r2_match,
+            row:habitat_match,
           data = mod_dat)
 summary(lm1)
 anova(lm1)
 
 # plot the observed versus the predicted values
-plot(mod_dat$error_perc, predict(lm1))
+plot(mod_dat$abs_error_perc, predict(lm1))
 abline(0, 1)
+
 
 
 
