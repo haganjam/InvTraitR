@@ -81,11 +81,6 @@ for(i in 1:nrow(output )) {
 # add this dry biomass estimate to the data.frame
 output[["dry_biomass_mg"]] <- dry_biomass_mg
 
-# remove rows where the dry biomass estimate is less than 0.0001
-output <- 
-  output %>%
-  filter(dry_biomass_mg > 0.0001)
-
 # create a data.frame for modelling the error
 output_df <- 
   output %>%
@@ -141,6 +136,9 @@ dat <- list(id = as.integer(as.factor(output_df$row)),
             abs_error = scale(output_df$abs_error_perc)[,1])
 summary(dat)
 str(dat)
+
+mstan <- rstan::stan_model("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/manuscript/other/04_model_error_variation.stan",
+                           verbose = TRUE)
 
 # compile the stan growth rate model
 m1 <- rstan::stan_model("companion_scripts/03_accuracy_analysis/04_model_error_variation.stan")
