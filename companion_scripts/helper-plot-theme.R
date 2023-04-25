@@ -8,11 +8,11 @@ theme_meta <- function(base_size = 12, base_family = "") {
     panel.border = element_rect(
       fill = "NA",
       color = "black",
-      size = 0.75,
+      linewidth = 0.75,
       linetype = "solid"
     ),
-    axis.line.x = element_line(color = "black", size = 0.2),
-    axis.line.y = element_line(color = "black", size = 0.2),
+    axis.line.x = element_line(color = "black", linewidth = 0.2),
+    axis.line.y = element_line(color = "black", linewidth = 0.2),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     axis.ticks.length = unit(-0.16, "cm"),

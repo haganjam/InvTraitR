@@ -8,6 +8,7 @@ library(rstan)
 
 # load the use-scripts
 source("companion_scripts/helper-plot-theme.R")
+source("companion_scripts/03_accuracy_analysis/helper-miscellaneous.R")
 
 # load the required functions
 source("R/clean_taxon_names.R")
@@ -37,6 +38,11 @@ output <-
     max_tax_dist = 4,
     gen_sp_dist = 0.5
   )
+
+# remove the entries without an equation id
+output <- 
+  output %>%
+  filter(!is.na(id))
 
 # set-up a vector to capture the dry biomass values
 dry_biomass_mg <- vector(length = nrow(output))
@@ -133,68 +139,171 @@ dat <- list(id = as.integer(as.factor(output_df$row)),
             td = min_max(output_df$tax_distance),
             bs = as.integer(output_df$body_size_range_match),
             hm = min_max(output_df$habitat_match),
-            abs_error = scale(output_df$abs_error_perc)[,1])
+            abs_error = (output_df$abs_error_perc) )
 summary(dat)
 str(dat)
 
-mstan <- rstan::stan_model("C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/manuscript/other/04_model_error_variation.stan",
-                           verbose = TRUE)
-
 # compile the stan growth rate model
-m1 <- rstan::stan_model("companion_scripts/03_accuracy_analysis/04_model_error_variation.stan")
+m1 <- rstan::stan_model("companion_scripts/03_accuracy_analysis/04_model_error_variation.stan",
+                        verbose = TRUE)
+print(m1)
 
 # sample the stan model: m1
 m1_fit <- rstan::sampling(m1, data = dat, 
-                          iter = 1000, chains = 4, algorithm = c("NUTS"),
+                          iter = 2000, chains = 4, algorithm = c("NUTS"),
                           control = list(adapt_delta = 0.99),
                           seed = 54856)
 
-# fit a massive interaction model
-mod_dat <- 
-  output_df %>%
-  dplyr::select(row, 
-         taxon,
-         tax_distance, body_size_range_match, habitat_match, 
-         length_mm, dry_biomass_mg,
-         error_perc,
-         abs_error_perc) %>%
-  mutate(row = as.character(row))
+# check the output
+print(m1_fit)
+m1_fit@model_pars
 
-# check relationship between taxonomic distance and error_perc
-df <- 
-  mod_dat %>% 
-  group_by(row) %>%
-  filter(n() > 1 & (length(unique(tax_distance)) > 1) ) %>%
-  ungroup() %>%
-  filter(row %in% sample(unique(mod_dat$row), 20))
+# extract the diagnostic parameters
+diag <- summary(m1_fit)
+par <- "abar"
+diag$summary[grepl(par, row.names(diag$summary)), ]
 
-ggplot(data = df,
-       mapping = aes(x = tax_distance, 
-                     y = abs_error_perc,
-                     colour = body_size_range_match)) +
-  geom_point() +
-  geom_smooth(method = "lm") +
-  facet_wrap(~row, scales = "free") +
-  theme_test() +
-  theme(legend.position = "bottom")
+# view some traceplots
+traceplot(m1_fit, pars = c("abar[1]", "abar[2]", "abar[3]", "abar[4]"))
 
-lm1 <- lm(abs_error_perc ~ 
-            row + 
-            row:tax_distance + 
-            row:body_size_range_match +
-            row:habitat_match,
-          data = mod_dat)
-summary(lm1)
-anova(lm1)
+# extract the posterior distribution
+m1_post <- extract(m1_fit)
+
+# check how well the model fits the data
+a_id <- m1_post$a_id
+b1_td <- m1_post$b1_td
+b2_bs <- m1_post$b2_bs
+b3_hm <- m1_post$b3_hm
+sigma <- m1_post$sigma
+
+N <- length(dat$id)
+
+# write a loop
+y_list <- vector("list", length = length(sigma))
+for (i in 1:length(sigma)) {
+  
+  mu <- sapply(1:N, function(x) {
+    
+    a_id[i,dat$id[x]] + b1_td[i,dat$id[x]] * dat$td[x] + b2_bs[i,dat$id[x]] * dat$bs[x] + b3_hm[i,dat$id[x]] * dat$hm[x]
+    
+  })
+  
+  y_list[[i]] <- exp(mu)
+  
+}
+
+# bind into a matrix
+y_df <- do.call("cbind", y_list)
+dim(y_df)
+
+# calculate the mean across samples
+y <- apply(y_df, 1, mean)
 
 # plot the observed versus the predicted values
-plot(mod_dat$abs_error_perc, predict(lm1))
+plot(y, dat$abs_error )
 abline(0, 1)
 
+# check how many mean values are predicted to be negative
+sum(y<0)/length(y)
+cor(y, dat$abs_error)
 
-
-
-
-
+# calculate an r2 value
+r2 <- 
   
+  apply(y_df, 2, function(x) {
+    
+    r <- x - dat$abs_error
+    r <- 1 - (var2(r)/var2(dat$abs_error))
+    
+    return(r)
+    
+  } )
+
+# calculate the summary statistics of the r2 value
+mean(r2)
+range(r2)
+
+# function to calculate the difference in median given values of covariates
+median_diff <- function(cov1_name, cov1_val,
+                        cov2_name, cov2_val,
+                        do_name, do_val) {
   
+  # covariate grid
+  pred_grid1 <- expand.grid(v1 = cov1_val,
+                            v2 = cov2_val)
+  names(pred_grid1) <- c(cov1_name, cov2_name)
+  
+  # add the do_val
+  pred_grid1[[do_name]] <- do_val[1]
+  
+  # add the do_val
+  pred_grid2 <- pred_grid1
+  pred_grid2[[do_name]] <- do_val[2]
+  
+  # median absolute error when td = 0
+  m_diff_list <- vector("list", length = nrow(pred_grid))
+  for(i in 1:nrow(pred_grid)) {
+    
+    m_ae1 <- with(pred_grid1[i,],
+                  exp(a_id + b1_td*td1 + b2_bs*bs1 + b3_hm*hm1))
+    
+    m_ae2 <- with(pred_grid2[i,],
+                  exp(a_id + b1_td*td1 + b2_bs*bs1 + b3_hm*hm1))
+    
+    m_diff <- sapply( (m_ae2 - m_ae1), function(x) x  )
+    
+    m_diff_list[[i]] <- m_diff
+    
+  }
+  
+  return(unlist(m_diff_list))
+  
+}
+
+# calculate the effect of taxonomic distance
+# difference between taxonomic distance of 4 versus 0
+x <- median_diff(cov1_name = "bs1", cov1_val = c(0, 1), 
+                 cov2_name = "hm1", cov2_val = seq(0, 1, 0.1), 
+                 do_name = "td1", do_val = c(0, 1))
+xm <- mean(x)
+xpi <- PI(x)
+
+# calculate the effect of body size matching
+# going from unmatching to matching
+y <- median_diff(cov1_name = "td1", cov1_val = seq(0, 1, 0.1), 
+                 cov2_name = "hm1", cov2_val = seq(0, 1, 0.1), 
+                 do_name = "bs1", do_val = c(0, 1))
+ym <- mean(y)
+ypi <- PI(y)
+
+# calculate the effect of habitat matching
+# going from 0 habitat match to 
+z <- median_diff(cov1_name = "td1", cov1_val = seq(0, 1, 0.1), 
+                 cov2_name = "bs1", cov2_val = c(0, 1), 
+                 do_name = "hm1", do_val = c(0, 1))
+zm <- mean(z)
+zpi <- PI(z)
+
+# pull these results into a data.frame
+coef_plot <- data.frame(effect = c("Taxonomic distance", 
+                                   "Body size range match",
+                                   "Habitat match"),
+                        mean = c(xm, ym, zm),
+                        PI_min = c(xpi[1], ypi[1], zpi[1]),
+                        PI_max = c(xpi[2], ypi[2], zpi[2]))
+coef_plot$effect <- factor(coef_plot$effect,
+                           levels = c("Taxonomic distance", "Body size range match", "Habitat match"))
+
+ggplot(data = coef_plot) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_point(mapping = aes(x = effect, y = mean)) +
+  geom_errorbar(mapping = aes(x = effect, ymin = PI_min, ymax = PI_max),
+                width = 0) +
+  theme_meta() +
+  ylab("Effect on absolute error (%)") +
+  xlab(NULL) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.6)) +
+  annotate(geom = "text", label = expression(r^{2}~" = 0.22"),
+           x = 0.74, y = 100)
+
+### END
