@@ -196,7 +196,7 @@ p1 <-
 plot(p1)
 
 ggsave(filename = "figures/fig_X.png", p1, dpi = 400,
-       units = "cm", width = 18, height = 16)
+       units = "cm", width = 18, height = 19)
 
 # observed correlation
 cor.test(log10(output$obs_dry_biomass_mg), log10(output$dry_biomass_mg))
@@ -208,6 +208,13 @@ cor.test(log10(output$obs_dry_biomass_mg), log10(output$order_dry_biomass_mg))
 # load the data
 dat2 <- readRDS("database/test_b_data_compilation.rds")
 
+# sample maximum five of the same taxon
+dat2 <- 
+  dat2 %>%
+  group_by(reference, taxon, life_stage) %>%
+  sample_n(size = ifelse(n() < 5, n(), 5)) %>%
+  ungroup()
+  
 output2 <-
   get_trait_from_taxon(
     data = dat2,
@@ -239,29 +246,60 @@ output2 %>%
   View()
 
 # remove rows where the dry-biomass is not there
-output <-
-  output %>%
+output2 <-
+  output2 %>%
   filter(!is.na(dry_biomass_mg))
 
 # check how many unique taxa are left
-length(unique(output$taxon))
-nrow(output)
-
-# make a author_year - taxon combination column
-output$group <- paste(output$reference, output$taxon, sep = "_")
+length(unique(output2$taxon))
+nrow(output2)
 
 # what's the minimum number in the output author_year column
-output %>%
-  group_by(group) %>%
+output2 %>%
+  group_by(reference, taxon) %>%
   summarise(n = n())
 
 # calculate percentage error for actual data
-output <-
-  output %>%
+output2 <-
+  output2 %>%
   mutate(error_perc = ((obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100,
          abs_error_perc = (abs(obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100,
          abs_error = (abs(obs_dry_biomass_mg - dry_biomass_mg)))
 
+# get the correlation coefficient
+cor_point <- cor(output2$obs_dry_biomass_mg, output2$dry_biomass_mg)
+cor_point <- round(cor_point, 2)
 
+p2 <-
+  ggplot() +
+  geom_abline(
+    intercept = 0, slope = 1,
+    colour = "#ec7853", linetype = "dashed", linewidth = 1) +
+  geom_point(
+    data = output2,
+    mapping = aes(
+      x = log10(obs_dry_biomass_mg),
+      y = log10(dry_biomass_mg), colour = reference),
+    alpha = 0.5, shape = 16, size = 2.5, show.legend = TRUE,
+    position = position_jitter(width = 0.05, height = 0.05)) +
+  annotate(
+    geom = "text", label = paste0("r = ", cor_point),
+  x = -2.5, y = 0.5) +
+  guides(size = "none",
+         colour = guide_legend(override.aes = list(size = 3,
+                                                   alpha = 1,
+                                                   shape = 16))) +
+  ylab("Estimated dry biomass (mg, log10)") +
+  xlab("Expert dry biomass (mg, log10)") +
+  scale_colour_viridis_d(option = "C", begin = 0, end = 1) +
+  theme_meta() +
+  theme(legend.position = "right",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10),
+        legend.key = element_rect(fill = NA))
+plot(p2)
 
+ggsave(filename = "figures/fig_Z.png", p2, dpi = 400,
+       units = "cm", width = 13, height = 9)
 
+### END

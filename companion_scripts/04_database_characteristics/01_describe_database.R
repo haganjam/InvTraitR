@@ -1,3 +1,4 @@
+
 # Describe the characteristics of the database
 
 # load the relevant libraries
@@ -9,7 +10,6 @@ library(ggplot2)
 library(sp)
 library(sf)
 library(raster)
-library(wesanderson)
 
 # load the function plotting theme
 source("companion_scripts/helper-plot-theme.R")
@@ -28,8 +28,9 @@ tax_dat <-
     return(y)
   })
 tax_dat <- bind_rows(tax_dat)
-View(tax_dat)
 
+# fix a duplicate name with slightly different spelling from the different
+# taxonomic backbones
 tax_dat$order <- ifelse(tax_dat$order == "Unionoida", "Unionida", tax_dat$order)
 
 # summarise the taxon data
@@ -59,7 +60,7 @@ ggplot(data = tax_sum,
   theme_meta() +
   xlab(NULL) +
   ylab("Number of families") +
-  scale_fill_viridis_c() +
+  scale_fill_viridis_c(option = "C") +
   theme(strip.placement = "outside",                      
         strip.background = element_rect(fill = "white"),  
         axis.title = element_blank(),
