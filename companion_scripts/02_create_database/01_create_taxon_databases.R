@@ -38,7 +38,7 @@ for (j in 1:length(database)) {
   # remove the empty columns
   tax.dat <-
     tax.dat %>%
-    select(-db_higher_rank_source, -db_taxon_higher_rank, -db_taxon_higher)
+    dplyr::select(-db_higher_rank_source, -db_taxon_higher_rank, -db_taxon_higher)
 
   # remove the special names
   spec.names <- special_taxon_names()
@@ -51,7 +51,7 @@ for (j in 1:length(database)) {
   tax.dat <-
     tax.dat %>%
     mutate(row_id = 1:n()) %>%
-    select(row_id, database, id, group1, group2, db_taxon, db_taxon_gt_order)
+    dplyr::select(row_id, database, id, group1, group2, db_taxon, db_taxon_gt_order)
 
   # clean the names for typos etc.
   x <- bdc_clean_names(sci_names = tax.dat$db_taxon, save_outputs = FALSE)
@@ -78,7 +78,7 @@ for (j in 1:length(database)) {
     harm.tax %>%
     mutate(db_source = database[j]) %>%
     mutate(row_id = 1:n()) %>%
-    select(row_id, original_search, scientificName, acceptedNameUsageID, db_source, order, family)
+    dplyr::select(row_id, original_search, scientificName, acceptedNameUsageID, db_source, order, family)
 
   # remove the names that we were not able to resolve
   harm.tax <-
@@ -97,14 +97,14 @@ for (j in 1:length(database)) {
   # remove the row_id column
   tax.clean <-
     tax.clean %>%
-    select(-row_id)
+    dplyr::select(-row_id)
 
   # create the taxon matrices
 
   # get distinct higher taxa
   d.ht <-
     tax.clean %>%
-    select(order, family) %>%
+    dplyr::select(order, family) %>%
     distinct()
   
   higher_class <- vector("list", length = nrow(d.ht))
@@ -123,7 +123,7 @@ for (j in 1:length(database)) {
       filter(!is.na(scientificName)) %>%
       filter(scientificName != d.ht[i, ]$family) %>%
       filter(taxonomicStatus == "accepted") %>%
-      select(order, family, genus) %>%
+      dplyr::select(order, family, genus) %>%
       distinct()
     
     higher_class[[i]] <- raw_class 
@@ -152,35 +152,35 @@ for (j in 1:length(database)) {
       proc_class <-
         bind_rows(
           input_class %>%
-            select(genus, family) %>%
+            dplyr::select(genus, family) %>%
             rename(name = genus, parentname = family) %>%
             mutate(rank = "genus") %>%
             mutate(parentrank = "family") %>%
-            select(name, rank, parentname, parentrank),
+            dplyr::select(name, rank, parentname, parentrank),
           
           input_class %>%
-            select(family, order) %>%
+            dplyr::select(family, order) %>%
             rename(name = family, parentname = order) %>%
             mutate(rank = "family") %>%
             mutate(parentrank = "order") %>%
-            select(name, rank, parentname, parentrank)
+            dplyr::select(name, rank, parentname, parentrank)
         )
       
     } else if ( all(is.na(input_class[["order"]])) ) {
       
       input_class <-
         input_class %>%
-        select(-order)
+        dplyr::select(-order)
       
       input_class <- input_class[complete.cases(input_class), ]
       
       proc_class <-
         input_class %>%
-        select(genus, family) %>%
+        dplyr::select(genus, family) %>%
         rename(name = genus, parentname = family) %>%
         mutate(rank = "genus") %>%
         mutate(parentrank = "family") %>%
-        select(name, rank, parentname, parentrank)
+        dplyr::select(name, rank, parentname, parentrank)
     }
     
     # apply taxonomic weights
@@ -198,7 +198,7 @@ for (j in 1:length(database)) {
     # create the distance matrix
     d.mat <-
       proc_class %>%
-      select(from = parentname, to = name, weights)
+      dplyr::select(from = parentname, to = name, weights)
     
     # use igraph to create a graph from the matrix
     d.g <- graph_from_data_frame(d = d.mat, directed = FALSE)

@@ -58,14 +58,43 @@ ggplot(data = tax_sum,
              space = "free_x", 
              switch = "x") +
   theme_meta() +
+  guides(color = guide_colourbar(title.position = "top", 
+                                 title.vjust = 1,
+                                 frame.colour = "black", 
+                                 ticks.colour = NA,
+                                 barwidth = 5,
+                                 barheight = 0.3)) +
   xlab(NULL) +
   ylab("Number of families") +
   scale_fill_viridis_c(option = "C") +
   theme(strip.placement = "outside",                      
         strip.background = element_rect(fill = "white"),  
         axis.title = element_blank(),
-        axis.text.x = element_text(angle = 90,vjust = 0.3, size = 7),
-        legend.position = "top")
+        axis.text.x = element_text(angle = 90,vjust = 0.3, size = 7)) +
+  theme(legend.position = c(0.6, 0.75),
+        legend.direction="horizontal",
+        legend.justification=c(1, 0), 
+        legend.key.width=unit(1, "lines"), 
+        legend.key.height=unit(1, "lines"),
+        legend.text = element_text(size = 7),
+        legend.title = element_text(size = 8))
+  
+
+guides(color = guide_colourbar(title.position = "top", 
+                               title.vjust = 1,
+                               frame.colour = "black", 
+                               ticks.colour = NA,
+                               barwidth = 5,
+                               barheight = 0.3)) +
+  labs(col="Average overyielding") +
+  theme_meta() +
+  theme(legend.position = c(0.6, 0.75),
+        legend.direction="horizontal",
+        legend.justification=c(1, 0), 
+        legend.key.width=unit(1, "lines"), 
+        legend.key.height=unit(1, "lines"),
+        legend.text = element_text(size = 7),
+        legend.title = element_text(size = 8))
 
 
 
