@@ -44,6 +44,11 @@ output <-
   output %>%
   filter(!is.na(id))
 
+# only keep entries with matching life-stages
+output <- 
+  output %>%
+  filter(life_stage_match == TRUE)
+
 # set-up a vector to capture the dry biomass values
 dry_biomass_mg <- vector(length = nrow(output))
 
@@ -127,7 +132,10 @@ summary(output_df$error_perc)
 output_df %>%
   group_by(row) %>%
   summarise( n = n()) %>%
-  pull(n)
+  ungroup() %>%
+  summarise(mean = mean(n),
+            min = min(n),
+            max = max(n))
 
 # write a function to min-max standardise
 min_max <- function(x) {
@@ -142,6 +150,10 @@ dat <- list(id = as.integer(as.factor(output_df$row)),
             abs_error = (output_df$abs_error_perc) )
 summary(dat)
 str(dat)
+
+# how many groups do we have now?
+length(unique(dat$id))
+length(dat$id)
 
 # compile the stan growth rate model
 m1 <- rstan::stan_model("companion_scripts/03_accuracy_analysis/04_model_error_variation.stan",
@@ -244,8 +256,8 @@ median_diff <- function(cov1_name, cov1_val,
   pred_grid2[[do_name]] <- do_val[2]
   
   # median absolute error when td = 0
-  m_diff_list <- vector("list", length = nrow(pred_grid))
-  for(i in 1:nrow(pred_grid)) {
+  m_diff_list <- vector("list", length = nrow(pred_grid1))
+  for(i in 1:nrow(pred_grid1)) {
     
     m_ae1 <- with(pred_grid1[i,],
                   exp(a_id + b1_td*td1 + b2_bs*bs1 + b3_hm*hm1))
@@ -269,7 +281,7 @@ x <- median_diff(cov1_name = "bs1", cov1_val = c(0, 1),
                  cov2_name = "hm1", cov2_val = seq(0, 1, 0.1), 
                  do_name = "td1", do_val = c(0, 1))
 xm <- mean(x)
-xpi <- PI(x)
+xpi <- PI(x, 0.90)
 
 # calculate the effect of body size matching
 # going from unmatching to matching
@@ -277,7 +289,7 @@ y <- median_diff(cov1_name = "td1", cov1_val = seq(0, 1, 0.1),
                  cov2_name = "hm1", cov2_val = seq(0, 1, 0.1), 
                  do_name = "bs1", do_val = c(0, 1))
 ym <- mean(y)
-ypi <- PI(y)
+ypi <- PI(y, 0.90)
 
 # calculate the effect of habitat matching
 # going from 0 habitat match to 
@@ -285,7 +297,7 @@ z <- median_diff(cov1_name = "td1", cov1_val = seq(0, 1, 0.1),
                  cov2_name = "bs1", cov2_val = c(0, 1), 
                  do_name = "hm1", do_val = c(0, 1))
 zm <- mean(z)
-zpi <- PI(z)
+zpi <- PI(z, 0.90)
 
 # pull these results into a data.frame
 coef_plot <- data.frame(effect = c("Taxonomic distance", 
@@ -297,7 +309,8 @@ coef_plot <- data.frame(effect = c("Taxonomic distance",
 coef_plot$effect <- factor(coef_plot$effect,
                            levels = c("Taxonomic distance", "Body size range match", "Habitat match"))
 
-ggplot(data = coef_plot) +
+p1 <- 
+  ggplot(data = coef_plot) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_point(mapping = aes(x = effect, y = mean)) +
   geom_errorbar(mapping = aes(x = effect, ymin = PI_min, ymax = PI_max),
@@ -305,8 +318,12 @@ ggplot(data = coef_plot) +
   theme_meta() +
   ylab("Effect on absolute error (%)") +
   xlab(NULL) +
+  scale_y_continuous(limits = c(-50, 85)) +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.6)) +
-  annotate(geom = "text", label = expression(r^{2}~" = 0.22"),
-           x = 0.74, y = 100)
+  annotate(geom = "text", label = expression(r^{2}~" = 0.26"),
+           x = 0.9, y = 80)
+
+ggsave(filename = "figures/fig_W.png", p1, dpi = 400,
+       units = "cm", width = 10, height = 11)
 
 ### END
