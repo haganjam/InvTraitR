@@ -60,7 +60,7 @@ extract_genus <- function(binomial) {
 #' @importFrom assertthat is.string
 extract_body_size_range_match <- function(equation_id, 
                                           target_body_size,
-                                          prop = 0.20,
+                                          prop = 0.30,
                                           equation_db) {
   
   if (!is.na(equation_id)) {

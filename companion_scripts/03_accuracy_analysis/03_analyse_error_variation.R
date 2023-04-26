@@ -223,6 +223,9 @@ r2 <-
 mean(r2)
 range(r2)
 
+# how to calculate the contrasts:
+# https://vasishth.github.io/bayescogsci/book/ch-reg.html#thm:lognormal
+
 # function to calculate the difference in median given values of covariates
 median_diff <- function(cov1_name, cov1_val,
                         cov2_name, cov2_val,

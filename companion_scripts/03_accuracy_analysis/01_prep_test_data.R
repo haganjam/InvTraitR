@@ -5,6 +5,8 @@
 library(dplyr)
 library(readr)
 
+# test 1: prep
+
 # load datasets compiled from the literature
 test_names <- list.files("database/")
 test_names <- test_names[grepl(pattern = "test_a_", x = test_names)]
@@ -83,3 +85,41 @@ summary(dat)
 
 # write out into an .rds file
 saveRDS(dat, file = paste("database", "/", "test_a_data_compilation.rds", sep = ""))
+
+
+# test 2: prep
+
+# load dolmans data
+dat_x <- read_csv("database/test_b_dolmans_2022.csv")
+names(dat_x)
+
+# select relevant columns
+dat_x <- 
+  dat_x %>%
+  mutate(reference = "Dolmans 2022",
+         lat_dd = NA,
+         lon_dd = NA) %>%
+  select(reference, Focal_taxon, Life_stage, lat_dd, lon_dd, length_mm, Biomass_mg)
+
+# rename the columns
+names(dat_x) <- c("reference", "taxon", "life_stage", "lat_dd", "lon_dd", "length_mm", "obs_dry_biomass_mg")
+
+# load the o'gorman data
+dat_y <- read_csv("database/test_b_gorman_2017.csv")
+names(dat_y)
+
+# select relevant columns
+dat_y <- 
+  dat_y %>%
+  mutate(reference = "OGorman 2017") %>%
+  select(reference, species, life_stage, lat_dd, lon_dd, length, mass)
+
+# rename the columns
+names(dat_y) <- c("reference", "taxon", "life_stage", "lat_dd", "lon_dd", "length_mm", "obs_dry_biomass_mg")
+
+# combine these two datasets
+dat_z <- bind_rows(dat_x, dat_y)
+
+# write out into an .rds file
+saveRDS(dat_z, file = paste("database", "/", "test_b_data_compilation.rds", sep = ""))
+
