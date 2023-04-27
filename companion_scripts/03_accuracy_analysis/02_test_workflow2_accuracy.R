@@ -160,7 +160,7 @@ p1 <-
   ggplot() +
   geom_abline(
     intercept = 0, slope = 1,
-    colour = "#ec7853", linetype = "dashed", linewidth = 1) +
+    colour = "black", linetype = "dashed", linewidth = 0.5, alpha = 0.75) +
   geom_smooth(
     data = output,
     mapping = aes(
@@ -184,10 +184,12 @@ p1 <-
                                                    shape = 16))) +
   ylab("Estimated dry biomass (mg, log10)") +
   xlab("Measured dry biomass (mg, log10)") +
-  scale_colour_viridis_d(option = "C", begin = 0, end = 1) +
+  scale_colour_manual(values = wesanderson::wes_palette(name = "Darjeeling1", n = 10, "continuous")) +
   theme_meta() +
   facet_wrap(~order) +
-  theme(legend.position = "top",
+  theme(strip.background = element_rect(fill = "white"),
+        strip.text = element_text(colour = "black"),
+        legend.position = "top",
         legend.title = element_blank(),
         legend.text = element_text(size = 9),
         legend.key = element_rect(fill = NA),
@@ -267,14 +269,14 @@ output2 <-
          abs_error = (abs(obs_dry_biomass_mg - dry_biomass_mg)))
 
 # get the correlation coefficient
-cor_point <- cor(output2$obs_dry_biomass_mg, output2$dry_biomass_mg)
+cor_point <- cor(log10(output2$obs_dry_biomass_mg), log10(output2$dry_biomass_mg))
 cor_point <- round(cor_point, 2)
 
 p2 <-
   ggplot() +
   geom_abline(
     intercept = 0, slope = 1,
-    colour = "#ec7853", linetype = "dashed", linewidth = 1) +
+    colour = "black", linetype = "dashed", linewidth = 0.5) +
   geom_point(
     data = output2,
     mapping = aes(
@@ -291,7 +293,7 @@ p2 <-
                                                    shape = 16))) +
   ylab("Estimated dry biomass (mg, log10)") +
   xlab("Expert dry biomass (mg, log10)") +
-  scale_colour_viridis_d(option = "C", begin = 0, end = 1) +
+  scale_colour_manual(values = wesanderson::wes_palette(name = "Darjeeling1", n = 2)) +
   theme_meta() +
   theme(legend.position = "right",
         legend.title = element_blank(),
@@ -301,5 +303,7 @@ plot(p2)
 
 ggsave(filename = "figures/fig_Z.png", p2, dpi = 400,
        units = "cm", width = 13, height = 9)
+
+cor.test(log10(output2$obs_dry_biomass_mg), log10(output2$dry_biomass_mg))
 
 ### END

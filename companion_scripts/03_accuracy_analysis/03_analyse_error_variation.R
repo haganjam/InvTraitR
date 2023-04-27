@@ -143,7 +143,9 @@ min_max <- function(x) {
 }
 
 # create a list with the relevant data
-dat <- list(id = as.integer(as.factor(output_df$row)),
+dat <- list(N = nrow(output_df),
+            G = length(unique(output_df$row)),
+            id = as.integer(as.factor(output_df$row)),
             td = min_max(output_df$tax_distance),
             bs = as.integer(output_df$body_size_range_match),
             hm = min_max(output_df$habitat_match),
@@ -162,7 +164,7 @@ print(m1)
 
 # sample the stan model: m1
 m1_fit <- rstan::sampling(m1, data = dat, 
-                          iter = 2000, chains = 4, algorithm = c("NUTS"),
+                          iter = 2500, chains = 4, algorithm = c("NUTS"),
                           control = list(adapt_delta = 0.99),
                           seed = 54856)
 

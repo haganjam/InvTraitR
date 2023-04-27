@@ -2,7 +2,6 @@
 # Describe the characteristics of the database
 
 # load the relevant libraries
-library(here)
 library(dplyr)
 library(readr)
 library(igraph)
@@ -10,7 +9,6 @@ library(ggplot2)
 library(sp)
 library(sf)
 library(raster)
-library(cowplot)
 
 # load the function plotting theme
 source("companion_scripts/helper-plot-theme.R")
@@ -57,37 +55,26 @@ tax_sum$group1 <- ifelse(tax_sum$group1 == "Annelida", "Annel.", tax_sum$group1)
 
 p1 <- 
   ggplot(data = tax_sum, 
-         aes(x = order, y = n_family_m, fill = n_taxa_m)) +
-  geom_col(width = 0.6) +
+         aes(x = order, y = n_family_m, fill = group1)) +
+  geom_col(width = 0.6, position = position_dodge(width = 0.1)) +
+  geom_text(aes(x = order, y = n_family_m + 0.5, label = round(n_taxa_m, 0) ),
+            size = 3) +
   facet_grid(~group1, 
              scales = "free_x",
              space = "free_x", 
              switch = "x") +
   theme_meta() +
-  guides(fill = guide_colourbar(title.position = "left", 
-                                title.vjust = 1.2,
-                                frame.colour = "black", 
-                                ticks.colour = NA,
-                                barwidth = 5,
-                                barheight = 0.3)) +
   xlab(NULL) +
   ylab("Number of families") +
-  labs(fill = "Number of taxa") +
-  scale_fill_viridis_c(option = "C") +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 12)) +
+  scale_fill_manual(values = wesanderson::wes_palette("Darjeeling1", n = 6, "continuous")) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 13), breaks = seq(0, 12, 2)) +
   theme(strip.placement = "outside",                      
         strip.background = element_rect(fill = "white"),
-        strip.text.x = element_text(size = 10),
+        strip.text.x = element_text(size = 11),
         axis.title = element_blank(),
-        axis.text.x = element_text(angle = 90,vjust = 0.3, size = 9)) +
-  theme(legend.position = c(0.6, 1),
-        plot.margin = unit(c(1.8, 1, 0.5, 0.5), "lines"),
-        legend.direction="horizontal",
-        legend.justification=c(1, 0), 
-        legend.key.width=unit(1, "lines"), 
-        legend.key.height=unit(1, "lines"),
-        legend.text = element_text(size = 9),
-        legend.title = element_text(size = 10))
+        axis.text.x = element_text(angle = 90,vjust = 0.3, size = 10),
+        axis.ticks.x = element_blank(),
+        legend.position = "none")
 plot(p1)
   
 ggsave(filename = "figures/fig_A.png", p1, dpi = 400,
@@ -113,31 +100,38 @@ hab_dat <-
 hab_sum <-
   hab_dat %>%
   mutate(location = as.character(paste0(lat_dd, lon_dd))) %>%
-  group_by(database, location) %>%
+  group_by(database,realm, location) %>%
   summarise(
     N = length(unique(id)),
     lat = mean(latitude),
     lon = mean(longitude)
   )
 
+# set-up the colour palette
+pal1 <- c("#556A5B", "#50A45C", "#F2AD00", "#F69100", "#5BBCD6", "#C49647", "#FF0000")
+
 p2 <-
   ggplot() +
   geom_sf(data = spData::world, fill = "white", col = "black", size = 0.35) +
   coord_sf(ylim = c(-55, 80), xlim = c(-150, 170)) +
   geom_jitter(
-    data = hab_sum,
-    mapping = aes(x = lon, y = lat, size = N),
-    colour = "#ec7853",
-    alpha = 0.75,
+    data = hab_sum %>% mutate(realm = factor(realm)),
+    mapping = aes(x = lon, y = lat, size = N, fill = realm ),
+    colour = "black",
+    alpha = 0.6,
     width = 0.05,
-    shape = 16
+    shape = 21
   ) +
   ylab(NULL) +
   xlab(NULL) +
-  scale_size_continuous(range = c(1, 3.5)) +
-  guides(colour = guide_legend(override.aes = list(size = 2.5,
-                                                   alpha = 1,
-                                                   shape = 16))) +
+  scale_fill_manual(values = pal1[c(2, 4, 5, 7)]) +
+  scale_size_continuous(range = c(2, 5.5)) +
+  guides(size = guide_legend(override.aes = list(alpha = 0.5,
+                                                 shape = 21,
+                                                 colour = "black",
+                                                 fill = "white",
+                                                 linewidth = 2)),
+         fill = "none") +
   theme_meta() +
   theme(
     axis.text = element_blank(),
@@ -188,13 +182,15 @@ tax_hab <-
 # plot these data  
 p3 <- 
   ggplot(data = tax_hab,
-         mapping = aes(x = realm, y = n)) +
-  geom_col(width = 0.5, fill = "#ec7853") +
+         mapping = aes(x = realm, y = n, fill = realm)) +
+  geom_col(width = 0.5) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 0.75)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+  scale_fill_manual(values = pal1) +
   xlab(NULL) +
   ylab("Proportion orders represented") +
-  theme_meta()
+  theme_meta() +
+  theme(legend.position = "none")
 plot(p3)
 
 ggsave(filename = "figures/fig_B1.png", p3, dpi = 400,

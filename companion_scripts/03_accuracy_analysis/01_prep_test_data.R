@@ -5,6 +5,9 @@
 library(dplyr)
 library(readr)
 
+# set the seed because we do some random drawing
+set.seed(3597655)
+
 # test 1: prep
 
 # load datasets compiled from the literature
@@ -99,7 +102,7 @@ dat_x <-
   mutate(reference = "Dolmans 2022",
          lat_dd = NA,
          lon_dd = NA) %>%
-  select(reference, Focal_taxon, Life_stage, lat_dd, lon_dd, length_mm, Biomass_mg)
+  dplyr::select(reference, Focal_taxon, Life_stage, lat_dd, lon_dd, length_mm, Biomass_mg)
 
 # rename the columns
 names(dat_x) <- c("reference", "taxon", "life_stage", "lat_dd", "lon_dd", "length_mm", "obs_dry_biomass_mg")
@@ -112,7 +115,7 @@ names(dat_y)
 dat_y <- 
   dat_y %>%
   mutate(reference = "OGorman 2017") %>%
-  select(reference, species, life_stage, lat_dd, lon_dd, length, mass)
+  dplyr::select(reference, species, life_stage, lat_dd, lon_dd, length, mass)
 
 # rename the columns
 names(dat_y) <- c("reference", "taxon", "life_stage", "lat_dd", "lon_dd", "length_mm", "obs_dry_biomass_mg")
