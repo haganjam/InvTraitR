@@ -32,6 +32,11 @@ tax_dat <- bind_rows(tax_dat)
 # taxonomic backbones
 tax_dat$order <- ifelse(tax_dat$order == "Unionoida", "Unionida", tax_dat$order)
 
+# how many unique taxon names are represented in the equation database
+length(unique(tax_dat$db_taxon))
+length(unique(tax_dat$family))
+length(unique(tax_dat$order))
+
 # summarise the taxon data
 tax_sum <- 
   tax_dat %>%
@@ -48,6 +53,11 @@ tax_sum <-
             n_taxa_sd = sd(n_taxa)) %>%
   mutate(group2 = ifelse(is.na(group2) | group2 == "NA", "Other", group2),
          order = ifelse(is.na(order)  | order == "NA", "Other", order))
+
+# sum up by group1
+tax_sum %>%
+  group_by(group1) %>%
+  summarise(n_taxa = sum(n_taxa_m))
 
 # change the Platyhelminthes and Annelida label to Platy for plotting
 tax_sum$group1 <- ifelse(tax_sum$group1 == "Platyhelminthes", "Platy.", tax_sum$group1)
@@ -77,7 +87,7 @@ p1 <-
         legend.position = "none")
 plot(p1)
   
-ggsave(filename = "figures/fig_A.png", p1, dpi = 400,
+ggsave(filename = "figures/fig_3.png", p1, dpi = 400,
        units = "cm", width = 20, height = 10)
 
 
@@ -106,6 +116,9 @@ hab_sum <-
     lat = mean(latitude),
     lon = mean(longitude)
   )
+
+# how many unique geographical locations?
+length(unique(hab_sum$location))
 
 # set-up the colour palette
 pal1 <- c("#556A5B", "#50A45C", "#F2AD00", "#F69100", "#5BBCD6", "#C49647", "#FF0000")
@@ -143,7 +156,7 @@ p2 <-
   )
 plot(p2)
 
-ggsave(filename = "figures/fig_B.png", p2, dpi = 400,
+ggsave(filename = "figures/fig_4a.png", p2, dpi = 400,
        units = "cm", width = 15, height = 10)
 
 # load the habitat metadata
@@ -165,7 +178,8 @@ tax_hab <-
   tax_hab %>%
   mutate(group1_order = paste0(group1, order)) %>%
   group_by(realm) %>%
-  summarise(n = length(unique(group1_order))/N) %>%
+  summarise(n_equ = length(unique(id)),
+            n_prop = length(unique(group1_order))/N) %>%
   ungroup() %>%
   filter(!is.na(realm))
 
@@ -176,13 +190,13 @@ tax_hab <-
               dplyr::select(realm) %>%
               distinct() %>%
               filter( !(realm %in% tax_hab$realm) ) %>%
-              mutate(n = 0)
+              mutate(n_prop = 0)
             )
 
 # plot these data  
 p3 <- 
   ggplot(data = tax_hab,
-         mapping = aes(x = realm, y = n, fill = realm)) +
+         mapping = aes(x = realm, y = n_prop, fill = realm)) +
   geom_col(width = 0.5) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 0.75)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
@@ -193,7 +207,7 @@ p3 <-
   theme(legend.position = "none")
 plot(p3)
 
-ggsave(filename = "figures/fig_B1.png", p3, dpi = 400,
+ggsave(filename = "figures/fig_4b.png", p3, dpi = 400,
        units = "cm", width = 6, height = 10)
 
 ### END

@@ -197,7 +197,7 @@ p1 <-
         legend.spacing.y = unit(0.1, 'mm'))
 plot(p1)
 
-ggsave(filename = "figures/fig_X.png", p1, dpi = 400,
+ggsave(filename = "figures/fig_5.png", p1, dpi = 400,
        units = "cm", width = 18, height = 19)
 
 # observed correlation
@@ -301,7 +301,7 @@ p2 <-
         legend.key = element_rect(fill = NA))
 plot(p2)
 
-ggsave(filename = "figures/fig_Z.png", p2, dpi = 400,
+ggsave(filename = "figures/fig_S3.png", p2, dpi = 400,
        units = "cm", width = 13, height = 9)
 
 cor.test(log10(output2$obs_dry_biomass_mg), log10(output2$dry_biomass_mg))

@@ -212,10 +212,26 @@ dim(y_df)
 
 # calculate the mean across samples
 y <- apply(y_df, 1, mean)
+y_PI_low <- apply(y_df, 1, function(x) {PI(x, 0.90)[1]})
+y_PI_high <-apply(y_df, 1, function(x) {PI(x, 0.90)[2]}) 
 
-# plot the observed versus the predicted values
-plot(y, dat$abs_error )
-abline(0, 1)
+# pull this into a data.frame
+df_obs <- data.frame(obs_error = dat$abs_error,
+                     est_error = y,
+                     PI_low = y_PI_low,
+                     PI_high = y_PI_high)
+
+p1 <- 
+  ggplot(data = df_obs,
+       mapping = aes(x = obs_error, y = est_error)) +
+  geom_point(shape = 16, alpha = 0.1, colour = wesanderson::wes_palette(name = "Darjeeling1", n = 1)) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  ylab("Predicted percentage prediction error (%)") +
+  xlab("Observed percentage prediction error (%)") +
+  theme_meta()
+
+ggsave(filename = "figures/fig_S2.png", p1, dpi = 400,
+       units = "cm", width = 10, height = 10)
 
 # check how many mean values are predicted to be negative
 sum(y<0)/length(y)
@@ -311,21 +327,21 @@ coef_plot <- data.frame(effect = c("Taxonomic distance",
 coef_plot$effect <- factor(coef_plot$effect,
                            levels = c("Taxonomic distance", "Body size range match", "Habitat match"))
 
-p1 <- 
+p2 <- 
   ggplot(data = coef_plot) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_point(mapping = aes(x = effect, y = mean)) +
+  geom_point(mapping = aes(x = effect, y = mean), size = 3) +
   geom_errorbar(mapping = aes(x = effect, ymin = PI_min, ymax = PI_max),
                 width = 0) +
   theme_meta() +
-  ylab("Effect on absolute error (%)") +
+  ylab("Percentage prediction error (%)") +
   xlab(NULL) +
   scale_y_continuous(limits = c(-50, 85)) +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.6)) +
   annotate(geom = "text", label = expression(r^{2}~" = 0.26"),
            x = 0.9, y = 80)
 
-ggsave(filename = "figures/fig_W.png", p1, dpi = 400,
+ggsave(filename = "figures/fig_6.png", p2, dpi = 400,
        units = "cm", width = 10, height = 11)
 
 ### END
