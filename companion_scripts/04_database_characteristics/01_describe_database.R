@@ -87,7 +87,7 @@ p1 <-
         legend.position = "none")
 plot(p1)
   
-ggsave(filename = "figures/fig_3.png", p1, dpi = 400,
+ggsave(filename = "figures/fig_2.png", p1, dpi = 400,
        units = "cm", width = 20, height = 10)
 
 
@@ -156,7 +156,7 @@ p2 <-
   )
 plot(p2)
 
-ggsave(filename = "figures/fig_4a.png", p2, dpi = 400,
+ggsave(filename = "figures/fig_3a.png", p2, dpi = 400,
        units = "cm", width = 15, height = 10)
 
 # load the habitat metadata
@@ -207,7 +207,7 @@ p3 <-
   theme(legend.position = "none")
 plot(p3)
 
-ggsave(filename = "figures/fig_4b.png", p3, dpi = 400,
+ggsave(filename = "figures/fig_3b.png", p3, dpi = 400,
        units = "cm", width = 6, height = 10)
 
 ### END
