@@ -181,14 +181,9 @@ select_traits_tax_dist <- function(data,
       target_name_cond <- extract_genus(target_name)
       
       # test if the target name is present in any of the taxon matrices
-      target_present <- 
-        
-        sapply(htm_db, function(htm) {  
-          
-          target_name_cond %in% names(V(htm))
-          
-        }) 
-      
+      target_present <- sapply(htm_db, function(htm) {
+          target_name_cond %in% names(igraph::V(htm))
+      })
     }
     
     # check if there are special names
