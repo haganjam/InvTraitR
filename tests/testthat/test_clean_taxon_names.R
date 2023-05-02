@@ -133,11 +133,11 @@ test_that("Does the clean_taxon_names() function
         "GBIF:2218440", "GBIF:2234785", NA, "GBIF:2235057",
         "GBIF:2234807", NA, NA, NA, NA
     )
-    db_taxon_order <- c(
+    taxon_order <- c(
         "Amphipoda", "Diplostraca", NA, "Notostraca",
         "Diplostraca", NA, NA, NA, NA
     )
-    db_taxon_family <- c(
+    taxon_family <- c(
         "Gammaridae", "Daphniidae", NA, "Triopsidae",
         "Daphniidae", NA, NA, NA, NA
     )
@@ -154,8 +154,8 @@ test_that("Does the clean_taxon_names() function
     expect_equal(clean_taxon_name, x$clean_taxon_name)
     expect_equal(db, x$db)
     expect_equal(accepted_name_usage_id, x$acceptedNameUsageID)
-    expect_equal(db_taxon_order, x$db_taxon_order)
-    expect_equal(db_taxon_family, x$db_taxon_family)
+    expect_equal(taxon_order, x$taxon_order)
+    expect_equal(taxon_family, x$taxon_family)
 })
 
 test_that("Does the clean_taxon_names() function output
@@ -193,8 +193,8 @@ test_that("Does the clean_taxon_names() function output
         "scientificName",
         "taxonRank",
         "acceptedNameUsageID",
-        "db_taxon_order",
-        "db_taxon_family"
+        "taxon_order",
+        "taxon_family"
     ))
 
     # test if the identifier columns are correctly attached
