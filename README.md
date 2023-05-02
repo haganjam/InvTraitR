@@ -91,3 +91,11 @@ of the dependencies and `renv::update()` to update to latest CRAN versions (befo
 The database files will be put into an appdata dir (given by `rappdirs`) when executing
 tests or when people load the actual package. If you made changes to the DB files and need
 to update the files in the appdata dir there's the utility function `update_user_db()`.
+
+Some dependencies perform online look-ups that are rather slow. To achieve fast tests
+these end2end(ish) tests were moved to a separate file (`third_party`) and mocked out
+or replaced with doubles in the other tests. If you want to run your tests quickly and
+often during development you should thus exclude those third-party tests.  
+*devtool's* `test()` has a filter argument,
+but the default regex engine ain't seem to support negative look-aheads, so if you want to
+run all other tests a quick way to go is: `test(filter='.*[^t][^h][^i][^r].*')`
