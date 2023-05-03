@@ -60,7 +60,7 @@ clean_taxon_names <- function(
   assert_that(
     (is.character(data_life_stage) & all(data_life_stage %in% c(
       NA, "none", "larva", "pupa", "nymph",
-      "adult", "nauplius", "copepodite", "tadpole"
+      "adult", "nauplius", "copepodite"
     ))),
     msg = "one or more entries do not have appropriate life-stage classes: see documentation" # TODO: not yet in the docs
   )

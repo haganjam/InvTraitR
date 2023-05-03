@@ -78,16 +78,13 @@ extract_body_size_range_match <- function(equation_id,
     # check whether target_body_length is within the equation range
     body_size_range_match <- (target_body_size >= equ_min) & (target_body_size <= equ_max)
     
-    # pull these into a data.frame
-    df <- data.frame(body_size_range_match = body_size_range_match)
+    body_size_range_match
     
   } else {
     
-    df <- data.frame(body_size_range_match = NA)
+    NA
     
   }
-  
-  df
   
 }
 
