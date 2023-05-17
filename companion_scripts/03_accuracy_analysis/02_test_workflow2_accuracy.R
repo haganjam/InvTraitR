@@ -31,6 +31,8 @@ if (!dir.exists("figures")) {
 
 # read the test data
 dat <- readRDS("database/test_a_data_compilation.rds")
+head(dat)
+dim(dat)
 
 output <-
   get_trait_from_taxon(
@@ -46,21 +48,15 @@ output <-
     gen_sp_dist = 0.25
   )
 
+# extract the data
+output <- output$data
+
 # get proportion of names for which we do not have equations for
 output %>%
   filter(is.na(id)) %>%
   pull(taxon) %>%
   unique() %>%
   length()/length(unique(output$taxon))
-
-# check which taxa there were no equations for
-output %>%
-  dplyr::select(reference, order, taxon, dry_biomass_mg,
-                db_min_body_size_mm, length_mm, db_max_body_size_mm) %>%
-  mutate(PA = ifelse(is.na(dry_biomass_mg), 0, 1 )) %>%
-  dplyr::select(-dry_biomass_mg) %>%
-  distinct() %>%
-  View()
 
 # remove rows where the dry-biomass is not there
 output <-
@@ -93,6 +89,7 @@ hist(output$abs_error)
 
 # check the summary statistics of error_perc
 summary(output$error_perc)
+summary(output$abs_error_perc)
 summary(output$abs_error)
 
 # how many data-points have more than 100 percent error
