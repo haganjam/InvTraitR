@@ -36,7 +36,7 @@ dim(dat)
 
 output <-
   get_trait_from_taxon(
-    data = dat,
+    data = dat[sample(1:nrow(dat), 10),],
     target_taxon = "taxon",
     life_stage = "life_stage",
     body_size = "length_mm",
@@ -49,6 +49,7 @@ output <-
   )
 
 # extract the data
+output$decision_data %>% View()
 output <- output$data
 
 # get proportion of names for which we do not have equations for

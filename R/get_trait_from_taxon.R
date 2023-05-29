@@ -117,6 +117,17 @@ get_trait_from_taxon <- function(data,
   # remove redundant columns
   trait_sel <- dplyr::select(trait_sel, -recommend, -explanation, -workflow2_choice)
   
+  # load the trait database
+  if (!exists(paste0(trait, "_db"))) {
+    assign(
+      paste0(trait, "_db"),
+      readRDS(file = get_db_file_path(paste0(trait, "_database.rds")))
+    )
+  }
+  
+  # assign the object to trait_db
+  trait_db <- get(paste0(trait, "_db"))
+  
   # if the trait is an equation then we add all the relevant equation information
   # if the trait is not an equation, then we simply add the trait value
   if(trait == "equation") {
