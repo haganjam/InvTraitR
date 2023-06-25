@@ -227,9 +227,7 @@ select_traits_tax_dist <- function(data,
       msg = paste(trait, "list conversion did not work")
     )
     
-    output <- 
-      
-      lapply(data_list, function(input) {
+    output <- lapply(data_list, function(input) {
         
         # get the relevant taxonomic backbones
         htm_db <- get(paste0(input[["db"]], "_db"))
@@ -240,12 +238,9 @@ select_traits_tax_dist <- function(data,
         target_name_cond <- extract_genus(target_name)
         
         # test if the target name is present in any of the taxon matrices
-        target_present <- 
-          sapply(htm_db, function(htm) {  
-            
-            target_name_cond %in% names(V(htm))
-            
-          }) 
+        target_present <- sapply(htm_db, function(htm) {
+            target_name_cond %in% names(igraph::V(htm))
+        })
         
         # if the target taxon is not present in any backbone then return an explanation
         if(is.na(target_name_cond)) {
