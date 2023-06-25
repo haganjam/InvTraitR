@@ -1,4 +1,4 @@
-FROM blacksnowflake/r-base-dev:4.2.3@sha256:331aff7bcfca79285a9a05197c9ed1cc1aee72d96a8a533e94ab4cc3a67ef9e4
+FROM blacksnowflake/r-base-dev:4.3.1@sha256:78701eb5d2f35059d385785d118642beab784811bedc2e3bd09f4e9c9ef40cc8
 
 # gdal required for terra (raster)
 # libudunits2-dev for bdc (units)
