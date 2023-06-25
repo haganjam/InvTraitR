@@ -19,7 +19,7 @@ string with the genus name
 If a binomial taxa is supplied, extract the genus name only
 }
 \details{
-This method works almost exclusively with genera and not species.
+This method works exclusively with genera and not species.
 This is because once the genus is known, the relationship among the
 species within that genus is known. It makes the method much more
 computationally efficient. This function is used to then extract the genus

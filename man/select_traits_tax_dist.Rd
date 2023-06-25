@@ -7,6 +7,7 @@
 select_traits_tax_dist(
   data,
   target_taxon,
+  body_size,
   max_tax_dist = 3,
   trait = "equation",
   gen_sp_dist = 0.5
@@ -15,12 +16,16 @@ select_traits_tax_dist(
 \arguments{
 \item{data}{\itemize{
 \item input data.frame exported from \code{\link[=get_habitat_data]{get_habitat_data()}} and
-clean_taxon_names() function
+\code{\link[=clean_taxon_names]{clean_taxon_names()}} function
 }}
 
 \item{target_taxon}{\itemize{
 \item character string with the column name containing the
 taxon names
+}}
+
+\item{body_size}{\itemize{
+\item column name containing the body length data
 }}
 
 \item{max_tax_dist}{\itemize{
@@ -47,9 +52,8 @@ databases
 }
 \details{
 This function searches the relevant trait or equation database for
-the best
-matching trait or equation for a given target name based on three criteria:
-taxonomic distance life-stage match and habitat match
+the best matching trait or equation for a given target name based on
+taxonomic distance
 }
 \author{
 James G. Hagan (james_hagan(at)outlook.com)

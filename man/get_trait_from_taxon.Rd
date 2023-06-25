@@ -77,7 +77,7 @@ select an appropriate trait/equation
 }
 \details{
 This function uses the \code{\link[=clean_taxon_names]{clean_taxon_names()}} function to clean and
-harmonise the names of a target dataset. The Get_Habitat_Data() function is
+harmonise the names of a target dataset. The \code{\link[=get_habitat_data]{get_habitat_data()}} function is
 then used to get relevant habitat information. The
 \code{\link[=select_traits_tax_dist]{select_traits_tax_dist()}} function calculates taxonomic distance for each
 focal taxon and the relevant entries in the different higher-level taxon
