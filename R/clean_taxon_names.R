@@ -3,7 +3,7 @@
 #'  databases
 #' @details This function takes a data.frame with target_taxa and uses the bdc
 #'  package to clean and harmonise the names.
-#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' @author James G. Hagan (james_hagan(at)outlook.com) and Ronald Bergmann
 #' @param data - data.frame with a column containing target taxon names and
 #'  life-stages
 #' @param target_taxon - character string with the column name containing the

@@ -4,7 +4,7 @@
 #' @details This function takes a data.frame with latitude and longitude data
 #'  and gets data on biogeographic realm, major habitat type and ecoregion
 #'  based on Abell et al.'s (2008) freshwater ecoregion map.
-#' @author James G. Hagan (james_hagan(at)outlook.com)
+#' @author James G. Hagan (james_hagan(at)outlook.com) and Ronald Bergmann
 #' @param data - data.frame with a column containing latitude and longitude in
 #'  decimal degrees
 #' @param latitude_dd - character string with the column name containing the

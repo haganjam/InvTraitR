@@ -89,7 +89,8 @@ get_trait_from_taxon <- function(data,
   # we use the function to generate a decision df which we always output
   # this allows the user to check how we made the decisions
   decision_df <- select_traits_tax_dist(data = clean_taxa, 
-                                        target_taxon = target_taxon,
+                                        target_taxon = "scientificName",
+                                        life_stage = life_stage,
                                         body_size = body_size,
                                         max_tax_dist = max_tax_dist,
                                         trait = trait,
@@ -103,10 +104,12 @@ get_trait_from_taxon <- function(data,
     
   } else if(workflow == "workflow2") {
     
-    trait_sel <- dplyr::filter(decision_df, workflow2_choice == TRUE)
-    trait_sel <- dplyr::group_by(trait_sel, row)
-    trait_sel <- dplyr::slice_head(trait_sel, n = 1)
-    trait_sel <- dplyr::ungroup(trait_sel)
+    trait_sel <-
+      decision_df |>
+      dplyr::filter(workflow2_choice == TRUE) |>
+      dplyr::group_by(, row) |>
+      dplyr::slice_head(n = 1) |>
+      dplyr::ungroup()
     
   } else {
     
@@ -156,61 +159,63 @@ get_trait_from_taxon <- function(data,
       })
   }
   
-  # parse the equation to calculate dry_biomass_mg
-  if ( (trait == "equation") && (workflow == "workflow2") ) {
+  if(nrow(trait_sel) > 0) {
     
-    # set-up a vector to capture the dry biomass values
-    dry_biomass_mg <- vector(length = nrow(trait_sel))
-    
-    # loop over all the rows
-    for(i in 1:nrow(trait_sel)) {
+    # parse the equation to calculate dry_biomass_mg
+    if ( (trait == "equation") && (workflow == "workflow2") ) {
       
-      # get the ith row of data
-      L <- unlist(trait_sel[i, body_size], use.names = FALSE)
-      model <- trait_sel[i,]$equation_form
-      log_base <- trait_sel[i,]$log_base
-      a <- trait_sel[i,]$a
-      b <- trait_sel[i,]$b
-      CF <- trait_sel[i,]$lm_correction
-      scale <- trait_sel[i,]$dry_biomass_scale
+      # set-up a vector to capture the dry biomass values
+      dry_biomass_mg <- vector(length = nrow(trait_sel))
       
-      # evalulate the equation
-      if( any(is.na(c(a, b))) )  {
+      # loop over all the rows
+      for(i in 1:nrow(trait_sel)) {
         
-        dry_biomass_mg[i] <- NA
+        # get the ith row of data
+        L <- unlist(trait_sel[i, body_size], use.names = FALSE)
+        model <- trait_sel[i,]$equation_form
+        log_base <- trait_sel[i,]$log_base
+        a <- trait_sel[i,]$a
+        b <- trait_sel[i,]$b
+        CF <- trait_sel[i,]$lm_correction
+        scale <- trait_sel[i,]$dry_biomass_scale
         
-      } else if (model == "model1") {
-        
-        # calculate the raw prediction on the log-scale
-        x <- a + (b*logb(x = L, base = log_base))
-        
-        # convert to the natural scale
-        x <- (log_base^x)
-        
-        # apply the correction factor
-        dry_biomass_mg[i] <- ifelse(!is.na(CF), x*CF, x)*scale
-        
-      } else if (model == "model2") {
-        
-        # calculate the raw prediction
-        dry_biomass_mg[i] <- a*(L^b)*scale
+        # evalulate the equation
+        if( any(is.na(c(a, b))) )  {
+          
+          dry_biomass_mg[i] <- NA
+          
+        } else if (model == "model1") {
+          
+          # calculate the raw prediction on the log-scale
+          x <- a + (b*logb(x = L, base = log_base))
+          
+          # convert to the natural scale
+          x <- (log_base^x)
+          
+          # apply the correction factor
+          dry_biomass_mg[i] <- ifelse(!is.na(CF), x*CF, x)*scale
+          
+        } else if (model == "model2") {
+          
+          # calculate the raw prediction
+          dry_biomass_mg[i] <- a*(L^b)*scale
+          
+        }
         
       }
       
+      # add this dry biomass estimate to the data.frame
+      trait_sel[["dry_biomass_mg"]] <- dry_biomass_mg
+      
     }
-    
-    # add this dry biomass estimate to the data.frame
-    trait_sel[["dry_biomass_mg"]] <- dry_biomass_mg
     
   }
   
   # bind to the original data
-  trait_sel <- full_join(data, trait_sel,
-                         by = names(data))
+  trait_sel <- dplyr::full_join(data, trait_sel, by = names(data))
   
   # make an output list
-  output_list <- list(data = trait_sel,
-                      decision_data = decision_df)
+  output_list <- list(data = trait_sel, decision_data = decision_df)
   
   output_list
   

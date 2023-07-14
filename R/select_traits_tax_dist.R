@@ -99,6 +99,8 @@ extract_body_size_range_match <- function(equation_id,
 #'  [clean_taxon_names()] function
 #' @param target_taxon - character string with the column name containing the
 #'  taxon names
+#' @param life_stage - character string with the column name containing the
+#'  life-stage information
 #' @param body_size - column name containing the body length data
 #' @param max_tax_dist - maximum taxonomic distance acceptable between the
 #'  target and the taxa in the database (default = 3)
@@ -112,6 +114,7 @@ extract_body_size_range_match <- function(equation_id,
 select_traits_tax_dist <- function(data,
                                    target_taxon,
                                    body_size,
+                                   life_stage,
                                    max_tax_dist = 3,
                                    trait = "equation",
                                    gen_sp_dist = 0.5
@@ -194,8 +197,16 @@ select_traits_tax_dist <- function(data,
         # if there are rows present, then:
         # add the database taxon name and the trait or equation
         if (length(row_id) != 0) {
-          input[["db_scientificName"]] <- trait_db[row_id, ][["db_taxon"]]
-          input[["id"]] <- trait_db[row_id, ][[paste0(trait, "_id")]]
+          input <- 
+            lapply(row_id, function(x) {
+              
+              input[["db_scientificName"]] <- trait_db[x, ][["db_taxon"]]
+              input[["id"]] <- trait_db[x, ][[paste0(trait, "_id")]]
+              
+              input
+              
+            })
+          input <- dplyr::bind_rows(input)
         } else {
           input[["explanation"]] <- "no appropriate special names in database"
         }
@@ -228,114 +239,112 @@ select_traits_tax_dist <- function(data,
     )
     
     output <- lapply(data_list, function(input) {
+      
+      # get the relevant taxonomic backbones
+      htm_db <- get(paste0(input[["db"]], "_db"))
+      td_db <- get(paste0(input[["db"]], "_td") )
+      
+      # extract the target_name
+      target_name <- input[["scientificName"]]
+      target_name_cond <- extract_genus(target_name)
+      
+      # test if the target name is present in any of the taxon matrices
+      target_present <- sapply(htm_db, function(htm) {
+        target_name_cond %in% names(igraph::V(htm))
+      })
+      
+      # if the target taxon is not present in any backbone then return an explanation
+      if(is.na(target_name_cond)) {
         
-        # get the relevant taxonomic backbones
-        htm_db <- get(paste0(input[["db"]], "_db"))
-        td_db <- get(paste0(input[["db"]], "_td") )
+        input[["explanation"]] <- "target name not present in taxonomic backbone"
         
-        # extract the target_name
-        target_name <- input[["scientificName"]]
-        target_name_cond <- extract_genus(target_name)
+      } else if(all(target_present == FALSE)) {
         
-        # test if the target name is present in any of the taxon matrices
-        target_present <- sapply(htm_db, function(htm) {
-            target_name_cond %in% names(igraph::V(htm))
-        })
+        input[["explanation"]] <- "target name not found in taxonomic graph"
         
-        # if the target taxon is not present in any backbone then return an explanation
-        if(is.na(target_name_cond)) {
-          
-          input[["explanation"]] <- "target name not present in taxonomic backbone"
-          
-        } else if(all(target_present == FALSE)) {
-          
-          input[["explanation"]] <- "target name not found in taxonomic graph"
-          
-        } else if (any(target_present == TRUE)) {
-          
-          # get the relevant taxon matrix
-          higher_taxon <- names(htm_db[target_present])
-          htm <- htm_db[target_present][[1]]
-          
-          # extract vertices
-          v_x <- igraph::V(htm)
-          
-          # extract the equation entries from the taxon database
-          td <- td_db[td_db$database == trait, ]
-          
-          # extract the entries from the equation taxon database matching the target higher taxon
-          td <- td[td$order == higher_taxon | td$family == higher_taxon , ]
-          
-          # remove the NA values
-          td <- td[ !(is.na(td$order) & is.na(td$family)), ]
-          
-          # taxonomic distance
-          td_vec <-
-            mapply(function(db_taxon, id) {
-              if (db_taxon == target_name) {
-                tax_dist <- 0
+      } else if (any(target_present == TRUE)) {
+        
+        # get the relevant taxon matrix
+        higher_taxon <- names(htm_db[target_present])
+        htm <- htm_db[target_present][[1]]
+        
+        # extract vertices
+        v_x <- igraph::V(htm)
+        
+        # extract the equation entries from the taxon database
+        td <- td_db[td_db$database == trait, ]
+        
+        # extract the entries from the equation taxon database matching the target higher taxon
+        td <- td[td$order == higher_taxon | td$family == higher_taxon , ]
+        
+        # remove the NA values
+        td <- td[ !(is.na(td$order) & is.na(td$family)), ]
+        
+        # taxonomic distance
+        td_vec <-
+          mapply(function(db_taxon, id) {
+            if (db_taxon == target_name) {
+              tax_dist <- 0
+            } else {
+              # extract genus for species-level names
+              db_taxon_cond <- extract_genus(db_taxon)
+              
+              tax_dist <-
+                igraph::distances(htm,
+                                  v_x[which(attr(v_x, "names") == target_name_cond)],
+                                  v_x[which(attr(v_x, "names") == db_taxon_cond)],
+                                  mode = c("all"),
+                                  algorithm = c("bellman-ford")
+                )
+              
+              # if length is zero then the distance is NA
+              if (length(tax_dist) == 0) {
+                tax_dist <- NA
               } else {
-                # extract genus for species-level names
-                db_taxon_cond <- extract_genus(db_taxon)
-                
-                tax_dist <-
-                  igraph::distances(htm,
-                                    v_x[which(attr(v_x, "names") == target_name_cond)],
-                                    v_x[which(attr(v_x, "names") == db_taxon_cond)],
-                                    mode = c("all"),
-                                    algorithm = c("bellman-ford")
-                  )
-                
-                # if length is zero then the distance is NA
-                if (length(tax_dist) == 0) {
-                  tax_dist <- NA
-                } else {
-                  tax_dist <- tax_dist[[1]]
-                }
-                
-                # extra distance for species level: gen_sp_dist argument
-                sp_l <- sum(ifelse(c(attr(target_name_cond, "n"), attr(db_taxon_cond, "n")) > 1, gen_sp_dist, 0))
-                
-                # add extra distance
-                tax_dist <- tax_dist + sp_l
-                
+                tax_dist <- tax_dist[[1]]
               }
               
-            }, td[["scientificName"]], td[["id"]], SIMPLIFY = FALSE)
+              # extra distance for species level: gen_sp_dist argument
+              sp_l <- sum(ifelse(c(attr(target_name_cond, "n"), attr(db_taxon_cond, "n")) > 1, gen_sp_dist, 0))
+              
+              # add extra distance
+              tax_dist <- tax_dist + sp_l
+              
+            }
+            
+          }, td[["scientificName"]], td[["id"]], SIMPLIFY = FALSE)
+        
+        # add the equation taxon name, id and taxonomic distance to the input data
+        input_list <- vector("list", length = nrow(td))
+        for(i in 1:nrow(td)) {
+          # copy the input data row
+          input_mod <- input
           
-          # add the equation taxon name, id and taxonomic distance to the input data
-          input_list <- vector("list", length = nrow(td))
-          for(i in 1:nrow(td)) {
-            # copy the input data row
-            input_mod <- input
-            
-            # add relevant information
-            input_mod[["db_scientificName"]] <- td[["scientificName"]][i]
-            input_mod[["id"]] <- td[["id"]][i]
-            input_mod[["tax_distance"]] <- td_vec[[i]]
-            
-            # add the input row to the input_list object
-            input_list[[i]] <- input_mod
-            
-          }
+          # add relevant information
+          input_mod[["db_scientificName"]] <- td[["scientificName"]][i]
+          input_mod[["id"]] <- td[["id"]][i]
+          input_mod[["tax_distance"]] <- td_vec[[i]]
           
-          # bind the list into a data.frame
-          input <- dplyr::bind_rows(input_list)
+          # add the input row to the input_list object
+          input_list[[i]] <- input_mod
           
         }
-        input
         
-      })
-    
-  } else {
-    
-    stop("data.frame must have some taxon names to search")
+        # bind the list into a data.frame
+        input <- dplyr::bind_rows(input_list)
+        
+      }
+      input
+      
+    })
     
   }
   
   # bind the list of regular names and the list of special names
-  if( exists(x = "output_spec") ) {
+  if( exists(x = "output_spec") && exists(x = "output")) {
     output <- c(output, output_spec)
+  } else if( exists(x = "output_spec") && !exists(x = "output") ) {
+    output <- output_spec
   }
   
   # bind the output list into a data.frame
@@ -430,17 +439,32 @@ select_traits_tax_dist <- function(data,
   for(i in 1:nrow(output)) {
     
     if(!is.na(output[i,][["id"]])) {
+      
       x <- (output[i,][["tax_distance"]] <= max_tax_dist)
       y <- (output[i,][["body_size_range_match"]])
       z <- (output[i,][["life_stage_match"]])
       
-      output[i,][["explanation"]] <- if(any((!c(x, y, z)) == TRUE)) {
-        paste(explan_vec[!c(x, y, z)], collapse = " & ")
-      } else { 
-        NA 
-      } 
-      
-      output[i,][["recommend"]] <- all(c(x, y, z))
+      if(output[i, ][["db"]] == "special") {
+        
+        output[i,][["explanation"]] <- if(any((!c(y, z)) == TRUE)) {
+          paste(explan_vec[!c(y, z)], collapse = " & ")
+        } else { 
+          NA 
+        } 
+        
+        output[i,][["recommend"]] <- all(c(y, z))
+        
+      } else{
+        
+        output[i,][["explanation"]] <- if(any((!c(x, y, z)) == TRUE)) {
+          paste(explan_vec[!c(x, y, z)], collapse = " & ")
+        } else { 
+          NA 
+        } 
+        
+        output[i,][["recommend"]] <- all(c(x, y, z))
+        
+      }
       
     } else {
       
@@ -448,12 +472,21 @@ select_traits_tax_dist <- function(data,
       
     }
     
-    
   }
   
+  # convert output data.frame to a list
+  output_list <- split(output, output[["row"]])
+  
+  # which names are special?
+  w_spec <- sapply(output_list, function(x) all(x[["db"]] == "special"))
+  
+  # split the list into special and non-special names
+  output_list_reg <- output_list[!w_spec]
+  output_list_spec <- output_list[w_spec]
+  
   # annotate each potential equation
-  output_list <- 
-    lapply(split(output, output[["row"]]), function(input) {
+  output_list_reg <- 
+    lapply(output_list_reg, function(input) {
       
       # get the recommended equations with the lowest taxonomic distance
       min_td <- 
@@ -496,8 +529,27 @@ select_traits_tax_dist <- function(data,
       
     } )
   
+  # annotate each potential equation
+  output_list_spec <- 
+    lapply(output_list_spec, function(input) {
+      
+      # get the recommended equations with the lowest taxonomic distance
+      add_score <- 
+        if( all(input[["recommend"]] == FALSE) ) {
+          FALSE
+        } else {
+          with(input, body_size_range_match + life_stage_match)
+        }
+      
+      # if both of those are true then it is a workflow choice
+      input[["workflow2_choice"]] <- (add_score == 2)
+      
+      input
+      
+    })
+  
   # bind the list into a data.frame
-  output_df <- bind_rows(output_list)
+  output_df <- dplyr::bind_rows( c(output_list_reg, output_list_spec) )
   
   # return the data.frame
   output_df

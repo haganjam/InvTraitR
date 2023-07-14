@@ -1,5 +1,6 @@
 make_test_input <- function() {
   data.frame(
+    row = 1:7,
     taxon_name = c(
       "Gammarus", "Daphnia", "Triops granitica", "Triops",
       "Simocephalus vetulus", "Turbellaria", "Oligochaeta"
@@ -11,7 +12,7 @@ make_test_input <- function() {
     lat = rep(50.55, 7),
     lon = rep(4.98, 7),
     length_mm = rnorm(7, 10, 2),
-    clean_taxon = c(
+    clean_taxon_name = c(
       "Gammarus", "Daphnia", "Triops granitica", "Triops",
       "Simocephalus vetulus", "Turbellaria", "Oligochaeta"
     ),
@@ -29,11 +30,11 @@ make_test_input <- function() {
       "GBIF:2218440", "GBIF:2234785", NA,
       "GBIF:2235057", "GBIF:2234807", NA, NA
     ),
-    db_taxon_order = c(
+    taxon_order = c(
       "Amphipoda", "Diplostraca", NA, "Notostraca",
       "Diplostraca", NA, NA
     ),
-    db_taxon_family = c(
+    taxon_family = c(
       "Gammaridae", "Daphniidae", NA, "Triopsidae",
       "Daphniidae", NA, NA
     ),
@@ -135,23 +136,24 @@ test_that("test if select_traits_tax_dist() the column
   output <- select_traits_tax_dist(
     data = make_test_input(),
     target_taxon = "taxon_name",
+    life_stage = "Life_stage",
     body_size = "length_mm"
   )
 
   # extract names from each element of the output list
-  x <- lapply(output, function(input) {
-    all(names(input) == c(
-      "taxon_name", "Life_stage", "lat", "lon",  "length_mm", "clean_taxon",
-      "db", "scientificName", "taxonRank", "acceptedNameUsageID",
-      "db_taxon_order", "db_taxon_family", "habitat_id",
-      "realm", "major_habitat_type", "ecoregion",
-      "db_scientificName", "trait_out", "id", "tax_distance", "body_size_range_match",
-      "body_size_min_dist", "body_size_max_dist"
-    ))
-  })
-
-  # test if names in all the different list elements were correct
-  expect_true(all(unlist(x)))
+  expect_true( all(names(output) == c(
+      c("row", "taxon_name", "Life_stage", "lat", "lon", "length_mm", 
+        "clean_taxon_name", "db", "scientificName", "taxonRank", 
+        "acceptedNameUsageID", "taxon_order", "taxon_family", 
+        "habitat_id", "realm", "major_habitat_type", "ecoregion", 
+        "trait_out", "db_scientificName", "id", "tax_distance", 
+        "body_size_range_match", "life_stage_match", "r2_match", "n", 
+        "db_min_body_size_mm", "db_max_body_size_mm", "realm_match", 
+        "major_habitat_type_match", "ecoregion_match", "recommend", 
+        "explanation", "workflow2_choice")
+    )) 
+    )
+  
 })
 
 test_that("test if select_traits_tax_dist() outputs entries that should
@@ -161,11 +163,19 @@ test_that("test if select_traits_tax_dist() outputs entries that should
   output <- select_traits_tax_dist(
     data = make_test_input(),
     target_taxon = "taxon_name",
+    life_stage = "Life_stage",
     body_size = "length_mm"
   )
-
-  # make sure the outputted scientific names are correct
-  x <- sapply(output, function(input) unique(input[["scientificName"]])) == c(
+  
+  # extract unique expected names
+  x <- 
+    output |>
+    dplyr::group_by(row) |>
+    dplyr::summarise(scientificName = unique(scientificName)) |>
+    dplyr::pull(scientificName)
+  
+  # set the correct answers
+  y <- c(
     "Gammarus",
     "Daphnia",
     NA,
@@ -174,9 +184,15 @@ test_that("test if select_traits_tax_dist() outputs entries that should
     NA,
     NA
   )
+  
+  # test if these are equal
+  z <- mapply(function(x, y){
+    (x == y) | (is.na(x) && is.na(y))
+  }, x, y, SIMPLIFY = TRUE, USE.NAMES = FALSE)
 
-  # all should be true or NA
-  expect_true(all(is.na(x) | (x == TRUE)))
+  # make sure the outputted scientific names are correct
+  expect_true(all(z))
+  
 })
 
 test_that("test if select_traits_tax_dist() outputs
@@ -185,16 +201,15 @@ test_that("test if select_traits_tax_dist() outputs
   output <- select_traits_tax_dist(
     data = make_test_input(),
     target_taxon = "taxon_name",
+    life_stage = "Life_stage",
     body_size = "length_mm"
   )
 
-  # get the taxonomic distance values for all names
-  x <- sapply(output, function(input) {
-    all(is.numeric(input[["tax_distance"]]) | is.na(input[["tax_distance"]]))
-  })
-
   # all taxonomic distances should be numeric or NA
-  expect_true(all(x))
+  expect_true( 
+    all( is.numeric(output[["tax_distance"]]) | is.na(output[["tax_distance"]]) )
+    )
+  
 })
 
 test_that("test if select_traits_tax_dist() works
@@ -206,6 +221,7 @@ test_that("test if select_traits_tax_dist() works
   output1 <- select_traits_tax_dist(
     data = test_input[c(6, 7), ],
     target_taxon = "taxon_name",
+    life_stage = "Life_stage",
     body_size = "length_mm"
   )
 
@@ -213,18 +229,17 @@ test_that("test if select_traits_tax_dist() works
   output2 <- select_traits_tax_dist(
     data = test_input,
     target_taxon = "taxon_name",
+    life_stage = "Life_stage",
     body_size = "length_mm"
   )
 
   # make sure output is correct
-  x <- mapply(function(spec, all) {
-    spec <- spec[, names(spec) != "row_id"]
-    all <- all[, names(all) != "row_id"]
-    x <- (spec == all)
-    all(is.na(x) | (x == TRUE))
-  }, output1, output2[c(6, 7)])
-
-  expect_true(all(x))
+  spec <- output1[, names(output1) != "row"]
+  all <- output2[c(27:30),][, names(output2[c(27:30),]) != "row"]
+  x <- (spec == all)
+  
+  expect_true(all( all(is.na(x) | (x == TRUE)) ))
+  
 })
 
 test_that("test if select_traits_tax_dist() works
@@ -236,6 +251,7 @@ test_that("test if select_traits_tax_dist() works
   output1 <- select_traits_tax_dist(
     data = test_input[-c(6, 7), ],
     target_taxon = "taxon_name",
+    life_stage = "Life_stage",
     body_size = "length_mm"
   )
 
@@ -243,19 +259,16 @@ test_that("test if select_traits_tax_dist() works
   output2 <- select_traits_tax_dist(
     data = test_input,
     target_taxon = "taxon_name",
+    life_stage = "Life_stage",
     body_size = "length_mm"
   )
 
-  x <- mapply(
-    function(spec, all) {
-      spec <- spec[, names(spec) != "row_id"]
-      all <- all[, names(all) != "row_id"]
-      x <- (spec == all)
-      all(is.na(x) | (x == TRUE))
-    },
-    output1, output2[-c(6, 7)]
-  )
-
-  expect_true(all(x))
+  # make sure output is correct
+  spec <- output1[, names(output1) != "row"]
+  all <- output2[-c(27:30),][, names(output2[-c(27:30),]) != "row"]
+  x <- (spec == all)
+  
+  expect_true(all( all(is.na(x) | (x == TRUE)) ))
+  
 })
 

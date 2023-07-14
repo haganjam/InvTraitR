@@ -54,7 +54,7 @@ test_that("if all taxon_names are not present in output,
   )
 
   # test if all the relevant taxon names are present in the output
-  expect_true(all(output[["taxon_name"]] == input[["taxon_name"]]))
+  expect_true(all(output[["data"]][["taxon_name"]] == input[["taxon_name"]]))
 })
 
 test_that("given the equation, body_size_mm or id columns are NA,
@@ -79,15 +79,15 @@ test_that("given the equation, body_size_mm or id columns are NA,
   # then dry_biomass_mg should be NA
 
   # equation column
-  expect_true(all(is.na(output[["equation"]]) == is.na(output[["dry_biomass_mg"]])))
+  expect_true(all(is.na(output[["data"]][["equation"]]) == is.na(output[["data"]][["dry_biomass_mg"]])))
 
   # body_size_mm
-  x <- is.na(output[["body_size_mm"]])
-  expect_true(all(is.na(output[["body_size_mm"]][x]) == is.na(output[["dry_biomass_mg"]][x])))
+  x <- is.na(output[["data"]][["body_size_mm"]])
+  expect_true(all(is.na(output[["data"]][["body_size_mm"]][x]) == is.na(output[["data"]][["dry_biomass_mg"]][x])))
 
   # id
-  y <- is.na(output[["id"]])
-  expect_true(all(is.na(c(output[["dry_biomass_mg"]][y]))))
+  y <- is.na(output[["data"]][["id"]])
+  expect_true(all(is.na(c(output[["data"]][["dry_biomass_mg"]][y]))))
 })
 
 test_that("given some of the outputted taxonomic distance values
@@ -110,7 +110,7 @@ test_that("given some of the outputted taxonomic distance values
   )
 
   # test if the outputted taxonomic distances are less than the max tax distance
-  expect_true(all(output[["tax_distance"]][!is.na(output[["tax_distance"]])] <= 3))
+  expect_true(all(output[["data"]][["tax_distance"]][!is.na(output[["data"]][["tax_distance"]])] <= 3))
 })
 
 test_that("does the get_trait_from_taxon() function output the correct
@@ -134,34 +134,41 @@ test_that("does the get_trait_from_taxon() function output the correct
   )
 
   # test if the sex column is in the output
-  expect_true("sex" %in% names(output))
+  expect_true("sex" %in% names(output[["data"]]))
 })
 
 test_that("test a highly marginal case where
             there are no matches for the life-stages", {
-  x <- get_trait_from_taxon(
-    data = data.frame(
-      taxon_name = c("Gammarus", "Daphnia"),
-      Life_stage = c("larva", "none"),
-      lat = rep(50.5, 1),
-      lon = rep(4.98, 1),
-      body_size_mm = rnorm(2, 10, 2)
-    ),
-    target_taxon = "taxon_name",
-    life_stage = "Life_stage",
-    latitude_dd = "lat",
-    longitude_dd = "lon",
-    body_size = "body_size_mm",
-    max_tax_dist = 3,
-    trait = "equation",
-    gen_sp_dist = 0.5
-  )
-
-  expect_true(all(is.na(x[, c("id", "tax_distance", names(x)[grepl("_match", x = names(x))])])))
+              
+    input <- 
+      data.frame(
+        taxon_name = c("Gammarus", "Daphnia"),
+        Life_stage = c("larva", "none"),
+        lat = rep(50.5, 1),
+        lon = rep(4.98, 1),
+        body_size_mm = rnorm(2, 10, 2)
+      )
+                
+  x <- 
+    get_trait_from_taxon(
+      data = input,
+      target_taxon = "taxon_name",
+      life_stage = "Life_stage",
+      latitude_dd = "lat",
+      longitude_dd = "lon",
+      body_size = "body_size_mm",
+      max_tax_dist = 3,
+      trait = "equation",
+      gen_sp_dist = 0.5
+    )
+  
+  expect_true(all(x[["decision_data"]][["workflow2_choice"]] == FALSE))
+  
 })
 
 test_that("test the case where there are only special names", {
-  input_data <- data.frame(
+  
+  input <- data.frame(
     taxon_name = c("Oligochaeta", "Oligochaeta", "Turbellaria"),
     Life_stage = c("none", "none", "none"),
     lat = rep(50.5, 1),
@@ -170,7 +177,7 @@ test_that("test the case where there are only special names", {
   )
 
   x <- get_trait_from_taxon(
-    data = input_data,
+    data = input,
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
     latitude_dd = "lat",
@@ -181,5 +188,11 @@ test_that("test the case where there are only special names", {
     gen_sp_dist = 0.5
   )
 
-  expect_equal(input_data[["taxon_name"]], x[["taxon_name"]])
+  expect_equal(input[["taxon_name"]], x[["data"]][["taxon_name"]])
+  
 })
+
+# test if the decision df matches the output df
+
+
+
