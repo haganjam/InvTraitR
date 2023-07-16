@@ -107,7 +107,7 @@ get_trait_from_taxon <- function(data,
     trait_sel <-
       decision_df |>
       dplyr::filter(workflow2_choice == TRUE) |>
-      dplyr::group_by(, row) |>
+      dplyr::group_by(row) |>
       dplyr::slice_head(n = 1) |>
       dplyr::ungroup()
     
