@@ -94,5 +94,8 @@ equ.dat <-
                                 log_base^(RMS/2),
                                 lm_correction))
 
+# replace the character NAs with true NAs as interpreted by R
+equ.dat[equ.dat == "NA"] <- NA
+
 # write this into a .rds file
 saveRDS(equ.dat, file = paste("database", "/", "equation_database.rds", sep = ""))
