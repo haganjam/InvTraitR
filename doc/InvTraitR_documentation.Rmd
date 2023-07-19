@@ -1,6 +1,6 @@
 ---
 title: "InvTraitR project documentation"
-output: html_notebook
+output: rmarkdown::html_vignette
 ---
 
 ### Forms of length-dry biomass models
