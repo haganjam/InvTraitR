@@ -133,7 +133,7 @@ test_that("given an unsupported trait,
 test_that("test if select_traits_tax_dist() the column
             names that are outputted are correct", {
   # when
-  output <- select_traits_tax_dist(
+  x <- select_traits_tax_dist(
     data = make_test_input(),
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
@@ -141,7 +141,7 @@ test_that("test if select_traits_tax_dist() the column
   )
 
   # extract names from each element of the output list
-  expect_true( all(names(output) == c(
+  expect_true( all(names(x) == c(
       c("row", "taxon_name", "Life_stage", "lat", "lon", "length_mm", 
         "clean_taxon_name", "db", "scientificName", "taxonRank", 
         "acceptedNameUsageID", "taxon_order", "taxon_family", 
@@ -160,7 +160,7 @@ test_that("test if select_traits_tax_dist() outputs entries that should
             have scientific names do have a non-missing
             scientificName column", {
   # when
-  output <- select_traits_tax_dist(
+  x <- select_traits_tax_dist(
     data = make_test_input(),
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
@@ -168,14 +168,14 @@ test_that("test if select_traits_tax_dist() outputs entries that should
   )
   
   # extract unique expected names
-  x <- 
-    output |>
+  y <- 
+    x |>
     dplyr::group_by(row) |>
     dplyr::summarise(scientificName = unique(scientificName)) |>
     dplyr::pull(scientificName)
   
   # set the correct answers
-  y <- c(
+  z <- c(
     "Gammarus",
     "Daphnia",
     NA,
@@ -186,19 +186,19 @@ test_that("test if select_traits_tax_dist() outputs entries that should
   )
   
   # test if these are equal
-  z <- mapply(function(x, y){
+  u <- mapply(function(x, y){
     (x == y) | (is.na(x) && is.na(y))
-  }, x, y, SIMPLIFY = TRUE, USE.NAMES = FALSE)
+  }, y, z, SIMPLIFY = TRUE, USE.NAMES = FALSE)
 
   # make sure the outputted scientific names are correct
-  expect_true(all(z))
+  expect_true(all(u))
   
 })
 
 test_that("test if select_traits_tax_dist() outputs
             the taxonomic distances properly", {
   # when
-  output <- select_traits_tax_dist(
+  x <- select_traits_tax_dist(
     data = make_test_input(),
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
@@ -207,7 +207,7 @@ test_that("test if select_traits_tax_dist() outputs
 
   # all taxonomic distances should be numeric or NA
   expect_true( 
-    all( is.numeric(output[["tax_distance"]]) | is.na(output[["tax_distance"]]) )
+    all( is.numeric(x[["tax_distance"]]) | is.na(x[["tax_distance"]]) )
     )
   
 })
@@ -215,60 +215,60 @@ test_that("test if select_traits_tax_dist() outputs
 test_that("test if select_traits_tax_dist() works
             correctly with only special names", {
               
-  test_input <- make_test_input()   
+  x <- make_test_input()   
   
   # run the select_traits_tax_dist() function with only special names
-  output1 <- select_traits_tax_dist(
-    data = test_input[c(6, 7), ],
+  y1 <- select_traits_tax_dist(
+    data = x[c(6, 7), ],
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
     body_size = "length_mm"
   )
 
   # run the select_traits_tax_dist() function with all names
-  output2 <- select_traits_tax_dist(
-    data = test_input,
+  y2 <- select_traits_tax_dist(
+    data = x,
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
     body_size = "length_mm"
   )
 
   # make sure output is correct
-  spec <- output1[, names(output1) != "row"]
-  all <- output2[c(27:30),][, names(output2[c(27:30),]) != "row"]
-  x <- (spec == all)
+  spec <- y1[, names(y1) != "row"]
+  all <- y2[c(27:30),][, names(y2[c(27:30),]) != "row"]
+  z <- (spec == all)
   
-  expect_true(all( all(is.na(x) | (x == TRUE)) ))
+  expect_true(all( all(is.na(z) | (z == TRUE)) ))
   
 })
 
 test_that("test if select_traits_tax_dist() works
             correctly without any special names", {
               
-  test_input <- make_test_input()             
+  x <- make_test_input()             
   
   # run the select_traits_tax_dist() function without special names
-  output1 <- select_traits_tax_dist(
-    data = test_input[-c(6, 7), ],
+  y1 <- select_traits_tax_dist(
+    data = x[-c(6, 7), ],
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
     body_size = "length_mm"
   )
 
   # run the select_traits_tax_dist() function with all names
-  output2 <- select_traits_tax_dist(
-    data = test_input,
+  y2 <- select_traits_tax_dist(
+    data = x,
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
     body_size = "length_mm"
   )
 
   # make sure output is correct
-  spec <- output1[, names(output1) != "row"]
-  all <- output2[-c(27:30),][, names(output2[-c(27:30),]) != "row"]
-  x <- (spec == all)
+  spec <- y1[, names(y1) != "row"]
+  all <- y2[-c(27:30),][, names(y2[-c(27:30),]) != "row"]
+  z <- (spec == all)
   
-  expect_true(all( all(is.na(x) | (x == TRUE)) ))
+  expect_true(all( all(is.na(z) | (z == TRUE)) ))
   
 })
 

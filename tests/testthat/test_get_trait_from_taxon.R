@@ -38,11 +38,11 @@ test_that("given a bad workflow,
 test_that("if all taxon_names are not present in output,
            when get_trait_from_taxon,
            then error", {
-  input <- make_test_input()
+  x <- make_test_input()
 
   # when
-  output <- get_trait_from_taxon(
-    data = input,
+  y <- get_trait_from_taxon(
+    data = x,
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
     latitude_dd = "lat",
@@ -54,17 +54,17 @@ test_that("if all taxon_names are not present in output,
   )
 
   # test if all the relevant taxon names are present in the output
-  expect_true(all(output[["data"]][["taxon_name"]] == input[["taxon_name"]]))
+  expect_true(all(y[["data"]][["taxon_name"]] == x[["taxon_name"]]))
 })
 
 test_that("given the equation, body_size_mm or id columns are NA,
            when get_trait_from_taxon,
            then dry_biomass_mg should be NA", {
-  input <- make_test_input()
+  x <- make_test_input()
 
   # when
-  output <- get_trait_from_taxon(
-    data = input,
+  y <- get_trait_from_taxon(
+    data = x,
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
     latitude_dd = "lat",
@@ -79,26 +79,26 @@ test_that("given the equation, body_size_mm or id columns are NA,
   # then dry_biomass_mg should be NA
 
   # equation column
-  expect_true(all(is.na(output[["data"]][["equation"]]) == is.na(output[["data"]][["dry_biomass_mg"]])))
+  expect_true(all(is.na(y[["data"]][["equation"]]) == is.na(y[["data"]][["dry_biomass_mg"]])))
 
   # body_size_mm
-  x <- is.na(output[["data"]][["body_size_mm"]])
-  expect_true(all(is.na(output[["data"]][["body_size_mm"]][x]) == is.na(output[["data"]][["dry_biomass_mg"]][x])))
+  z <- is.na(y[["data"]][["body_size_mm"]])
+  expect_true(all(is.na(y[["data"]][["body_size_mm"]][z]) == is.na(y[["data"]][["dry_biomass_mg"]][z])))
 
   # id
-  y <- is.na(output[["data"]][["id"]])
-  expect_true(all(is.na(c(output[["data"]][["dry_biomass_mg"]][y]))))
+  u <- is.na(y[["data"]][["id"]])
+  expect_true(all(is.na(c(y[["data"]][["dry_biomass_mg"]][u]))))
 })
 
 test_that("given some of the outputted taxonomic distance values
              are greater than the max_tax_distance argument,
            when get_trait_from_taxon,
            then error", {
-  input <- make_test_input()
+  x <- make_test_input()
 
   # when
-  output <- get_trait_from_taxon(
-    data = input,
+  y <- get_trait_from_taxon(
+    data = x,
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
     latitude_dd = "lat",
@@ -110,19 +110,19 @@ test_that("given some of the outputted taxonomic distance values
   )
 
   # test if the outputted taxonomic distances are less than the max tax distance
-  expect_true(all(output[["data"]][["tax_distance"]][!is.na(output[["data"]][["tax_distance"]])] <= 3))
+  expect_true(all(y[["data"]][["tax_distance"]][!is.na(y[["data"]][["tax_distance"]])] <= 3))
 })
 
 test_that("does the get_trait_from_taxon() function output the correct
           additional identifier columns?", {
-  input <- make_test_input()
+  x <- make_test_input()
 
   # add additional columns
-  input$sex <- "male"
+  x$sex <- "male"
 
   # when
-  output <- get_trait_from_taxon(
-    data = input,
+  y <- get_trait_from_taxon(
+    data = x,
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
     latitude_dd = "lat",
@@ -134,13 +134,13 @@ test_that("does the get_trait_from_taxon() function output the correct
   )
 
   # test if the sex column is in the output
-  expect_true("sex" %in% names(output[["data"]]))
+  expect_true("sex" %in% names(y[["data"]]))
 })
 
 test_that("test a highly marginal case where
             there are no matches for the life-stages", {
               
-    input <- 
+    x <- 
       data.frame(
         taxon_name = c("Gammarus", "Daphnia"),
         Life_stage = c("larva", "none"),
@@ -149,9 +149,9 @@ test_that("test a highly marginal case where
         body_size_mm = rnorm(2, 10, 2)
       )
                 
-  x <- 
+  y <- 
     get_trait_from_taxon(
-      data = input,
+      data = x,
       target_taxon = "taxon_name",
       life_stage = "Life_stage",
       latitude_dd = "lat",
@@ -162,13 +162,13 @@ test_that("test a highly marginal case where
       gen_sp_dist = 0.5
     )
   
-  expect_true(all(x[["decision_data"]][["workflow2_choice"]] == FALSE))
+  expect_true(all(y[["decision_data"]][["workflow2_choice"]] == FALSE))
   
 })
 
 test_that("test the case where there are only special names", {
   
-  input <- data.frame(
+  x <- data.frame(
     taxon_name = c("Oligochaeta", "Oligochaeta", "Turbellaria"),
     Life_stage = c("none", "none", "none"),
     lat = rep(50.5, 1),
@@ -176,8 +176,8 @@ test_that("test the case where there are only special names", {
     body_size_mm = rnorm(3, 10, 2)
   )
 
-  x <- get_trait_from_taxon(
-    data = input,
+  y <- get_trait_from_taxon(
+    data = x,
     target_taxon = "taxon_name",
     life_stage = "Life_stage",
     latitude_dd = "lat",
@@ -188,11 +188,32 @@ test_that("test the case where there are only special names", {
     gen_sp_dist = 0.5
   )
 
-  expect_equal(input[["taxon_name"]], x[["data"]][["taxon_name"]])
+  expect_equal(x[["taxon_name"]], y[["data"]][["taxon_name"]])
   
 })
 
 # test if the decision df matches the output df
-
-
+test_that("does the decision data match the output data", {
+            
+  x <- make_test_input()
+            
+  y <- get_trait_from_taxon(
+    data = x,
+    target_taxon = "taxon_name",
+    life_stage = "Life_stage",
+    latitude_dd = "lat",
+    longitude_dd = "lon",
+    body_size = "body_size_mm",
+    max_tax_dist = 3,
+    trait = "equation",
+    gen_sp_dist = 0.5
+  )
+  
+  # get the samples for which equations were given
+  u <- dplyr::filter(y[["data"]], !is.na(dry_biomass_mg))
+  z <- dplyr::filter(y[["decision_data"]], workflow2_choice == TRUE)
+  
+  expect_true(all(unique(u$taxon_name) == unique(z$taxon_name)))
+            
+})
 

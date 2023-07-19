@@ -215,7 +215,9 @@ select_traits_tax_dist <- function(data,
         
       })
     
-  } 
+  } else {
+    output_spec <- NULL
+  }
   
   # get a data.frame without special names
   data <- dplyr::filter(data, db != "special")
@@ -338,12 +340,14 @@ select_traits_tax_dist <- function(data,
       
     })
     
+  } else {
+    output <- NULL
   }
   
   # bind the list of regular names and the list of special names
-  if( exists(x = "output_spec") && exists(x = "output")) {
+  if( (length(output_spec) > 0) && (length(output) > 0) ) {
     output <- c(output, output_spec)
-  } else if( exists(x = "output_spec") && !exists(x = "output") ) {
+  } else if( (length(output_spec) > 0) && (length(output) == 0) ) {
     output <- output_spec
   }
   
