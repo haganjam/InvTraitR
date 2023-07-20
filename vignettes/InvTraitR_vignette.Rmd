@@ -30,13 +30,15 @@ db_files <- list("col_higher_taxon_matrices.rds",
                  "taxon_database.rds")
 
 # load the dbfiles
-sapply(db_files, function(x) readRDS(paste0("database/",x)))
+invisible( sapply(db_files, function(x) readRDS(paste0("database/",x))) )
 
 # load relevant libraries
 library(dplyr)
 library(readr)
 library(tidyr)
 library(ggplot2)
+library(assertthat)
+library(testthat)
 
 # load the test data
 dol_df <- readr::read_csv("database/dolmans_MSc_2022.csv")
@@ -75,6 +77,8 @@ get_trait_from_taxon(
 )
 ```
 
+### workflow1
+
 The first option is *workflow1*. If *workflow1* is chosen, `get_trait_from_taxon()` will search the database and, for each sample in your dataset, it will output all equations that are within the maximum taxonomic distance (*max_tax_dist*) set by the user. We can then use our own discretion to choose which of these equations we would like to use.
 
 Let's see how this works:
@@ -105,15 +109,157 @@ head(dol_df_equ$decision_data)
 
 ```
 
-We'll start by looking at the outputted data with the equations. To do this, let's simply look at the first row of the raw data that we fed into the function and what gets outputted:
+We'll start by looking at the outputted data with the equations. To do this, let's simply look at the first row of the raw data. 
 
 ```{r}
 # check the first row of the data that we fed into the function
 print(dol_df[1,])
 
+```
+
+Then, let us compare this with what the function outputs:
+
+```{r}
 # check the first row of the output data with the equations
 print(dplyr::filter(dol_df_equ$data, row == 1))
+```
+
+In this output, we have severals rows for each input row (these are labelled with the row column i.e. input row 1 is labelled has a 1 in the row column). Each row from the input data, there are several rows in this output data. These different rows correspond to different equations from the database that are within the maximum taxonomic distance that we set (i.e. 3.5).
+
+The idea with *workflow1* is for us to now use our discretion to choose appropriate equations. For example, we can use the *tax_distance* column *body_size_range_match* columns to make an initial decision. We want low taxonomic distances and we want the length of our target data to be within the body size range of the equation in the database (which is specified by the *body_size_range_match* column). Based on these criteria, there is a clear winner: equation id = 12 (*id*). The taxonomic distance is zero, it is within the body size range and the equation has an r2 value of 0.93. One issue is that it does not come from the same geographic/habitat conditions (i.e. *realm_match*, *major_habitat_type_match* and *ecoregion_match*).
+
+We can also take guidance from the decision data that is also outputted with workflow1.
+
+```{r}
+# check the first row of the decision data
+print(dplyr::filter(dol_df_equ$decision_data, row == 1))
+```
+
+From this, we can see that the equation we chose (i.e. id = 12) is both recommended by *InvTraitR* (*recommend* column) and would have been the choice made by *workflow2* had we selected it.
+
+Given that we have made our decision, we can now extract the relevant parameters that we need to calculate the dry biomass.
+
+```{r}
+ex1 <- 
+  dol_df_equ$data |>
+  dplyr::filter(row == 1, id == 12) |>
+  dplyr::select(row, taxon, life_stage, lat, lon, country_code_XXX,
+                location, length_mm,
+                equation_form, log_base, a, b, lm_correction, dry_biomass_scale)
+```
+
+Using these data, we can simply calculate the expected dry biomass based on the chosen equation as follows:
+
+```{r}
+# use with so we can directly reference the variables
+dry_biomass_mg <- 
+  with(ex1, {
+       
+          # calculate the raw prediction on the log-scale
+          x <- a + (b*logb(x = length_mm, base = log_base))
+          
+          # convert to the natural scale
+          x <- (log_base^x)
+          
+          # apply the correction factor and scaling factor
+          dry_biomass_mg <- 
+            ifelse(!is.na(lm_correction), x*lm_correction,x)*dry_biomass_scale
+          
+          return(dry_biomass_mg)
+          
+     })
+
+print(paste0("Expected dry biomass (mg) = ", round(dry_biomass_mg, 2) ))
 
 ```
+We've developed a helper function to automatically perform these calculations based on the following variables in a data.frame.
+
+
+### workflow2
+
+The second option for obtaining dry biomass estimates for a set of taxa is workflow2 which is our automated workflow for selecting equations. Let's see how this works:
+
+```{r}
+# we specify the dol_df into the function and select workflow2
+dol_df_equ <- get_trait_from_taxon(data = dol_df,
+                                   target_taxon = "taxon",
+                                   life_stage = "life_stage",
+                                   latitude_dd = "lat",
+                                   longitude_dd = "lon",
+                                   body_size = "length_mm", 
+                                   workflow = "workflow2",
+                                   trait = "equation",
+                                   max_tax_dist = 3.5,
+                                   gen_sp_dist = 0.25)
+```
+
+Unlike with *workflow1*, when we open the output data, it has the same number of rows as the input data (i.e. *dol_df*). That is because *InvTraitR* automatically selected an appropriate equation for each row where an appropriate equation was available in the database. Moreover, *InvTraitR* directly calculated the expected dry biomass (see *dry_biomass_mg* column) For example, let's look at the first row:
+
+```{r}
+# check the first row of the output data with the equations
+print(dplyr::filter(dol_df_equ$data, row == 1))
+```
+
+But, as we can see if we look at the whole output, not all rows have equations and this is because *InvTraitR* could not find suitable equations for all input datapoints.
+
+```{r}
+print(dol_df_equ$data)
+```
+
+In fact, in this dataset, *InvTraitR* was only able to find equations for 22 % of the data points and 23 % of the unique taxa.
+
+```{r}
+# proportion of data points for which appropriate equations were found
+sum(!is.na(dol_df_equ$data$id))/nrow(dol_df_equ$data)
+
+# proportion of unique taxa for which appropriate equations were found
+n <- 
+  dplyr::filter(dol_df_equ$data, !is.na(id)) |> 
+  dplyr::pull(taxon) |> 
+  unique() |> 
+  length()
+
+n/length(unique(dol_df_equ$data$taxon))
+```
+Let's have a look in more detail at the output:
+
+```{r}
+View(dol_df_equ$data)
+View(dol_df_equ$decision_data)
+```
+
+However, we specified certain levels of maximum taxonomic distance in the function. What happens if we relax this and increase the acceptable maximum taxonomic distance and increase it to 4 (instead of 3.5)?
+
+```{r}
+# we specify the dol_df into the function and select workflow2
+dol_df_equ <- get_trait_from_taxon(data = dol_df,
+                                   target_taxon = "taxon",
+                                   life_stage = "life_stage",
+                                   latitude_dd = "lat",
+                                   longitude_dd = "lon",
+                                   body_size = "length_mm", 
+                                   workflow = "workflow2",
+                                   trait = "equation",
+                                   max_tax_dist = 4.25,
+                                   gen_sp_dist = 0.25)
+```
+
+Do we get a higher proportion of datapoint and taxa with appropriate equations?
+
+```{r}
+# proportion of data points for which appropriate equations were found
+sum(!is.na(dol_df_equ$data$id))/nrow(dol_df_equ$data)
+
+# proportion of unique taxa for which appropriate equations were found
+n <- 
+  dplyr::filter(dol_df_equ$data, !is.na(id)) |> 
+  dplyr::pull(taxon) |> 
+  unique() |> 
+  length()
+
+n/length(unique(dol_df_equ$data$taxon))
+```
+In this case, we do not. If this occurs, a user can see which datapoints appropriate equations were not given for and then use the decision data to see if there are appropriate equations for taxa that *InvTraitR* missed. Otherwise, if no good equation can be found, one might have to use order-level equations instead which are available in many research papers (e.g. Benke et al. 1999).
+
 
 
