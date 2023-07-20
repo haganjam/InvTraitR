@@ -1,9 +1,23 @@
 ---
 title: "Dry biomass of freshwater invertebrates using InvTraitR"
-author: "James Hagan"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+author: "James Hagan"
+vignette: >
+  %\VignetteIndexEntry{Dry biomass of freshwater invertebrates using InvTraitR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(InvTraitR)
+```
 
 To see how we can use *InvTraitR* to obtain estimates of the dry biomass of freshwater invertebrates using taxon names and geographical coordinates, we will start by loading some relevant packages and some test data. The test data consist of a set of 89 invertebrate taxa collected in freshwater rockpools on six rocky outcrops (often called inselbergs) in five countries.
 
@@ -55,14 +69,13 @@ length(unique(dol_df$country_code_XXX))
 
 # check the summary statistics
 summary(dol_df)
-
 ```
 
 We want to use the body length data to estimate the dry biomass for each of these samples using length-dry biomass allometric equations. The *InvTraitR* package houses a database of more than 350 length-dry biomass allometric equations that represent most major groups of freshwater invertebrates globally. We can use *InvTraitR* to search this database for appropriate length-dry biomass equations for the samples in our test data (`dol_df`).
 
 To do this, we have two options both of which rely on the `get_trait_from_taxon()` function. This function (see below) takes a data.frame with at least five columns. These columns are the taxon name for which dry biomass data are required, the life stage of the taxon, the latitude and longitude coordinates from which the taxon was sampled and body size of the taxon:
 
-```r
+```{r}
 get_trait_from_taxon(
     data,                   # data.frame with at least five columns: target taxon, life stage, latitude (dd), longitude (dd) and body size (mm) if trait == "equation"
     target_taxon,           # character string with the column name containing the taxon names
@@ -259,7 +272,6 @@ n <-
 
 n/length(unique(dol_df_equ$data$taxon))
 ```
+
 In this case, we do not. If this occurs, a user can see which datapoints appropriate equations were not given for and then use the decision data to see if there are appropriate equations for taxa that *InvTraitR* missed. Otherwise, if no good equation can be found, one might have to use order-level equations instead which are available in many research papers (e.g. Benke et al. 1999).
-
-
 

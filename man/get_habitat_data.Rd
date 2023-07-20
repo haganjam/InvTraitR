@@ -36,5 +36,5 @@ and gets data on biogeographic realm, major habitat type and ecoregion
 based on Abell et al.'s (2008) freshwater ecoregion map.
 }
 \author{
-James G. Hagan (james_hagan(at)outlook.com)
+James G. Hagan (james_hagan(at)outlook.com) and Ronald Bergmann
 }

@@ -39,5 +39,5 @@ This function takes a data.frame with target_taxa and uses the bdc
 package to clean and harmonise the names.
 }
 \author{
-James G. Hagan (james_hagan(at)outlook.com)
+James G. Hagan (james_hagan(at)outlook.com) and Ronald Bergmann
 }

@@ -7,6 +7,7 @@ RUN apt update \
         libgdal-dev \
         libudunits2-dev \
         cmake \
+        pandoc \
     && :
 
 # install dev dependencies

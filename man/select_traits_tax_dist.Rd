@@ -8,6 +8,7 @@ select_traits_tax_dist(
   data,
   target_taxon,
   body_size,
+  life_stage,
   max_tax_dist = 3,
   trait = "equation",
   gen_sp_dist = 0.5
@@ -26,6 +27,11 @@ taxon names
 
 \item{body_size}{\itemize{
 \item column name containing the body length data
+}}
+
+\item{life_stage}{\itemize{
+\item character string with the column name containing the
+life-stage information
 }}
 
 \item{max_tax_dist}{\itemize{
