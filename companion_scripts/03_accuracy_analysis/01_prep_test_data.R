@@ -19,7 +19,7 @@ test_names <- test_names[grepl(pattern = ".csv", x = test_names)]
 dat_list <- vector("list", length = length(test_names))
 for(i in 1:length(test_names)) {
   
-  x <- read_csv(paste0("database/", test_names[i]))
+  x <- readr::read_csv(paste0("database/", test_names[i]))
   dat_list[[i]] <- x
   
 }
@@ -34,14 +34,14 @@ lapply(dat_list, head)
 dat <- 
   lapply(dat_list, function(x) {
     
-    x %>%
-      dplyr::select(reference, order, taxon, lat, lon, sex, gravid, life_stage, length_mm, dry_weight_mg, dry_weight_type) %>%
-      rename(obs_dry_biomass_mg = dry_weight_mg)  
+    x |>
+      dplyr::select(reference, order, taxon, lat, lon, sex, gravid, life_stage, length_mm, dry_weight_mg, dry_weight_type) |>
+      dplyr::rename(obs_dry_biomass_mg = dry_weight_mg)  
     
   })
 
 # bind into a single large data.frame
-dat <- bind_rows(dat)
+dat <- dplyr::bind_rows(dat)
 
 # how many species do we have here
 length(unique(dat$taxon))
@@ -54,31 +54,31 @@ summary(dat)
 
 # filter these negative values
 dat <- 
-  dat %>%
-  filter( !(obs_dry_biomass_mg < 0) )
+  dat |>
+  dplyr::filter( !(obs_dry_biomass_mg < 0) )
 
 # remove the rows without lat and lon data
 dat <- 
-  dat %>%
-  filter(!is.na(lat))
+  dat |>
+  dplyr::filter(!is.na(lat))
 
 # remove gravid individuals
 dat <- 
-  dat %>%
-  filter(gravid == "yes" | is.na(gravid))
+  dat |>
+  dplyr::filter(gravid == "yes" | is.na(gravid))
 
 # remove the Mahrlein datapoints
 dat <- 
-  dat %>%
-  filter(reference != "Maehrlein_2016")
+  dat |>
+  dplyr::filter(reference != "Maehrlein_2016")
 
 # sample from these data to make sure we don't pseudoreplicate too much
 head(dat)
 dat <- 
-  dat %>%
-  group_by(reference, taxon) %>%
-  sample_n(size = ifelse(min(n()) < 5, min(n()), 5), replace = FALSE) %>%
-  ungroup()
+  dat |>
+  dplyr::group_by(reference, taxon) |>
+  dplyr::sample_n(size = ifelse(min(n()) < 5, min(n()), 5), replace = FALSE) |>
+  dplyr::ungroup()
 
 # how many samples are left?
 nrow(dat)
@@ -98,30 +98,30 @@ names(dat_x)
 
 # select relevant columns
 dat_x <- 
-  dat_x %>%
-  mutate(reference = "Dolmans 2022",
-         lat_dd = NA,
-         lon_dd = NA) %>%
+  dat_x |>
+  dplyr::mutate(reference = "Dolmans 2022",
+                lat_dd = NA,
+                lon_dd = NA) |>
   dplyr::select(reference, Focal_taxon, Life_stage, lat_dd, lon_dd, length_mm, Biomass_mg)
 
 # rename the columns
 names(dat_x) <- c("reference", "taxon", "life_stage", "lat_dd", "lon_dd", "length_mm", "obs_dry_biomass_mg")
 
 # load the o'gorman data
-dat_y <- read_csv("database/test_b_gorman_2017.csv")
+dat_y <- readr::read_csv("database/test_b_gorman_2017.csv")
 names(dat_y)
 
 # select relevant columns
 dat_y <- 
-  dat_y %>%
-  mutate(reference = "OGorman 2017") %>%
+  dat_y |>
+  dplyr::mutate(reference = "OGorman 2017") |>
   dplyr::select(reference, species, life_stage, lat_dd, lon_dd, length, mass)
 
 # rename the columns
 names(dat_y) <- c("reference", "taxon", "life_stage", "lat_dd", "lon_dd", "length_mm", "obs_dry_biomass_mg")
 
 # combine these two datasets
-dat_z <- bind_rows(dat_x, dat_y)
+dat_z <- dplyr::bind_rows(dat_x, dat_y)
 
 # write out into an .rds file
 saveRDS(dat_z, file = paste("database", "/", "test_b_data_compilation.rds", sep = ""))

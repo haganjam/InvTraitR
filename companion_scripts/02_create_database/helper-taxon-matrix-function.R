@@ -22,21 +22,21 @@
 library(igraph)
 
 # build the taxon matrix
-tax.mat <- data.frame(
+tax_mat <- data.frame(
   from = c("order", "family"),
   to = c("family", "genus"),
   weights = c(1, 1)
 )
 
 # build igraph from the input matrix
-tax.g <- graph_from_data_frame(d = tax.mat, directed = FALSE)
+tax_g <- graph_from_data_frame(d = tax_mat, directed = FALSE)
 
 # calculate taxononomic distance between each taxonomic level
-tax.d <- distances(
-  tax.g,
-  v = V(tax.g),
-  to = V(tax.g),
-  weights = tax.mat$weights,
+tax_d <- distances(
+  tax_g,
+  v = V(tax_g),
+  to = V(tax_g),
+  weights = tax_mat$weights,
   mode = c("all"),
   algorithm = c("bellman-ford")
 )

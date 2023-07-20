@@ -49,20 +49,20 @@ output <-
   )
 
 # extract the data
-output$decision_data %>% View()
+output$decision_data |> View()
 output <- output$data
 
 # get proportion of names for which we do not have equations for
-output %>%
-  filter(is.na(id)) %>%
-  pull(taxon) %>%
-  unique() %>%
+output |>
+  dplyr::filter(is.na(id)) |>
+  dplyr::pull(taxon) |>
+  unique() |>
   length()/length(unique(output$taxon))
 
 # remove rows where the dry-biomass is not there
 output <-
-  output %>%
-  filter(!is.na(dry_biomass_mg))
+  output |>
+  dplyr::filter(!is.na(dry_biomass_mg))
 
 # check how many unique taxa are left
 length(unique(output$taxon))
@@ -72,14 +72,14 @@ nrow(output)
 output$group <- paste(output$reference, output$taxon, sep = "_")
 
 # what's the minimum number in the output author_year column
-output %>%
-  group_by(group) %>%
-  summarise(n = n())
+output |>
+  dplyr::group_by(group) |>
+  dplyr::summarise(n = n())
 
 # calculate percentage error for actual data
 output <-
-  output %>%
-  mutate(error_perc = ((obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100,
+  output |>
+  dplyr::mutate(error_perc = ((obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100,
          abs_error_perc = (abs(obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100,
          abs_error = (abs(obs_dry_biomass_mg - dry_biomass_mg)))
 
@@ -97,7 +97,7 @@ summary(output$abs_error)
 sum(output$abs_error_perc > 150)/nrow(output)
 
 # null model i.e. order-level equations
-order_null <- read_csv("database/test_order_level_null_model.csv")
+order_null <- readr::read_csv("database/test_order_level_null_model.csv")
 
 # check which orders there are
 unique(order_null$order)
@@ -120,8 +120,8 @@ output$order_dry_biomass_mg <-
 
 # calculate order-level absolute error
 output <- 
-  output %>%
-  mutate(abs_error_perc_order = (abs(obs_dry_biomass_mg - order_dry_biomass_mg) / obs_dry_biomass_mg) * 100)
+  output |>
+  dplyr::mutate(abs_error_perc_order = (abs(obs_dry_biomass_mg - order_dry_biomass_mg) / obs_dry_biomass_mg) * 100)
 
 # compare error percentages
 x <- output[!is.na(output$order_dry_biomass_mg), ]
@@ -135,19 +135,20 @@ ggplot(data = x,
   theme_test()
 
 # what is the average error?
-x %>%
-  group_by(method) %>%
-  summarise(mean_error = mean(abs_error_perc, na.rm = TRUE),
-            median_error = median(abs_error_perc, na.rm = TRUE),
-            min = min(abs_error_perc, na.rm = TRUE),
-            max = max(abs_error_perc, na.rm = TRUE))
+x |>
+  dplyr::group_by(method) |>
+  dplyr::summarise(mean_error = mean(abs_error_perc, na.rm = TRUE),
+                   median_error = median(abs_error_perc, na.rm = TRUE),
+                   min = min(abs_error_perc, na.rm = TRUE),
+                   max = max(abs_error_perc, na.rm = TRUE)
+                   )
 
 # calculate the correlation per group
 cor_df <- 
-  output %>%
-  group_by(order) %>%
-  summarise(cor_obs_est = cor(log10(obs_dry_biomass_mg), log10(dry_biomass_mg) )) %>%
-  mutate(cor_text = paste0("r = ", round(cor_obs_est, 2) ))
+  output |>
+  dplyr::group_by(order) |>
+  dplyr::summarise(cor_obs_est = cor(log10(obs_dry_biomass_mg), log10(dry_biomass_mg) )) |>
+  dplyr::mutate(cor_text = paste0("r = ", round(cor_obs_est, 2) ))
 
 # plot dry weight inferred versus actual dry weight
 
@@ -210,10 +211,10 @@ dat2 <- readRDS("database/test_b_data_compilation.rds")
 
 # sample maximum five of the same taxon
 dat2 <- 
-  dat2 %>%
-  group_by(reference, taxon, life_stage) %>%
-  sample_n(size = ifelse(n() < 5, n(), 5)) %>%
-  ungroup()
+  dat2 |>
+  dplyr::group_by(reference, taxon, life_stage) |>
+  dplyr::sample_n(size = ifelse(n() < 5, n(), 5)) |>
+  dplyr::ungroup()
   
 output2 <-
   get_trait_from_taxon(
@@ -230,39 +231,39 @@ output2 <-
   )
 
 # get proportion of names for which we do not have equations for
-output2 %>%
-  filter(is.na(id)) %>%
-  pull(taxon) %>%
-  unique() %>%
+output2 |>
+  dplyr::filter(is.na(id)) |>
+  dplyr::pull(taxon) |>
+  unique() |>
   length()/length(unique(output2$taxon))
 
 # check which taxa there were no equations for
-output2 %>%
+output2 |>
   dplyr::select(reference, taxon, dry_biomass_mg,
-                db_min_body_size_mm, length_mm, db_max_body_size_mm) %>%
-  mutate(PA = ifelse(is.na(dry_biomass_mg), 0, 1 )) %>%
-  dplyr::select(-dry_biomass_mg) %>%
-  distinct() %>%
+                db_min_body_size_mm, length_mm, db_max_body_size_mm) |>
+  dplyr::mutate(PA = ifelse(is.na(dry_biomass_mg), 0, 1 )) |>
+  dplyr::select(-dry_biomass_mg) |>
+  dplyr::distinct() |>
   View()
 
 # remove rows where the dry-biomass is not there
 output2 <-
-  output2 %>%
-  filter(!is.na(dry_biomass_mg))
+  output2 |>
+  dplyr::filter(!is.na(dry_biomass_mg))
 
 # check how many unique taxa are left
 length(unique(output2$taxon))
 nrow(output2)
 
 # what's the minimum number in the output author_year column
-output2 %>%
-  group_by(reference, taxon) %>%
-  summarise(n = n())
+output2 |>
+  dplyr::group_by(reference, taxon) |>
+  dplyr::summarise(n = n())
 
 # calculate percentage error for actual data
 output2 <-
-  output2 %>%
-  mutate(error_perc = ((obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100,
+  output2 |>
+  dplyr::mutate(error_perc = ((obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100,
          abs_error_perc = (abs(obs_dry_biomass_mg - dry_biomass_mg) / obs_dry_biomass_mg) * 100,
          abs_error = (abs(obs_dry_biomass_mg - dry_biomass_mg)))
 

@@ -8,11 +8,11 @@ library(stringdist)
 source("R/special_names.R")
 
 # load the equation data
-t.dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver4/taxon_database.xlsx")
-head(t.dat)
+t_dat <- readxl::read_xlsx(path = "C:/Users/james/OneDrive/PhD_Gothenburg/Chapter_4_FreshInvTraitR/data/allometry_database_ver4/taxon_database.xlsx")
+head(t_dat)
 
 # clean the names for typos etc.
-x <- bdc_clean_names(sci_names = t.dat$db_taxon, save_outputs = FALSE)
+x <- bdc::bdc_clean_names(sci_names = t_dat$db_taxon, save_outputs = FALSE)
 
 # check if any names were changed
 if (!any(x$scientificName != x$names_clean)) {
@@ -20,20 +20,20 @@ if (!any(x$scientificName != x$names_clean)) {
 }
 
 # replace the names in tax.dat with these cleaned names
-t.dat$db_taxon <- x$names_clean
+t_dat$db_taxon <- x$names_clean
 
 # fix the special names
-spec.names <- special_taxon_names()
+spec_names <- special_taxon_names()
 
 # replace incorrectly spelled special names
-for (i in 1:length(spec.names)) {
+for (i in 1:length(spec_names)) {
   x <-
-    sapply(t.dat$db_taxon, function(y) {
-      ain(x = spec.names[i], table = y, method = "lv", maxDist = 2)
+    sapply(t_dat$db_taxon, function(y) {
+      ain(x = spec_names[i], table = y, method = "lv", maxDist = 2)
     })
 
-  t.dat[x, "db_taxon"] <- spec.names[i]
+  t_dat[x, "db_taxon"] <- spec_names[i]
 }
 
 # write this into a .rds file
-saveRDS(t.dat, file = paste("database", "/", "taxon_database.rds", sep = ""))
+saveRDS(t_dat, file = paste("database", "/", "taxon_database.rds", sep = ""))

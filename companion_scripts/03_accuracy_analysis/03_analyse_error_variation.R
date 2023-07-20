@@ -41,13 +41,13 @@ output <-
 
 # remove the entries without an equation id
 output <- 
-  output %>%
-  filter(!is.na(id))
+  output |>
+  dplyr::filter(!is.na(id))
 
 # only keep entries with matching life-stages
 output <- 
-  output %>%
-  filter(life_stage_match == TRUE)
+  output |>
+  dplyr::filter(life_stage_match == TRUE)
 
 # set-up a vector to capture the dry biomass values
 dry_biomass_mg <- vector(length = nrow(output))
@@ -94,7 +94,7 @@ output[["dry_biomass_mg"]] <- dry_biomass_mg
 
 # create a data.frame for modelling the error
 output_df <- 
-  output %>%
+  output |>
   dplyr::select(row, order, taxon, db_scientificName,
          tax_distance, body_size_range_match, equation_form, r2_match, n,
          realm_match, major_habitat_type_match, ecoregion_match,
@@ -103,9 +103,9 @@ output_df <-
 
 # get the percentage prediction error
 output_df <- 
-  output_df %>%
-  mutate(error_perc = ((obs_dry_biomass_mg - dry_biomass_mg)/obs_dry_biomass_mg)*100,
-         abs_error_perc = (abs(obs_dry_biomass_mg - dry_biomass_mg)/obs_dry_biomass_mg)*100) 
+  output_df |>
+  dplyr::mutate(error_perc = ((obs_dry_biomass_mg - dry_biomass_mg)/obs_dry_biomass_mg)*100,
+                abs_error_perc = (abs(obs_dry_biomass_mg - dry_biomass_mg)/obs_dry_biomass_mg)*100) 
 
 
 # get a habitat match variable
@@ -129,13 +129,13 @@ hist(output_df$error_perc)
 summary(output_df$error_perc)
 
 # how many data points do we have per taxon id
-output_df %>%
-  group_by(row) %>%
-  summarise( n = n()) %>%
-  ungroup() %>%
-  summarise(mean = mean(n),
-            min = min(n),
-            max = max(n))
+output_df |>
+  dplyr::group_by(row) |>
+  dplyr::summarise( n = n()) |>
+  dplyr::ungroup() |>
+  dplyr::summarise(mean = mean(n),
+                   min = min(n),
+                   max = max(n))
 
 # write a function to min-max standardise
 min_max <- function(x) {
@@ -343,5 +343,3 @@ p2 <-
 
 ggsave(filename = "figures/fig_6.png", p2, dpi = 400,
        units = "cm", width = 10, height = 11)
-
-### END

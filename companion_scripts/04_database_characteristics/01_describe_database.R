@@ -26,7 +26,7 @@ tax_dat <-
 
     return(y)
   })
-tax_dat <- bind_rows(tax_dat)
+tax_dat <- dplyr::bind_rows(tax_dat)
 
 # fix a duplicate name with slightly different spelling from the different
 # taxonomic backbones
@@ -37,27 +37,26 @@ length(unique(tax_dat$db_taxon))
 length(unique(tax_dat$family))
 length(unique(tax_dat$order))
 
-# summarise the taxon data
+# dplyr::summarise the taxon data
 tax_sum <- 
-  tax_dat %>%
-  group_by(db_source, group1, group2, order) %>%
-  summarise(
+  tax_dat |>
+  dplyr::group_by(db_source, group1, group2, order) |>
+  dplyr::summarise(
     n_family = length(unique(family)),
-    n_taxa = length(unique(scientificName))
-  ) %>%
-  ungroup() %>%
-  group_by(group1, group2, order) %>%
-  summarise(n_family_m = mean(n_family),
-            n_family_sd = sd(n_family),
-            n_taxa_m = mean(n_taxa),
-            n_taxa_sd = sd(n_taxa)) %>%
-  mutate(group2 = ifelse(is.na(group2) | group2 == "NA", "Other", group2),
-         order = ifelse(is.na(order)  | order == "NA", "Other", order))
+    n_taxa = length(unique(scientificName))) |>
+  dplyr::ungroup() |>
+  dplyr::group_by(group1, group2, order) |>
+  dplyr::summarise(n_family_m = mean(n_family),
+                   n_family_sd = sd(n_family),
+                   n_taxa_m = mean(n_taxa),
+                   n_taxa_sd = sd(n_taxa)) |>
+  dplyr::mutate(group2 = ifelse(is.na(group2) | group2 == "NA", "Other", group2),
+                order = ifelse(is.na(order)  | order == "NA", "Other", order))
 
 # sum up by group1
-tax_sum %>%
-  group_by(group1) %>%
-  summarise(n_taxa = sum(n_taxa_m))
+tax_sum |>
+  dplyr::group_by(group1) |>
+  dplyr::summarise(n_taxa = sum(n_taxa_m))
 
 # change the Platyhelminthes and Annelida label to Platy for plotting
 tax_sum$group1 <- ifelse(tax_sum$group1 == "Platyhelminthes", "Platy.", tax_sum$group1)
@@ -99,19 +98,19 @@ head(hab_dat)
 
 # get the unique lat-lon coordinates
 hab_dat <-
-  hab_dat %>%
-  filter(lat_dd != "NA") %>%
-  mutate(
+  hab_dat |>
+  dplyr::filter(lat_dd != "NA") |>
+  dplyr::mutate(
     longitude = as.numeric(lon_dd),
     latitude = as.numeric(lat_dd)
   )
 
 # plot the points over the natural earth map
 hab_sum <-
-  hab_dat %>%
-  mutate(location = as.character(paste0(lat_dd, lon_dd))) %>%
-  group_by(database,realm, location) %>%
-  summarise(
+  hab_dat |>
+  dplyr::mutate(location = as.character(paste0(lat_dd, lon_dd))) |>
+  dplyr::group_by(database,realm, location) |>
+  dplyr::summarise(
     N = length(unique(id)),
     lat = mean(latitude),
     lon = mean(longitude)
@@ -128,7 +127,7 @@ p2 <-
   geom_sf(data = spData::world, fill = "white", col = "black", size = 0.35) +
   coord_sf(ylim = c(-55, 80), xlim = c(-150, 170)) +
   geom_jitter(
-    data = hab_sum %>% mutate(realm = factor(realm)),
+    data = hab_sum |> dplyr::mutate(realm = factor(realm)),
     mapping = aes(x = lon, y = lat, size = N, fill = realm ),
     colour = "black",
     alpha = 0.6,
@@ -168,30 +167,30 @@ unique(hab_meta$realm)
 
 # bind the tax_dat to the hab_dat
 tax_hab <- 
-  full_join(tax_dat, 
-            dplyr::select(hab_dat, id, realm), by = "id")
+  dplyr::full_join(tax_dat, 
+                   dplyr::select(hab_dat, id, realm), by = "id")
 
 # count the unique orders per realm
 N <- length(unique(paste0(tax_dat$group1, tax_dat$order)))
 
 tax_hab <- 
-  tax_hab %>%
-  mutate(group1_order = paste0(group1, order)) %>%
-  group_by(realm) %>%
-  summarise(n_equ = length(unique(id)),
-            n_prop = length(unique(group1_order))/N) %>%
-  ungroup() %>%
-  filter(!is.na(realm))
+  tax_hab |>
+  dplyr::mutate(group1_order = paste0(group1, order)) |>
+  dplyr::group_by(realm) |>
+  dplyr::summarise(n_equ = length(unique(id)),
+                   n_prop = length(unique(group1_order))/N) |>
+  dplyr::ungroup() |>
+  dplyr::filter(!is.na(realm))
 
 # add the missing 
 tax_hab <- 
-  bind_rows(tax_hab,
-            hab_meta %>%
-              dplyr::select(realm) %>%
-              distinct() %>%
-              filter( !(realm %in% tax_hab$realm) ) %>%
-              mutate(n_prop = 0)
-            )
+  dplyr::bind_rows(tax_hab,
+                   hab_meta |>
+                     dplyr::select(realm) |>
+                     distinct() |>
+                     dplyr::filter( !(realm %in% tax_hab$realm) ) |>
+                     dplyr::mutate(n_prop = 0)
+                   )
 
 # plot these data  
 p3 <- 
