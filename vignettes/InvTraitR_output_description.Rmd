@@ -109,6 +109,40 @@ dry_biomass_scale [num] - multiplier to convert the equation output to mg
 dry_biomass_mg [num] - dry biomass (mg) derived for the body size given in the original, input data using the chosen equation
 
 
+For the "decision_data" element, much of the output is the same. Specifically, the following columns have the same variables and, therefore, we do not repeat the explanations. These variables are:
 
++ row [int]
++ (input column names)
++ habitat_id [num]
++ realm [chr]
++ major_habitat_type [chr]
++ ecoregion [chr]
++ clean_"taxon name variable" [chr]
++ db [chr]
++ scientificName [chr]
++ taxonRank [chr]
++ acceptedNameUsageID [chr]
++ taxon_order [chr]
++ taxon_family [chr]
++ trait_out [chr]
++ db_scientificName [chr]
++ id [num]
++ tax_distance [num]
++ body_size_range_match [logi]
++ life_stage_match [logi]
++ r2_match [num]
++ n [num] 
++ db_min_body_size_mm [num]
++ db_max_body_size_mm [num]
++ realm_match [logi]
++ major_habitat_type_match [logi]
++ ecoregion_match [logi]
 
+There are, however, three additional columns:
+
++ recommend [logi] - TRUE/FALSE whether *InvTraitR* recommends this equation. The recommendation is based on the taxonomic distance, the target body size compared to the body size range that the equation was generated with and whether the life-stage of the target and the equation match. If FALSE, an explanation for why it is not recommended is given in the next column.
+
++ explanation [chr] - explanation for why a given equation is not recommended
+
++ workflow2_choice [logi] - TRUE/FALSE whether *InvTraitR* would select this equation using *workflow2* 
 
