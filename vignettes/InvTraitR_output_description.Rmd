@@ -1,0 +1,114 @@
+---
+title: "InvTraitR_output_description"
+author: "James G. Hagan"
+date: "`r Sys.Date()`"
+vignette: >
+  %\VignetteIndexEntry{Detailed description of the output}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The *InvTraitR* R-package exports a single function called *get_trait_from_taxon()*. 
+
+```{r}
+get_trait_from_taxon(
+    data,                   # data.frame with at least five columns: target taxon, life stage, latitude (dd), longitude (dd) and body size (mm) if trait == "equation"
+    target_taxon,           # character string with the column name containing the taxon names
+    life_stage,             # character string with the column name containing the life stages
+    latitude_dd,            # character string with the column name containing the latitude in decimal degrees
+    longitude_dd,           # character string with the column name containing the longitude in decimal degrees
+    body_size,              # character string with the column name containing the body size data if trait = "equation"
+    workflow = "workflow2", # options are "workflow1" or "workflow2" (default = "workflow2)
+    max_tax_dist = 3,       # maximum taxonomic distance acceptable between the target and the taxa in the database (default = 3)
+    trait = "equation",     # trait to be searched for (default = "equation")
+    gen_sp_dist = 0.5       # taxonomic distance between a genus and a species(default = 0.5)
+)
+```
+
+This generates a relatively complex output and this vignette gives a detailed description of the different outputs. The output of *get_trait_from_taxon()* is a list with two data.frames as named elements: "data" and "decision_data". We start with the columns in the "data" element:
+
+*workflow1* and *workflow2*
+
++ row [int] - variable specifying the row number from the original, input data.frame
+
++ (input column names) - all the different variables from the original, input data.frame. Inevitably, these must include columns for: taxon name, life-stage, latitude-longitude coordinates and body length data
+
++ habitat_id [num] - id number designating the biogeographic realm, major habitat type and ecoregion from Abell et al.'s (2008) freshwater ecoregion map (https://www.feow.org/)
+
++ realm [chr] - biogeographic realm based on Abell et al.'s (2008) freshwater ecoregion map (https://www.feow.org/)
+
++ major_habitat_type [chr] - major habitat type based on Abell et al.'s (2008) freshwater ecoregion map (https://www.feow.org/)
+
++ ecoregion [chr] - ecoregion based on Abell et al.'s (2008) freshwater ecoregion map (https://www.feow.org/)
+
++ clean_"taxon name variable" [chr] - target taxon name after checking for typos and the inclusion of atypical characters which is done using *bdc_clean_names()* from the *bdc* R-package. The variable name is the taxon name variable from the original, input data with the "clean_" prefix
+
++ db [chr] - taxonomic database (gbif - https://www.gbif.org/, itis - https://www.itis.gov/ or col - https://www.catalogueoflife.org/)
+
++ scientificName [chr] - scientific name of the taxon from the original, input data in one of the taxonomic databases (see db column)
+
++ taxonRank [chr] - taxonomic rank of the scientificName in one of the taxonomic databases (see db column)
+
++ acceptedNameUsageID [chr] - unique code associated with the scientificName for the taxonomic database (see db column)
+
++ taxon_order [chr] - order of the scientificName in the one of the taxonomic databases (see db column)
+
++ taxon_family [chr] - family of the scientificName in the one of the taxonomic databases (see db column)
+
++ trait_out [chr] - specifies the trait that is being queried. The current version of *InvTraitR* only supports "equation" but future updates may include other traits.
+
++ db_scientificName [chr] - scientific name of the taxon associated with the equation in the equation data based on one of the taxonomic databases (see db column)
+
++ id [num] - unique id associated with the trait datapoint in the trait databases. The current version of *InvTraitR* only supports equations and so this id corresponds to a unique id of each of the more than 350 equations in the equation database.
+
++ tax_distance [num] - taxonomic distance between the *scientificName* of the taxon from the original input data and the *db_scientificName* of the taxon from the equation database based on one of the taxonomic databases (see db column)
+
++ body_size_range_match [logi] - TRUE/FALSE whether the target body size from the original, input data is within the body size range that the given equation was developed for (within a 30% error margin on each side)
+
++ life_stage_match [logi] - TRUE/FALSE whether the target life-stage from the original, input data matches the life-stage of the equation
+
++ r2_match [num] - coefficient of determination (r^2) of the equation in the database
+
++ n [num] - number of samples used to generate the equation in the database
+
++ db_min_body_size_mm [num] - minimum body size (mm) of the data used to generate the equation in the database
+
++ db_max_body_size_mm [num] - maximum body size (mm) of the data used to generate the equation in the database
+
++ realm_match [logi] - TRUE/FALSE whether the lat-lon data in the original, input data provide the same biogeographic realm as the biogeographic realm from the location that the taxa were sampled when the equation was generated. As previously, the biogeographic realm was based on Abell et al.'s (2008) freshwater ecoregion map (https://www.feow.org/)
+
++ major_habitat_type_match [logi] - TRUE/FALSE whether the lat-lon data in the original, input data provide the same major habitat type as the major habitat type from the location that the taxa were sampled when the equation was generated. As previously, the major habitat type was based on Abell et al.'s (2008) freshwater ecoregion map (https://www.feow.org/)
+
++ ecoregion_match [logi] - TRUE/FALSE whether the lat-lon data in the original, input data provide the same ecoregion as the ecoregion from the location that the taxa were sampled when the equation was generated. As previously, the ecoregion was based on Abell et al.'s (2008) freshwater ecoregion map (https://www.feow.org/)
+
++ preservation [chr] - method used to preserve the specimens that were used to generate the equation: "none" - no preservation, "ethanol" - preserved in ethanol and "formaldehyde" - preserved in formaldehyde
+
++ equation_form [chr] - the database supports two types of equation: "model1" - the log-log linear equation and "model2" - non-linear equation. See documentation for details of these models
+
++ log_base [num] - base of log for model1 equations
+
++ a [num] - a parameter for the "model1" and "model2" equations. See documentation for details of these models
+
++ b [num] - b parameter for the "model1" and "model2" equations. See documentation for details of these models
+
+lm_corrrection [num] - corrections for "model1" equations to remove the bias associated with back-transforming predictions made on the log-log scale to the natural scale. See documentation for details.
+
+lm_correction_type [chr] - the specific correction factor used for "model1" equations which are based on the availability of information like the mean squared errors from the original papers. See documentation for details.
+
+dry_biomass_scale [num] - multiplier to convert the equation output to mg
+
+*workflow2*:
+
+dry_biomass_mg [num] - dry biomass (mg) derived for the body size given in the original, input data using the chosen equation
+
+
+
+
+
