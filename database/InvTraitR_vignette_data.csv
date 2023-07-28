@@ -1,0 +1,41 @@
+target_taxon,life_stage,lat,lon,length_mm
+Acilius sulcatus,adult,51.122197,5.33172,16.3
+Acilius sulcatus,larva,51.122197,5.33172,8.1
+Agabus striolatus,adult,51.122197,5.33172,10.11
+Ceratopogonidae,pupa,51.122197,5.33172,13.33
+Chaoborus,larva,51.122197,5.33172,13.09
+Chironomidae,pupa,51.122197,5.33172,9.25
+Chrysomelidae,larva,51.122197,5.33172,9.81
+Chydorus sphaericus,adult,51.122197,5.33172,0.459
+Cloeon dipterum,nymph,51.122197,5.33172,15.31
+Coenagrion ornatum,nymph,51.122197,5.33172,17.87
+Culex territans,larva,51.122197,5.33172,2
+Culicidae,pupa,51.122197,5.33172,8.77
+Daphnia obtusa,adult,51.122197,5.33172,2.65
+Dixella aestivalis,larva,51.122197,5.33172,10.2
+Dixidae,pupa,51.122197,5.33172,7.08
+Dytiscus marginalis,larva,51.122197,5.33172,40.24
+Epidalea calamita,larva,51.122197,5.33172,19.51
+Gamasida,adult,51.122197,5.33172,0.467
+Gerris lacustris,adult,51.122197,5.33172,9.25
+Gyrinus natator,adult,51.122197,5.33172,7.73
+Gyrinus natator,larva,51.122197,5.33172,8.32
+Haliplus,larva,51.122197,5.33172,10.21
+Hesperocorixa linnaei,adult,51.122197,5.33172,6.27
+Hydraenidae,adult,51.122197,5.33172,2.3
+Hydrochara caraboides  ,larva,51.122197,5.33172,13.62
+Hydroporus palustris,adult,51.122197,5.33172,3.5
+Hydroporus palustris,larva,51.122197,5.33172,4.7
+Ilybius quadriguttatus,adult,51.122197,5.33172,8.94
+Laccophilus,larva,51.122197,5.33172,14.37
+Lumbriculidae,adult,51.122197,5.33172,1.04
+Lumbriculidae,adult,51.122197,5.33172,7.31
+Mesocyclops,adult,51.122197,5.33172,0.92
+Notenectida,adult,51.122197,5.33172,8.32
+Notonecta glauca,adult,51.122197,5.33172,16.55
+Notonecta obliqua,adult,51.122197,5.33172,14.16
+Orthocladiinae,larva,51.122197,5.33172,10.58
+Pisidium casertanum,adult,51.122197,5.33172,9.66
+Rhantus suturalis,adult,51.122197,5.33172,12.83
+Rhantus suturalis,larva,51.122197,5.33172,10.3
+Triops cancriformis,adult,51.122197,5.33172,65
