@@ -162,30 +162,14 @@ So, given that we are only dealing with models with two parameters, this small d
 
 The recommended approach to generating length-dry biomass equations is to use fresh specimens or frozen specimens (Benke et al. 1999). This is because preservation in commonly used preservatives like formalin and ethanol can cause mass loss as lipids and other compounds may dissolve. 
 
-Loss in dry mass due to preservation can be substantial. For example, Mahrlein et al. (2016, *Hydrobiologia*) report dry weight loss of more than 20% due to preservation in ethanol. Similarly, Wetzel et al. (2005) report dry weight loss of more than 30% due to both formalin and ethanol preservation. This is in contrast to the common doctrine that preservation-induced mass loss is less prevalent when animals are preserved in formalin (Leuven et al. 1985). These numbers (20 or 30%) are significant and, therefore, we should do our best to account for them to the best of our ability.
+Loss in dry mass due to preservation can be substantial. For example, Mahrlein et al. (2016, *Hydrobiologia*) report dry weight loss of more than 20% due to preservation in ethanol. Similarly, Wetzel et al. (2005, *Helgoland Marine Researcg*) report dry weight loss of more than 30% due to both formalin and ethanol preservation. This is in contrast to the common doctrine that preservation-induced mass loss is less prevalent when animals are preserved in formalin (Leuven et al. 1985, *Hydrobiologia*). These numbers (20 or 30%) are significant and, therefore, we should do our best to account for them to the best of our ability.
 
 Generating equations or gathering test data that used different preservation methods can lead to a large additional source of error when estimating dry biomass. However, there is another issue with preservation methods. Usually, we want to estimate dry biomass for communities or species that were collected and preserved. However, individuals that are preserved in ethanol or formalin can also change their lengths. Thus, when these preserved individuals are measured for length, the measured lengths can be incorrect.
 
-We need to look carefully at which preservation methods were used to generate the equation and which preservation is used for the testing data or for the dataset where the length data come from.
+We need to look carefully at which preservation methods were used to generate the equation and which preservation is used for the testing data or for the dataset where the length data come from. We have added this information and proposed correction factors for the equations in the equation database. However, given that there are not enough correction factors available in the literature, we have, as of yet, not implemented these corrections into the output of *InvTraitR*.
 
-*What information do we need to extract?*
 
-Add preservation method information for each equation. I think I'm going to stick with three possibilities:
 
-+ unpreserved
-+ formaldehyde
-+ ethanol
 
-Add a preservation correction factor for equations generated with preserved specimens. For example, Dekanova et al. (2022) generated their length-dry biomass equations using formalin-preserved specimens. We need to add some correction factor to these equations that increases the dry biomass estimate to account for this. For example, Mahrlein et al. (2016) propose a 22% correction factor but we'll need to check how consistent this is. The point is that we'll need to add a correction factor to each equation that was generated using preserved specimens. This will be based on the preservation method used.
 
-In addition, we need to provide a length correction factor because preserved animals also change their length. Whether this length correction factor is required will depend on the preservation status of the equation:
-
-+ length preserved -> equation unpreserved (correct length upwards)
-+ length unpreserved -> equation preserved (correct length downwards)
-
-The details of how to do this will depend and I'll need to figure it out. 
-
-A nice comparison figure for the manuscript will be something like comparing accuracy of the method when accounting for preservation effects and when not accounting for preservation effects.
-
-I think this is actually very important because most people that use these equations generally don't think too much about the preservation effects. This makes sense given that it's a lot of extra work. But, if it only needs to be done once (by us) then it might improve these biomass estimations a lot.
 
