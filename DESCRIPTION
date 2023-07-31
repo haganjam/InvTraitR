@@ -14,8 +14,8 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-URL: https://github.com/haganjam/FW_invert_biomass_allometry
-BugReports: https://github.com/haganjam/FW_invert_biomass_allometry/issues
+URL: https://github.com/haganjam/InvTraitR
+BugReports: https://github.com/haganjam/InvTraitR/issues
 Imports: 
     igraph,
     assertthat,

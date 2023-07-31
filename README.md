@@ -1,20 +1,20 @@
-# FW_invert_biomass_allometry
+# InvTraitR
 
-[![R-CMD-check](https://github.com/haganjam/FW_invert_biomass_allometry/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/haganjam/FW_invert_biomass_allometry/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/haganjam/InvTraitR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/haganjam/InvTraitR/actions/workflows/R-CMD-check.yaml)
 
 Pipeline to assign body length-dry biomass allometry equations and other functional traits to a taxonomic name based on taxonomic hierarchy in freshwater invertebrates. However, the name-matching pipeline can technically be used for any taxonomic group.
 
 ## Installation
 
 The package is WIP. It will, hopefully, be available on CRAN soon.  
-You can try to install it from GitHub but as it's a WIP, it may or may not
+You can try to install it from GitHub, but as it's a WIP, it may or may not
 work depending on the tides, temperature, the color of your socks and what
 you had for dinner the day before yesterday.
 
 So, if you feel lucky, try:
 
 ```r
-install_github("haganjam/FW_invert_biomass_allometry")
+install_github("haganjam/InvTraitR")
 ```
 
 ## Usage
@@ -97,8 +97,8 @@ VSC you should be prompted to open the project in a container automatically.
 have `load_all()`, `test()` and `check()` ready at hand.
 
 We use `renv` to provide reproducibility as far as it gets with R.
-Use `renv::snapshot()` after changing dependencies, `renv::install()` to install declared versions
-of the dependencies and `renv::update()` to update to latest CRAN versions (before pushin to CRAN).
+Use `renv::snapshot()` after changing dependencies, `renv::restore()` to install declared versions
+of the dependencies and `renv::update()` to update to latest CRAN versions (before pushing to CRAN).
 
 The database files will be put into an appdata dir (given by `rappdirs`) when executing
 tests or when people load the actual package. If you made changes to the DB files and need

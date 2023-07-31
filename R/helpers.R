@@ -82,7 +82,7 @@ download_database <- function(pkgname) {
     )
     remote_db_dir <- "database"
 
-    base_url <- "https://github.com/haganjam/FW_invert_biomass_allometry"
+    base_url <- "https://github.com/haganjam/InvTraitR"
     db_files <- list(
         "col_higher_taxon_matrices.rds",
         "col_taxon_database.rds",
