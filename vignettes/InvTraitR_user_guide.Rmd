@@ -110,7 +110,7 @@ In this output, we have several rows for each input row (these are labelled with
 
 The idea with *workflow1* is for us to now use our discretion to choose appropriate equations. To look in more detail at the output, we can also use the *View()* function:
 
-```{r}
+```{r eval=FALSE}
 View(dplyr::filter(pond_equ1$data, row == 1))
 ```
 
@@ -195,7 +195,7 @@ As was clear from looking at this example with *workflow1*, there were no equati
 
 Indeed, if we look at the whole output, many of the rows do not have equations which means that *InvTraitR* was unable to find appropriate equations in the database based on these three criteria. 
 
-```{r}
+```{r eval=FALSE}
 View(pond_equ2$data)
 ```
 
@@ -216,7 +216,7 @@ n / length(unique(pond_equ2$data$target_taxon))
 ```
 If we want to get more insight into why *InvTraitR* was unable to find appropriate equations for the different rows, we can look at the second output which is the *decision_data*. For each row, it shows all the equations that were considered and then in the column called *explanation*, it explains why a given equation was not chosen.
 
-```{r}
+```{r eval=FALSE}
 View(pond_equ2$decision_data)
 ```
 
