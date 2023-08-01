@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 The *InvTraitR* R-package exports a single function called *get_trait_from_taxon()*. 
 
-```{r}
+```{r eval=FALSE}
 get_trait_from_taxon(
     data,                   # data.frame with at least five columns: target taxon, life stage, latitude (dd), longitude (dd) and body size (mm) if trait == "equation"
     target_taxon,           # character string with the column name containing the taxon names
