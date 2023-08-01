@@ -1,5 +1,5 @@
 ---
-title: "InvTraitR_output_description"
+title: "Detailed description of the output"
 author: "James G. Hagan"
 date: "`r Sys.Date()`"
 vignette: >

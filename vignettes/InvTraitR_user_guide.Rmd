@@ -20,28 +20,6 @@ library(InvTraitR)
 ```
 
 ```{r}
-# until we can simply load the package, I'll load the functions and files manually
-
-# load functions associated with the script
-funcs <- list.files("R")
-sapply(funcs, function(x) source(paste0("R/",x)))
-
-# download the data files
-db_files <- list("col_higher_taxon_matrices.rds",
-                 "col_taxon_database.rds",
-                 "equation_database.rds",
-                 "freshwater_ecoregion_data.rds",
-                 "freshwater_ecoregion_map.rds",
-                 "freshwater_ecoregion_metadata.rds",
-                 "gbif_higher_taxon_matrices.rds",
-                 "gbif_taxon_database.rds",
-                 "itis_higher_taxon_matrices.rds",
-                 "itis_taxon_database.rds",
-                 "taxon_database.rds")
-
-# load the dbfiles
-invisible( sapply(db_files, function(x) readRDS(paste0("database/",x))) )
-
 # load relevant libraries
 library(dplyr)
 library(readr)
@@ -54,7 +32,7 @@ To see how we can use *InvTraitR* to obtain estimates of the dry biomass of fres
 
 ```{r}
 # load the test data
-pond_df <- readr::read_csv("database/InvTraitR_vignette_data.csv")
+pond_df <- readr::read_csv("https://raw.githubusercontent.com/haganjam/InvTraitR/main/database/InvTraitR_vignette_data.csv")
 head(pond_df)
 
 # how many unique taxa are there?
@@ -68,7 +46,7 @@ We want to use the body length data to estimate the dry biomass for each of thes
 
 To do this, we have two options both of which rely on the `get_trait_from_taxon()` function. This function (see below) takes a data.frame with at least five columns. These columns are the taxon name for which dry biomass data are required, the life stage of the taxon, the latitude and longitude coordinates from which the taxon was sampled and body size of the taxon:
 
-```{r}
+```{r eval=FALSE}
 get_trait_from_taxon(
     data,                   # data.frame with at least five columns: target taxon, life stage, latitude (dd), longitude (dd) and body size (mm) if trait == "equation"
     target_taxon,           # character string with the column name containing the taxon names
@@ -91,28 +69,27 @@ Let's see how this works:
 
 ```{r}
 # we specify the dol_df into the function
-pond_equ1 <- get_trait_from_taxon(data = pond_df,
-                                 target_taxon = "target_taxon",
-                                 life_stage = "life_stage",
-                                 latitude_dd = "lat",
-                                 longitude_dd = "lon",
-                                 body_size = "length_mm", 
-                                 workflow = "workflow1",
-                                 trait = "equation",
-                                 max_tax_dist = 3.5,
-                                 gen_sp_dist = 0.25
-                                 )
+pond_equ1 <- get_trait_from_taxon(
+  data = pond_df,
+  target_taxon = "target_taxon",
+  life_stage = "life_stage",
+  latitude_dd = "lat",
+  longitude_dd = "lon",
+  body_size = "length_mm", 
+  workflow = "workflow1",
+  trait = "equation",
+  max_tax_dist = 3.5,
+  gen_sp_dist = 0.25
+)
 ```
 
 
 The output is a list of length two with two different data.frames: the data with relevant equations (*data*) and a data.frame with information on how we chose the equations (*decision_df*).
 
 ```{r}
-
 # look at the first few rows of both the output data.frames in the list
 head(pond_equ1$data)
 head(pond_equ1$decision_data)
-
 ```
 
 We'll start by looking at the outputted data with the equations. To do this, let's simply look at the first row of the raw data. 
@@ -120,7 +97,6 @@ We'll start by looking at the outputted data with the equations. To do this, let
 ```{r}
 # check the first row of the data that we fed into the function
 print(pond_df[1,])
-
 ```
 
 Then, let us compare this with what the function outputs:
@@ -145,7 +121,7 @@ Nonetheless, because the other equations within the appropriate taxonomic do not
 Based on this information, we will choose id = 169 because it is the only equation with the appropriate life-stage information.
 
 ```{r}
-ex1 <- 
+ex1 <-
   pond_equ1$data |>
   dplyr::filter(row == 1, id == 169) |>
   dplyr::select(row, target_taxon, life_stage, lat, lon, length_mm,
@@ -156,31 +132,29 @@ Using these data, we can simply calculate the expected dry biomass based on the 
 
 ```{r}
 # use with so we can directly reference the variables
-ex1_biomass_mg <- 
-  
-  with(ex1, {
-       
-          # calculate the raw prediction on the log-scale
-          x <- a + (b*logb(x = length_mm, base = log_base))
-          
-          # convert to the natural scale
-          x <- (log_base^x)
-          
-          # apply the correction factor and scaling factor
-          dry_biomass_mg <- 
-            ifelse(!is.na(lm_correction), x*lm_correction,x)*dry_biomass_scale
-          
-          return(dry_biomass_mg)
-          
-     })
+ex1_biomass_mg <- with(ex1, {
+  # calculate the raw prediction on the log-scale
+  x <- a + (b * logb(x = length_mm, base = log_base))
 
-print(paste0("Expected dry biomass (mg) = ", round(ex1_biomass_mg, 2) ))
+  # convert to the natural scale
+  x <- (log_base^x)
 
+  # apply the correction factor and scaling factor
+  dry_biomass_mg <- dry_biomass_scale * ifelse(
+    !is.na(lm_correction),
+    x * lm_correction,
+    x
+  )
+
+  return(dry_biomass_mg)
+})
+
+print(paste0("Expected dry biomass (mg) = ", round(ex1_biomass_mg, 2)))
 ```
+
 Checking the literature, I found a that ca. 50 mg is not atypical for a Dysticid diving beetle adult which provides confidence in this estimate (Klecka and Boukal 2013, Journal of Animal Ecology).
 
 We've developed a helper function to automatically perform these calculations based on the following variables in a data.frame.
-
 
 ### workflow2
 
@@ -188,16 +162,18 @@ The second option for obtaining dry biomass estimates for a set of taxa is workf
 
 ```{r}
 # we specify the dol_df into the function and select workflow2
-pond_equ2 <- get_trait_from_taxon(data = pond_df,
-                                  target_taxon = "target_taxon",
-                                  life_stage = "life_stage",
-                                  latitude_dd = "lat",
-                                  longitude_dd = "lon",
-                                  body_size = "length_mm", 
-                                  workflow = "workflow2",
-                                  trait = "equation",
-                                  max_tax_dist = 3.5,
-                                  gen_sp_dist = 0.25)
+pond_equ2 <- get_trait_from_taxon(
+  data = pond_df,
+  target_taxon = "target_taxon",
+  life_stage = "life_stage",
+  latitude_dd = "lat",
+  longitude_dd = "lon",
+  body_size = "length_mm", 
+  workflow = "workflow2",
+  trait = "equation",
+  max_tax_dist = 3.5,
+  gen_sp_dist = 0.25
+)
 ```
 
 Unlike with *workflow1*, when we open the output data, it has the same number of rows as the input data (i.e. *pond_df*). That is because *InvTraitR* automatically selected an appropriate equation for each row where an appropriate equation was available in the database. Moreover, *InvTraitR* directly calculated the expected dry biomass (see *dry_biomass_mg* column) For example, let's look at the first row:
@@ -230,13 +206,13 @@ In fact, in this dataset, *InvTraitR* was only able to find equations for 25 % o
 sum(!is.na(pond_equ2$data$id))/nrow(pond_equ2$data)
 
 # proportion of unique taxa for which appropriate equations were found
-n <- 
-  dplyr::filter(pond_equ2$data, !is.na(id)) |> 
-  dplyr::pull(target_taxon) |> 
-  unique() |> 
+n <-
+  dplyr::filter(pond_equ2$data, !is.na(id)) |>
+  dplyr::pull(target_taxon) |>
+  unique() |>
   length()
 
-n/length(unique(pond_equ2$data$target_taxon))
+n / length(unique(pond_equ2$data$target_taxon))
 ```
 If we want to get more insight into why *InvTraitR* was unable to find appropriate equations for the different rows, we can look at the second output which is the *decision_data*. For each row, it shows all the equations that were considered and then in the column called *explanation*, it explains why a given equation was not chosen.
 
@@ -248,16 +224,18 @@ However, in this case, we specified certain levels of maximum taxonomic distance
 
 ```{r}
 # we specify the dol_df into the function and select workflow2
-pond_equ2 <- get_trait_from_taxon(data = pond_df,
-                                   target_taxon = "target_taxon",
-                                   life_stage = "life_stage",
-                                   latitude_dd = "lat",
-                                   longitude_dd = "lon",
-                                   body_size = "length_mm", 
-                                   workflow = "workflow2",
-                                   trait = "equation",
-                                   max_tax_dist = 4,
-                                   gen_sp_dist = 0.25)
+pond_equ2 <- get_trait_from_taxon(
+  data = pond_df,
+  target_taxon = "target_taxon",
+  life_stage = "life_stage",
+  latitude_dd = "lat",
+  longitude_dd = "lon",
+  body_size = "length_mm", 
+  workflow = "workflow2",
+  trait = "equation",
+  max_tax_dist = 4,
+  gen_sp_dist = 0.25
+)
 ```
 
 Do we get a higher proportion of datapoint and taxa with appropriate equations?
@@ -267,12 +245,12 @@ Do we get a higher proportion of datapoint and taxa with appropriate equations?
 sum(!is.na(pond_equ2$data$id))/nrow(pond_equ2$data)
 
 # proportion of unique taxa for which appropriate equations were found
-n <- 
-  dplyr::filter(pond_equ2$data, !is.na(id)) |> 
-  dplyr::pull(target_taxon) |> 
-  unique() |> 
+n <-
+  dplyr::filter(pond_equ2$data, !is.na(id)) |>
+  dplyr::pull(target_taxon) |>
+  unique() |>
   length()
 
-n/length(unique(pond_equ2$data$target_taxon))
+n / length(unique(pond_equ2$data$target_taxon))
 ```
 In this case, we do not. If this occurs, a user can see which datapoints appropriate equations were not given for and then use the decision data to see if there are appropriate equations for taxa that *InvTraitR* missed. Otherwise, if no good equation can be found, one might have to use order-level equations instead which are available in many research papers (e.g. Benke et al. 1999).

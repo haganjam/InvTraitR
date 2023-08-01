@@ -1,5 +1,5 @@
 ---
-title: "InvTraitR model descriptions"
+title: "Description of the model forms for the equations"
 author: "James G. Hagan"
 date: "`r Sys.Date()`"
 vignette: >
