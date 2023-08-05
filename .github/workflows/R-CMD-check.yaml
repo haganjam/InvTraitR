@@ -32,18 +32,23 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: false
-      # - name: Install OS packages
-      #   run:   |
-      #         if [ "$RUNNER_OS" == "Linux" ]; then
-      #               sudo apt install -y libgdal-dev libudunits2-dev
-      #         elif [ "$RUNNER_OS" == "Windows" ]; then
-      #               echo "$RUNNER_OS not yet supported"
-      #               exit 1
-      #         else
-      #               echo "$RUNNER_OS not yet supported"
-      #               exit 1
-      #         fi
-      #   shell: bash
+      - name: Install OS packages
+      # dependency terra (1.7) requires: C++17, GDAL (>= 2.2.3), GEOS (>= 3.4.0), PROJ (>= 4.9.3), sqlite3
+      # stripped for testing purposes:
+              # elif [ "$RUNNER_OS" == "macOS" ]; then
+              #     brew install pkg-config
+              #     brew install gdal
+              # elif [ "$RUNNER_OS" == "Windows" ]; then
+              #     echo "$RUNNER_OS not yet supported"
+              #     exit 1
+              # else
+              #     echo "$RUNNER_OS not yet supported"
+              #     exit 1
+        run:   |
+              if [ "$RUNNER_OS" == "Linux" ]; then
+                  sudo apt install -y libgdal-dev libudunits2-dev
+              fi
+        shell: bash
       - uses: r-lib/actions/setup-renv@v2
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
