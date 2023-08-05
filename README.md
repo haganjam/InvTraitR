@@ -7,11 +7,16 @@ Pipeline to assign body length-dry biomass allometry equations and other functio
 ## Installation
 
 The package is WIP. It will, hopefully, be available on CRAN soon.  
-You can try to install it from GitHub, but as it's a WIP, it may or may not
-work depending on the tides, temperature, the color of your socks and what
+You can try to install it from GitHub, but as it's a WIP, it 
+[may or may not work](https://github.com/haganjam/InvTraitR/issues/27)
+depending on the tides, temperature, the color of your socks and what
 you had for dinner the day before yesterday.
 
-So, if you feel lucky, try:
+To date, we transitively depend on [terra](https://github.com/rspatial/terra),
+which may require additional installation steps (GDAL) on your OS. Please see the corresponding
+install section of their README first.
+
+Now, if you feel lucky, try:
 
 ```r
 install_github("haganjam/InvTraitR")
