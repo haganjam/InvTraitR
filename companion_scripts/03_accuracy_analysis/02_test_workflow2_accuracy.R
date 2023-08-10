@@ -1,4 +1,4 @@
-# test the method for calculating species biomasses
+# test the method for estimating biomass
 
 # load the relevant libraries
 library(dplyr)
@@ -36,7 +36,7 @@ dim(dat)
 
 output <-
   get_trait_from_taxon(
-    data = dat[sample(1:nrow(dat), 10),],
+    data = dat,
     target_taxon = "taxon",
     life_stage = "life_stage",
     body_size = "length_mm",
@@ -45,7 +45,7 @@ output <-
     workflow = "workflow2",
     trait = "equation",
     max_tax_dist = 3.5,
-    gen_sp_dist = 0.25
+    gen_sp_dist = 0.5
   )
 
 # extract the data
@@ -67,6 +67,9 @@ output <-
 # check how many unique taxa are left
 length(unique(output$taxon))
 nrow(output)
+
+# how many unique taxa were there?
+length(unique(dat$taxon))
 
 # make a author_year - taxon combination column
 output$group <- paste(output$reference, output$taxon, sep = "_")
@@ -126,7 +129,7 @@ output <-
 # compare error percentages
 x <- output[!is.na(output$order_dry_biomass_mg), ]
 x <- 
-  tibble(method = c(rep("FreshInvTraitR", nrow(x)), rep("Order", nrow(x))),
+  tibble(method = c(rep("InvTraitR", nrow(x)), rep("Order", nrow(x))),
          abs_error_perc = c(x$abs_error_perc, x$abs_error_perc_order))
 
 ggplot(data = x,
@@ -196,7 +199,7 @@ p1 <-
         legend.spacing.y = unit(0.1, 'mm'))
 plot(p1)
 
-ggsave(filename = "figures/fig_5.png", p1, dpi = 400,
+ggsave(filename = "figures/fig_5.svg", p1,
        units = "cm", width = 18, height = 19)
 
 # observed correlation
@@ -227,8 +230,11 @@ output2 <-
     workflow = "workflow2",
     trait = "equation",
     max_tax_dist = 3.5,
-    gen_sp_dist = 0.25
+    gen_sp_dist = 0.5
   )
+
+# extract the relevant output
+output2 <- output2$data
 
 # get proportion of names for which we do not have equations for
 output2 |>
@@ -271,6 +277,10 @@ output2 <-
 cor_point <- cor(log10(output2$obs_dry_biomass_mg), log10(output2$dry_biomass_mg))
 cor_point <- round(cor_point, 2)
 
+# change Dolmans 2022 to Dolmans unpublished
+output2$reference <- factor(output2$reference)
+levels(output2$reference) <- c("Dolmans (unpublished)", "O'Gorman (2017)")
+
 p2 <-
   ggplot() +
   geom_abline(
@@ -300,8 +310,8 @@ p2 <-
         legend.key = element_rect(fill = NA))
 plot(p2)
 
-ggsave(filename = "figures/fig_S3.png", p2, dpi = 400,
-       units = "cm", width = 13, height = 9)
+ggsave(filename = "figures/fig_S2.svg", p2, dpi = 400,
+       units = "cm", width = 13.5, height = 9)
 
 cor.test(log10(output2$obs_dry_biomass_mg), log10(output2$dry_biomass_mg))
 
