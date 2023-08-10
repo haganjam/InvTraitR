@@ -97,11 +97,11 @@ The metadata for the reference database is:
 
 + title [chr] - title of the publication
 
-+ location_description - description of the place in the publication where the equation was found
++ location_description [chr] - description of the place in the publication where the equation was found
 
-+ doi_url - doi or url of the publication
++ doi_url [chr] - doi or url of the publication
 
-+ notes - additional notes on the publication that are relevant to how the equation data were gathered
++ notes [chr] - additional notes on the publication that are relevant to how the equation data were gathered
 
 ### Geographic/habitat similarity database
 
@@ -148,5 +148,32 @@ pre_dat <- readRDS(url("https://raw.githubusercontent.com/haganjam/InvTraitR/mai
 print(pre_dat)
 ```
 
+The metadata for the preservation correction database is:
 
++ correction_factor_id [chr] - unique numerical id for each preservation correction factor used (id corresponds to the variable in the equation database with the same name)
 
++ first_author [chr] - first author of the publication
+
++ year [num] - publication year
+
++ journal [chr] - journal in which the publication was published
+
++ title [chr] - title of the publication
+
++ location_description [chr] - description of the place in the publication where the equation was found
+
++ preservation [chr] - method used to preserve the specimens that were used to generate the equation: "none" - no preservation, "ethanol" - preserved in ethanol and "formaldehyde" - preserved in formaldehyde
+
++ percentage [num] - if the specimens were preserved in ethanol or formaldehyde, this provides the concentration of the preservation material
+
++ order [chr] - order of the taxon
+
++ taxon [chr] - taxon name
+
++ rank [chr] - taxon rank
+
++ correction_percentage [num] - the percentage to increase the dry biomass by to remove the effects of preservation
+
++ doi_url [chr] - doi or url of the publication
+
++ notes [chr] - additional notes on the publication that are relevant to data were gathered
