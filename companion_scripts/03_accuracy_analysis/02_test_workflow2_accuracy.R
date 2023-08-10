@@ -204,7 +204,6 @@ ggsave(filename = "figures/fig_5.svg", p1,
 
 # observed correlation
 cor.test(log10(output$obs_dry_biomass_mg), log10(output$dry_biomass_mg))
-cor.test(log10(output$obs_dry_biomass_mg), log10(output$order_dry_biomass_mg))
 
 
 # test 2: comparison with equations selected by expert
