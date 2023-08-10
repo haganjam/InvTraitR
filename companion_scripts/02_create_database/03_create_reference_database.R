@@ -6,7 +6,6 @@
 #' 
 
 # load relevant libraries
-library(dplyr)
 library(readxl)
 
 # load the reference list

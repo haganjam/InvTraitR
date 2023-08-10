@@ -1,0 +1,152 @@
+---
+title: "View database"
+author: "James G. Hagan"
+date: "`r Sys.Date()`"
+vignette: "%\\VignetteIndexEntry{View database} %\\VignetteEngine{knitr::rmarkdown}
+  %\\VignetteEncoding{UTF-8}\n"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+### Equation database
+
+The code below loads the equation database so that users can simply browse the database and examine where the raw data comes from.
+
+```{r}
+equ_dat <- readRDS(url("https://raw.githubusercontent.com/haganjam/InvTraitR/main/database/equation_database.rds"))
+print(equ_dat)
+```
+
+The metadata for the equation database is:
+
++ db_taxon [chr] - taxon name associated with the equation in the equation database from the original publication
+
++ db_life_stage [chr] - life-stage of the db_taxon according to the life-stage classification used in *InvTraitR* (see Hagan et al. for details)
+
++ equation_id [num] - unique numerical id for each equation in the database
+
++ preservation [chr] - method used to preserve the specimens that were used to generate the equation: "none" - no preservation, "ethanol" - preserved in ethanol and "formaldehyde" - preserved in formaldehyde
+
++ preservation_percentage [num] - if the specimens were preserved in ethanol or formaldehyde, this provides the concentration of the preservation material
+
++ correction_percentage [num] - preliminary percentage correction for the preservation method (currently not implemented in *InvTraitR*)
+
++ correction_factor_id [chr] - unique numerical id for each preservation correction factor used (see section *Preservation correction database* below)
+
++ body_size_meas [chr] - linear body size dimension that the equation was developed for to the classification used in *InvTraitR* (see Hagan et al. for details)
+
++ body_size_unit [chr] - unit of measurement of the linear body size dimension
+
++ body_size_min [num] - minimum body size that the equation was developed for
+
++ body_size_max [num] - maximum body size that the equation was developed for
+
++ equation_form [chr] - the database supports two types of equation: "model1" - the log-log linear equation and "model2" - non-linear equation. See documentation for details of these models
+
++ log_base [num] - base of log for "model1" equations
+
++ a [num] - a parameter for the "model1" and "model2" equations. See documentation for details of these models
+
++ b [num] - b parameter for the "model1" and "model2" equations. See documentation for details of these models
+
++ dry_biomass_scale [num] - multiplier to convert the equation output to mg
+
++ dry_biomass_min [num] - minimum dry biomass that the equation was developed with
+
++ dry_biomass_max [num] - maximum dry biomass that the equation was developed with
+
++ dry_biomass_unit [chr] - unit of measurement of dry biomass used in the equation
+
++ RMS [num] - residual mean square of the equation
+
++ n [num] - sample size
+
++ r2 [num] - coefficient of determination
+
++ lm_corrrection [num] - corrections for "model1" equations to remove the bias associated with back-transforming predictions made on the log-log scale to the natural scale. See documentation for details.
+
++ lm_correction_type [chr] - the specific correction factor used for "model1" equations which are based on the availability of information like the mean squared errors from the original papers. See documentation for details.
+
++ lm_reference [chr] - first author and year of the publication from which the formula for the correction factor was obtained
+
++ reference [num] - unique numerical id of the publication from which the equation was obtained. Full details of each publication are provided as a separate database (see section *Reference database* below)
+
+### Reference database
+
+The code below loads the reference database which contains the full citation of the publications from the equations were gathered to generate the database.
+
+```{r}
+ref_dat <- readRDS(url("https://raw.githubusercontent.com/haganjam/InvTraitR/main/database/reference_database.rds"))
+print(ref_dat)
+```
+
+The metadata for the reference database is:
+
++ reference_id [num] - unique numerical id of the publication from which the equation was obtained. This numerical id matches with numeric id in equation database.
+
++ first_author [chr] - first author of the publication
+
++ year [num] - publication year
+
++ journal [chr] - journal in which the publication was published
+
++ title [chr] - title of the publication
+
++ location_description - description of the place in the publication where the equation was found
+
++ doi_url - doi or url of the publication
+
++ notes - additional notes on the publication that are relevant to how the equation data were gathered
+
+### Geographic/habitat similarity database
+
+The code below loads the database that holds the biogeographical realm, major habitat type and ecoregion data for each equation in the equation database derived based on the coordinates associated with the equation and Abell et al.'s (2008) freshwater ecoregion map (www.feow.org).
+
+```{r}
+eco_dat <- readRDS(url("https://raw.githubusercontent.com/haganjam/InvTraitR/main/database/freshwater_ecoregion_data.rds"))
+print(eco_dat)
+```
+
+The metadata for the geographic/habitat similarity data is:
+
++ database [chr] - describes the data type which, in this case, is the equation database. Future version of *InvTraitR* may, however, incorporate other trait databases.
+
++ id [num] - unique numerical id associated with the equation in the database
+
++ accuracy [chr] - whether the coordinates associated with the equation are exact (i.e. describe the exact spot that specimens were collected to generate the equation) or approximate (i.e. describe the rough area where the specimens were collected to generate the equation)
+
++ lat_dd [chr] - latitude in decimal degrees (WGS84)
+
++ lon_dd [chr] - longitude in decimal degrees (WGS84)
+
++ habitat_id - numerical id of the ecoregion from Abell et al.'s (2008) freshwater ecoregion map (www.feow.org)
+
++ area_km2 [num] - area ($km^2$) of the ecoregion
+
++ realm [chr] - biogeographical realm in which the coordinates are located (Afrotropic, Australasia, Indo-Malay, Nearctic, Neotropic, Oceania, Palearctic)
+
++ major_habitat_type [chr] - description of the general freshwater habitat type at the location of the coordinates (see Abell et al. 2008 and www.feow.org for details)
+
++ ecoregion [chr] - ecoregion at location of the coordinates (see Abell et al. 2008 and www.feow.org for details)
+
+
+### Preservation correction database
+
+In the equation database, we provide correction factors for the equations that were generated using preserved specimens. Several papers have shown that generating length-biomass equations on preserved specimens can lead to biased estimates of dry biomass because specimens often lose weight during preservation.
+
+We have compiled a database of correction factors and included suggested correction factors in the equation database. These are, however, not currently incorporated in *InvTraitR* but may be in a future version.
+
+The code below loads the preservation correction database so that users can see where the suggested correction factors in the equation database come from.
+
+```{r}
+pre_dat <- readRDS(url("https://raw.githubusercontent.com/haganjam/InvTraitR/main/database/preservation_correction_database.rds"))
+print(pre_dat)
+```
+
+
+

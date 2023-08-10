@@ -2,10 +2,8 @@
 title: "Detailed description of the output"
 author: "James G. Hagan"
 date: "`r Sys.Date()`"
-vignette: >
-  %\VignetteIndexEntry{Detailed description of the output}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+vignette: "%\\VignetteIndexEntry{Detailed description of the output} %\\VignetteEngine{knitr::rmarkdown}
+  %\\VignetteEncoding{UTF-8}\n"
 ---
 
 ```{r, include = FALSE}
@@ -15,8 +13,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-The *InvTraitR* R-package exports a single function called *get_trait_from_taxon()*. 
+### Overview
 
+The *InvTraitR* R-package exports a single function called *get_trait_from_taxon()*. 
 ```{r eval=FALSE}
 get_trait_from_taxon(
     data,                   # data.frame with at least five columns: target taxon, life stage, latitude (dd), longitude (dd) and body size (mm) if trait == "equation"
@@ -34,7 +33,8 @@ get_trait_from_taxon(
 
 This generates a relatively complex output and this vignette gives a detailed description of the different outputs. The output of *get_trait_from_taxon()* is a list with two data.frames as named elements: "data" and "decision_data". We start with the columns in the "data" element:
 
-*workflow1* and *workflow2*
+
+### *workflow1* and *workflow2*
 
 + row [int] - variable specifying the row number from the original, input data.frame
 
@@ -92,7 +92,7 @@ This generates a relatively complex output and this vignette gives a detailed de
 
 + equation_form [chr] - the database supports two types of equation: "model1" - the log-log linear equation and "model2" - non-linear equation. See documentation for details of these models
 
-+ log_base [num] - base of log for model1 equations
++ log_base [num] - base of log for "model1" equations
 
 + a [num] - a parameter for the "model1" and "model2" equations. See documentation for details of these models
 
@@ -104,7 +104,8 @@ lm_correction_type [chr] - the specific correction factor used for "model1" equa
 
 dry_biomass_scale [num] - multiplier to convert the equation output to mg
 
-*workflow2*:
+
+### *workflow2*:
 
 dry_biomass_mg [num] - dry biomass (mg) derived for the body size given in the original, input data using the chosen equation
 
