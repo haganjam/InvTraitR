@@ -110,3 +110,4 @@ saveRDS(hab, file = paste("database", "/", "freshwater_ecoregion_data.rds", sep 
 # save the habitat map as .rds file as well
 saveRDS(fw, file = paste("database", "/", "freshwater_ecoregion_map.rds", sep = ""))
 
+### END
